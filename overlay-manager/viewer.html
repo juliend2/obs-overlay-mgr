@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>overlay</title>
+<style>
+  html, body {
+    margin: 0;
+    padding: 0;
+    background: transparent;
+  }
+</style>
+</head>
+<body>
+<div id="overlay"></div>
+<script>
+async function loadOverlay() {
+  const res = await fetch('/overlay.html', { cache: 'no-store' });
+  document.getElementById('overlay').innerHTML = await res.text();
+}
+
+function connect() {
+  const proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
+  const ws = new WebSocket(proto + location.host + '/ws');
+  ws.onmessage = (ev) => {
+    if (ev.data === 'reload') loadOverlay();
+  };
+  ws.onclose = () => setTimeout(connect, 2000);
+  ws.onerror = () => ws.close();
+}
+
+loadOverlay();
+connect();
+</script>
+</body>
+</html>

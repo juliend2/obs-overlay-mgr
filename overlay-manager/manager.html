@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>overlay-manager</title>
+<style>
+  body { font-family: sans-serif; max-width: 640px; margin: 2rem auto; }
+  textarea { width: 100%; height: 320px; font-family: monospace; font-size: 14px; box-sizing: border-box; }
+  button { margin-top: 0.5rem; padding: 0.5rem 1rem; font-size: 14px; }
+  #status { margin-left: 1rem; color: #666; }
+</style>
+</head>
+<body>
+<h1>overlay-manager</h1>
+<textarea id="editor" spellcheck="false"></textarea><br>
+<button id="save">Save &amp; push</button><span id="status"></span>
+
+<script>
+async function load() {
+  const res = await fetch('/overlay.html', { cache: 'no-store' });
+  document.getElementById('editor').value = await res.text();
+}
+
+document.getElementById('save').addEventListener('click', async () => {
+  const status = document.getElementById('status');
+  status.textContent = 'Saving...';
+  try {
+    const res = await fetch('/save', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ html: document.getElementById('editor').value }),
+    });
+    status.textContent = res.ok ? 'Saved' : 'Error saving';
+  } catch {
+    status.textContent = 'Error saving';
+  }
+  setTimeout(() => { status.textContent = ''; }, 2000);
+});
+
+load();
+</script>
+</body>
+</html>

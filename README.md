@@ -2,6 +2,13 @@
 
 Web-based overlay manager for OBS.
 
+## `overlay-manager/` — edit an OBS overlay live
+
+Edit the text/HTML shown in an OBS Browser Source and have it update without
+touching OBS. One dependency-free Node process serves the viewer OBS points
+at, a manager page you edit from, and a WebSocket that pushes updates. See
+`overlay-manager/README.md`.
+
 ## `testfeed/` — synthetic video sources for testing
 
 Overlays need something moving underneath them. `testfeed/` generates test video
