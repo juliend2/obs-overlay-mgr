@@ -14,13 +14,26 @@ One Node process, no dependencies, no build step:
 
 ### Quick start
 
-```bash
-sudo apt install nodejs   # only if `node -v` fails
+Needs Node (any recent version — built with v26, but nothing here needs a
+specific one). If `node -v` fails, install it either via nvm:
 
-cd overlay-manager && ./start.sh
+```bash
+curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.40.1/install.sh | bash
+nvm install --lts
+```
+
+or via apt:
+
+```bash
+sudo apt install nodejs
 ```
 
 Then:
+
+```bash
+cd overlay-manager && ./start.sh
+```
+
 1. Open http://127.0.0.1:8081/manager , edit the text, click **Save & push**.
 2. In OBS: **+ → Browser Source → Create new**, URL `http://127.0.0.1:8081/`,
    check **Shutdown source when not visible** *off* (so the WebSocket stays
@@ -51,3 +64,11 @@ close frames) are just drained and ignored.
 **The viewer reconnects on its own.** If `server.js` restarts, `viewer.html`
 retries the WebSocket every 2s, so you don't have to touch the Browser Source
 in OBS afterwards.
+
+**Port 8081**, not 8000, so it doesn't collide with `testfeed/`'s PHP dev
+server if you're running both at once.
+
+Verified end-to-end: `GET /`, `/manager`, `/overlay.html`, a `POST /save`,
+and — via a throwaway raw-socket test client speaking the handshake and
+frame format by hand — that a connected viewer actually receives the
+`reload` frame after a save.
