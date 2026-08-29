@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>test feed — mjpeg over http</title>
+<style>
+  html,body { margin:0; background:#111; color:#ccc; font:13px/1.4 monospace; }
+  .wrap { padding:16px; }
+  img { display:block; width:640px; height:360px; background:#000; }
+  p { color:#888; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <img id="feed" src="http://127.0.0.1:8090/feed.mjpg" alt="waiting for ffmpeg on :8090">
+  <p>ffmpeg -&gt; multipart/x-mixed-replace, consumed natively by &lt;img&gt;. Run ./feed.sh first.</p>
+</div>
+<script>
+// ffmpeg's -listen 1 drops the socket when the client goes away; retry so the
+// page recovers on its own after a restart.
+const img = document.getElementById('feed');
+const url = img.src;
+img.onerror = () => setTimeout(() => { img.src = url + '?r=' + Date.now(); }, 1000);
+</script>
+</body>
+</html>

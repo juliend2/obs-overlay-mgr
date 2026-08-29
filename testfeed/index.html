@@ -1,0 +1,83 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>test feed — canvas</title>
+<style>
+  html,body { margin:0; background:#111; color:#ccc; font:13px/1.4 monospace; }
+  .wrap { display:flex; flex-wrap:wrap; gap:16px; padding:16px; }
+  figure { margin:0; }
+  figcaption { padding:6px 0; color:#888; }
+  canvas, video { display:block; width:640px; height:360px; background:#000; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <figure>
+    <canvas id="src" width="1280" height="720"></canvas>
+    <figcaption>&lt;canvas&gt; — the generator</figcaption>
+  </figure>
+  <figure>
+    <video id="out" autoplay muted playsinline></video>
+    <figcaption>&lt;video&gt; — fed by canvas.captureStream(30), a real MediaStream</figcaption>
+  </figure>
+</div>
+
+<script>
+const cv  = document.getElementById('src');
+const ctx = cv.getContext('2d');
+const W = cv.width, H = cv.height;
+
+// bouncing shapes
+const balls = Array.from({length: 14}, (_, i) => ({
+  x: Math.random()*W, y: Math.random()*H,
+  vx: (Math.random()-0.5)*8, vy: (Math.random()-0.5)*8,
+  r: 20 + Math.random()*45,
+  h: (i*360/14)|0
+}));
+
+let frame = 0;
+const t0 = performance.now();
+
+function draw(now) {
+  const t = (now - t0) / 1000;
+
+  // drifting gradient background so every pixel is moving
+  const g = ctx.createLinearGradient(
+    W/2 + Math.cos(t*0.35)*W/2, H/2 + Math.sin(t*0.27)*H/2,
+    W/2 - Math.cos(t*0.35)*W/2, H/2 - Math.sin(t*0.27)*H/2);
+  g.addColorStop(0, `hsl(${(t*22)%360} 65% 22%)`);
+  g.addColorStop(1, `hsl(${(t*22+140)%360} 65% 10%)`);
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, W, H);
+
+  for (const b of balls) {
+    b.x += b.vx; b.y += b.vy;
+    if (b.x < b.r || b.x > W-b.r) { b.vx *= -1; b.x = Math.max(b.r, Math.min(W-b.r, b.x)); }
+    if (b.y < b.r || b.y > H-b.r) { b.vy *= -1; b.y = Math.max(b.r, Math.min(H-b.r, b.y)); }
+    ctx.beginPath();
+    ctx.arc(b.x, b.y, b.r, 0, Math.PI*2);
+    ctx.fillStyle = `hsl(${(b.h + t*40)%360} 80% 60%)`;
+    ctx.fill();
+  }
+
+  // timecode + frame counter — proof it is live, not a still
+  frame++;
+  const s = t % 60, m = (t/60|0) % 60;
+  ctx.font = 'bold 64px monospace';
+  ctx.fillStyle = '#fff';
+  ctx.strokeStyle = '#000';
+  ctx.lineWidth = 6;
+  const label = `${String(m).padStart(2,'0')}:${s.toFixed(2).padStart(5,'0')}  f${frame}`;
+  ctx.strokeText(label, 40, H - 48);
+  ctx.fillText(label, 40, H - 48);
+
+  requestAnimationFrame(draw);
+}
+requestAnimationFrame(draw);
+
+// turn the canvas into an actual video stream
+document.getElementById('out').srcObject = cv.captureStream(30);
+</script>
+</body>
+</html>

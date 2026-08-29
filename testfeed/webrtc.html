@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>test feed — webrtc / whep</title>
+<style>
+  html,body { margin:0; background:#111; color:#ccc; font:13px/1.4 monospace; }
+  .wrap { padding:16px; }
+  video { display:block; width:854px; max-width:100%; background:#000; }
+  #status { padding:8px 0; color:#888; }
+  #status.ok  { color:#6c6; }
+  #status.err { color:#e66; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <video id="v" autoplay muted playsinline controls></video>
+  <div id="status">connecting…</div>
+</div>
+
+<script>
+// Path comes from ?path=... and must exist in mediamtx.yml (test, mandelbrot).
+const path = new URLSearchParams(location.search).get('path') || 'test';
+const WHEP = `http://${location.hostname}:8889/${path}/whep`;
+
+const video  = document.getElementById('v');
+const status = document.getElementById('status');
+const say = (msg, cls = '') => { status.textContent = msg; status.className = cls; };
+
+let pc, retry;
+
+async function connect() {
+  clearTimeout(retry);
+  if (pc) { pc.close(); pc = null; }
+
+  pc = new RTCPeerConnection();
+  // Video only — the test paths publish no audio track. Note that Firefox
+  // offers just VP8/VP9 here, so mediamtx must publish VP8 (see mediamtx.yml).
+  pc.addTransceiver('video', { direction: 'recvonly' });
+  pc.ontrack = e => { video.srcObject = e.streams[0]; };
+
+  pc.onconnectionstatechange = () => {
+    if (pc.connectionState === 'connected') say(`live · ${path} · webrtc`, 'ok');
+    // ffmpeg is spawned on demand, so the first connect can lose a race; retry.
+    if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+      say('connection lost, retrying…', 'err');
+      retry = setTimeout(connect, 2000);
+    }
+  };
+
+  await pc.setLocalDescription(await pc.createOffer());
+
+  // MediaMTX accepts a non-trickle offer, so wait for ICE gathering to finish
+  // rather than implementing the PATCH-based trickle flow.
+  if (pc.iceGatheringState !== 'complete') {
+    await new Promise(res => {
+      const check = () => {
+        if (pc.iceGatheringState === 'complete') {
+          pc.removeEventListener('icegatheringstatechange', check);
+          res();
+        }
+      };
+      pc.addEventListener('icegatheringstatechange', check);
+      setTimeout(res, 1500); // don't hang forever on a stuck candidate
+    });
+  }
+
+  try {
+    const res = await fetch(WHEP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/sdp' },
+      body: pc.localDescription.sdp
+    });
+    if (!res.ok) throw new Error(`WHEP ${res.status} ${res.statusText} — ${(await res.text()).trim()}`);
+    await pc.setRemoteDescription({ type: 'answer', sdp: await res.text() });
+  } catch (err) {
+    say(`${err.message}`, 'err');
+    retry = setTimeout(connect, 2000);
+  }
+}
+
+connect();
+</script>
+</body>
+</html>
