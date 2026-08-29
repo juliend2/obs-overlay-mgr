@@ -65,8 +65,8 @@ close frames) are just drained and ignored.
 retries the WebSocket every 2s, so you don't have to touch the Browser Source
 in OBS afterwards.
 
-**Port 8081**, not 8000, so it doesn't collide with `testfeed/`'s PHP dev
-server if you're running both at once.
+**Port 8081**, not 8000, so it doesn't collide with `testfeed/`'s dev server
+if you're running both at once.
 
 Verified end-to-end: `GET /`, `/manager`, `/overlay.html`, a `POST /save`,
 and — via a throwaway raw-socket test client speaking the handshake and
