@@ -16,9 +16,12 @@ moq: false
 # ffmpeg publishes here
 rtsp: true
 rtspAddress: :8554
-# TCP only: avoids opening UDP :8000/:8001, which collide numerically with the
-# PHP dev server and are pointless for a loopback publisher.
-rtspTransports: [tcp]
+# UDP is kept enabled so RTSP readers (OBS's Media Source) connect without a
+# "461 Unsupported Transport" round-trip. The default RTP ports are :8000/:8001,
+# which collide numerically with the PHP dev server, so move them out of the way.
+rtspTransports: [udp, tcp]
+rtpAddress: :8100
+rtcpAddress: :8101
 
 # browser plays from here (WHEP)
 webrtc: true

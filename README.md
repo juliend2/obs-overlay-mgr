@@ -89,9 +89,10 @@ Two ways out, if 854x480 isn't enough:
 ## Notes
 
 **MediaMTX config is trimmed.** RTMP, SRT, HLS, MoQ, API and metrics are off.
-`rtspTransports: [tcp]` is set deliberately: the default opens UDP :8000/:8001,
-which collides numerically with the PHP dev server. Different protocol, so not a
-real conflict, but confusing when reading `ss` output.
+RTSP keeps both UDP and TCP transports, because an RTSP reader that defaults to
+UDP (OBS's Media Source) otherwise gets `461 Unsupported Transport` and has to
+retry over TCP. The default RTP ports are :8000/:8001, which collide numerically
+with the PHP dev server, so they're moved to :8100/:8101.
 
 **ffmpeg only runs while someone is watching.** Each path uses `runOnDemand`, so
 the encoder spawns on the first viewer and is killed 10s after the last one
@@ -103,6 +104,42 @@ no browser renders in an `<img>`. Hence `-content_type
 'multipart/x-mixed-replace;boundary=ffmpeg'` in `feed.sh`. Also, `-listen 1`
 serves one client and exits when it disconnects — that's why the script loops,
 and why nothing is bound to :8090 while a viewer is connected.
+
+## Using it in OBS
+
+OBS is not in this repo's dependencies; install it first:
+
+```bash
+flatpak install flathub com.obsproject.Studio
+```
+
+**Media Source over RTSP** is the way in. OBS's Media Source is ffmpeg-based and
+decodes H.264 natively, so the Firefox codec limitation above does not apply —
+use the full-resolution `h264` path, not the downscaled VP8 ones.
+
+1. **+ → Media Source → Create new**
+2. Uncheck **Local File**
+3. **Input:** `rtsp://127.0.0.1:8554/h264`
+4. **Input Format:** leave empty
+5. Check **Restart playback when source becomes active**
+6. Drop **Network Buffering** to the minimum for lower latency
+
+MediaMTX spawns the encoder on demand, so the feed starts when OBS activates the
+source and stops ~10s after it goes inactive.
+
+**Browser Source** works too, for the canvas page or the WebRTC player — point it
+at `http://127.0.0.1:8000/` or `.../webrtc.html`. Use this when you want to test
+the overlay markup itself rather than just a moving backdrop.
+
+### Performance
+
+Encoding 720p H.264 and running OBS on a 2-core N3000 is tight, and OBS's own
+output encoder will also be x264 — `h264_vaapi` aborts on this iGPU
+(`i965_encoder.c: assertion 'encoder_context->mfc_context' failed`), so there is
+no hardware encode path. Measured x264 720p30 throughput swings between 3.3x and
+1.5x realtime purely with background load, and this box idles at a load average
+near 6 with k3s running. If OBS drops frames, use `?path=smooth` (640x360) or
+free up CPU first.
 
 ## What this does *not* do
 
