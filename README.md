@@ -34,8 +34,7 @@ curl -sSL https://github.com/bluenviron/mediamtx/releases/download/v1.20.1/media
 cd testfeed && ./start.sh
 ```
 
-Then open http://127.0.0.1:8000/webrtc.html . `start.sh` runs MediaMTX and the
-PHP dev server together and stops both on ctrl-c.
+Then open http://127.0.0.1:8000/webrtc.html . `start.sh` runs MediaMTX.
 
 ### Paths
 
@@ -53,7 +52,7 @@ Add your own in `testfeed/mediamtx.yml`. Any ffmpeg `lavfi` source works:
 
 | Port      |                                   |
 |-----------|-----------------------------------|
-| 8000/tcp  | PHP dev server                    |
+| 8081/tcp  | Node app                          |
 | 8554/tcp  | RTSP ingest (ffmpeg → MediaMTX)   |
 | 8889/tcp  | WebRTC / WHEP playback            |
 | 8189/udp  | WebRTC ICE                        |
@@ -98,8 +97,7 @@ Two ways out, if 854x480 isn't enough:
 **MediaMTX config is trimmed.** RTMP, SRT, HLS, MoQ, API and metrics are off.
 RTSP keeps both UDP and TCP transports, because an RTSP reader that defaults to
 UDP (OBS's Media Source) otherwise gets `461 Unsupported Transport` and has to
-retry over TCP. The default RTP ports are :8000/:8001, which collide numerically
-with the PHP dev server, so they're moved to :8100/:8101.
+retry over TCP. The default RTP ports are moved to :8100/:8101.
 
 **ffmpeg only runs while someone is watching.** Each path uses `runOnDemand`, so
 the encoder spawns on the first viewer and is killed 10s after the last one

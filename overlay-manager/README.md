@@ -39,13 +39,16 @@ cd overlay-manager && ./start.sh
    check **Shutdown source when not visible** *off* (so the WebSocket stays
    connected between scene switches), width/height to taste.
 
+To see a preview with the video, see: http://localhost:8081/?mode=preview
+(TODO: make it show the actual video instead of the test)
+
 ### Files
 
-| File          | Role                                                             |
+| File          | Role                                                              |
 |---------------|-------------------------------------------------------------------|
-| `server.js`   | HTTP + WebSocket server (hand-rolled WS, no `ws` package needed) |
-| `viewer.html` | What OBS loads — transparent background, listens for `reload`   |
-| `manager.html`| Textarea + save button                                          |
+| `server.js`   | HTTP + WebSocket server (hand-rolled WS, no `ws` package needed)  |
+| `viewer.html` | What OBS loads — transparent background, listens for `reload`     |
+| `manager.html`| Textarea + save button                                            |
 | `overlay.html`| The content itself — an HTML fragment, not a full page. This is what gets read/written; treat it as generated/scratch state, not source. |
 
 ### Notes
