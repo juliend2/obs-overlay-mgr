@@ -18,6 +18,12 @@
   <div id="status">connecting…</div>
 </div>
 
+<!--
+URLs:
+- Show the Video under the Overlay: http://localhost:8081/?mode=preview
+- Show only the Overlay (for OBS Browser Source): http://localhost:8081/
+-->
+
 <script>
 // Path comes from ?path=... and must exist in mediamtx.yml (test, mandelbrot).
 const path = new URLSearchParams(location.search).get('path') || 'test';
