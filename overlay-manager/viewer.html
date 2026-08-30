@@ -59,13 +59,28 @@ connect();
 
 <!-- VIDEO -->
 <script>
+const params = new URLSearchParams(location.search);
+const isPreview = params.get('mode') === 'preview';
+
 // Path comes from ?path=... and must exist in mediamtx.yml (test, mandelbrot).
-const path = new URLSearchParams(location.search).get('path') || 'test';
+const path = params.get('path') || 'test';
 const WHEP = `http://${location.hostname}:8889/${path}/whep`;
 
-const video  = document.getElementById('v');
+const video = document.getElementById('v');
 const status = document.getElementById('status');
-const say = (msg, cls = '') => { status.textContent = msg; status.className = cls; };
+const say = (msg, cls = '') => {
+  if (!status) return;
+  status.textContent = msg;
+  status.className = cls;
+};
+
+if (!isPreview) {
+  video.style.display = 'none';
+  video.removeAttribute('src');
+  video.load();
+} else {
+  video.style.display = 'block';
+}
 
 let pc, retry;
 
@@ -119,7 +134,9 @@ async function connectSDP() {
   }
 }
 
-connectSDP();
+if (isPreview) {
+  connectSDP();
+}
 </script>
 
 

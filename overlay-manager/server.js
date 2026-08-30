@@ -43,7 +43,7 @@ function broadcastReload() {
   }
 }
 
-function serveFile(res, filePath, contentType) {
+function serveFile(res, filePath, contentType, method = 'GET') {
   fs.readFile(filePath, (err, data) => {
     if (err) {
       res.writeHead(404);
@@ -51,21 +51,29 @@ function serveFile(res, filePath, contentType) {
       return;
     }
     res.writeHead(200, { 'Content-Type': contentType, 'Cache-Control': 'no-store' });
+    if (method === 'HEAD') {
+      res.end();
+      return;
+    }
     res.end(data);
   });
 }
 
 const server = http.createServer((req, res) => {
-  if (req.method === 'GET' && req.url === '/') {
-    return serveFile(res, path.join(DIR, 'viewer.html'), 'text/html');
+  const url = new URL(req.url, 'http://localhost');
+  const pathname = url.pathname;
+  const isRead = req.method === 'GET' || req.method === 'HEAD';
+
+  if (isRead && pathname === '/') {
+    return serveFile(res, path.join(DIR, 'viewer.html'), 'text/html', req.method);
   }
-  if (req.method === 'GET' && req.url === '/manager') {
-    return serveFile(res, path.join(DIR, 'manager.html'), 'text/html');
+  if (isRead && pathname === '/manager') {
+    return serveFile(res, path.join(DIR, 'manager.html'), 'text/html', req.method);
   }
-  if (req.method === 'GET' && req.url === '/overlay.html') {
-    return serveFile(res, OVERLAY_PATH, 'text/html');
+  if (isRead && pathname === '/overlay.html') {
+    return serveFile(res, OVERLAY_PATH, 'text/html', req.method);
   }
-  if (req.method === 'POST' && req.url === '/save') {
+  if (req.method === 'POST' && pathname === '/save') {
     let body = '';
     req.on('data', (chunk) => {
       body += chunk;
