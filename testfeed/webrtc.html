@@ -29,7 +29,7 @@ const say = (msg, cls = '') => { status.textContent = msg; status.className = cl
 
 let pc, retry;
 
-async function connect() {
+async function connectSDP() {
   clearTimeout(retry);
   if (pc) { pc.close(); pc = null; }
 
@@ -44,7 +44,7 @@ async function connect() {
     // ffmpeg is spawned on demand, so the first connect can lose a race; retry.
     if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
       say('connection lost, retrying…', 'err');
-      retry = setTimeout(connect, 2000);
+      retry = setTimeout(connectSDP, 2000);
     }
   };
 
@@ -75,11 +75,11 @@ async function connect() {
     await pc.setRemoteDescription({ type: 'answer', sdp: await res.text() });
   } catch (err) {
     say(`${err.message}`, 'err');
-    retry = setTimeout(connect, 2000);
+    retry = setTimeout(connectSDP, 2000);
   }
 }
 
-connect();
+connectSDP();
 </script>
 </body>
 </html>

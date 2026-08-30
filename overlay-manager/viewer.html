@@ -9,10 +9,34 @@
     padding: 0;
     background: transparent;
   }
+  #container {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+  #overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+  }
+  #v {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+  }
+
 </style>
 </head>
 <body>
-<div id="overlay"></div>
+  <div id="container">
+    <div id="overlay"></div>
+    <video id="v" autoplay muted playsinline controls></video>
+  </div>
+  
 <script>
 async function loadOverlay() {
   const res = await fetch('/overlay.html', { cache: 'no-store' });
@@ -32,5 +56,72 @@ function connect() {
 loadOverlay();
 connect();
 </script>
+
+<!-- VIDEO -->
+<script>
+// Path comes from ?path=... and must exist in mediamtx.yml (test, mandelbrot).
+const path = new URLSearchParams(location.search).get('path') || 'test';
+const WHEP = `http://${location.hostname}:8889/${path}/whep`;
+
+const video  = document.getElementById('v');
+const status = document.getElementById('status');
+const say = (msg, cls = '') => { status.textContent = msg; status.className = cls; };
+
+let pc, retry;
+
+async function connectSDP() {
+  clearTimeout(retry);
+  if (pc) { pc.close(); pc = null; }
+
+  pc = new RTCPeerConnection();
+  // Video only — the test paths publish no audio track. Note that Firefox
+  // offers just VP8/VP9 here, so mediamtx must publish VP8 (see mediamtx.yml).
+  pc.addTransceiver('video', { direction: 'recvonly' });
+  pc.ontrack = e => { video.srcObject = e.streams[0]; };
+
+  pc.onconnectionstatechange = () => {
+    if (pc.connectionState === 'connected') say(`live · ${path} · webrtc`, 'ok');
+    // ffmpeg is spawned on demand, so the first connect can lose a race; retry.
+    if (pc.connectionState === 'failed' || pc.connectionState === 'disconnected') {
+      say('connection lost, retrying…', 'err');
+      retry = setTimeout(connectSDP, 2000);
+    }
+  };
+
+  await pc.setLocalDescription(await pc.createOffer());
+
+  // MediaMTX accepts a non-trickle offer, so wait for ICE gathering to finish
+  // rather than implementing the PATCH-based trickle flow.
+  if (pc.iceGatheringState !== 'complete') {
+    await new Promise(res => {
+      const check = () => {
+        if (pc.iceGatheringState === 'complete') {
+          pc.removeEventListener('icegatheringstatechange', check);
+          res();
+        }
+      };
+      pc.addEventListener('icegatheringstatechange', check);
+      setTimeout(res, 1500); // don't hang forever on a stuck candidate
+    });
+  }
+
+  try {
+    const res = await fetch(WHEP, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/sdp' },
+      body: pc.localDescription.sdp
+    });
+    if (!res.ok) throw new Error(`WHEP ${res.status} ${res.statusText} — ${(await res.text()).trim()}`);
+    await pc.setRemoteDescription({ type: 'answer', sdp: await res.text() });
+  } catch (err) {
+    say(`${err.message}`, 'err');
+    retry = setTimeout(connectSDP, 2000);
+  }
+}
+
+connectSDP();
+</script>
+
+
 </body>
 </html>
