@@ -8,7 +8,7 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
-import { fileURLToPath } from 'url';
+import { fileURLToPath, pathToFileURL } from 'url';
 import * as ws from './websocket.js'
 import * as web from './web.js'
 
@@ -19,7 +19,7 @@ const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
 const clients = new Set();
 
-const server = http.createServer((req, res) => {
+export const server = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');
   const pathname = url.pathname;
   const isRead = req.method === 'GET' || req.method === 'HEAD';
@@ -91,12 +91,24 @@ server.on('upgrade', (req, socket, head) => {
   // Viewers never send us anything meaningful (no client->server messages
   // in this protocol), so incoming frames are just drained and ignored.
   socket.on('data', () => {});
+  // http.Server leaves hijacked upgrade sockets half-open (allowHalfOpen),
+  // so a client's FIN only emits 'end' — destroy here so 'close' fires and
+  // dead viewers don't linger in the clients set.
+  socket.on('end', () => socket.destroy());
   socket.on('close', () => clients.delete(socket));
-  socket.on('error', () => clients.delete(socket));
+  socket.on('error', () => {
+    clients.delete(socket);
+    socket.destroy();
+  });
 });
 
-server.listen(PORT, () => {
-  console.log(`overlay-manager listening on http://127.0.0.1:${PORT}`);
-  console.log(`  viewer:  http://127.0.0.1:${PORT}/         (put this in OBS Browser Source)`);
-  console.log(`  manager: http://127.0.0.1:${PORT}/manager  (edit the overlay here)`);
-});
+// Only auto-start when executed directly (`node server.js` / start.sh);
+// importing this module (e.g. from tests) starts nothing.
+const isMain = process.argv[1] && import.meta.url === pathToFileURL(process.argv[1]).href;
+if (isMain) {
+  server.listen(PORT, () => {
+    console.log(`overlay-manager listening on http://127.0.0.1:${PORT}`);
+    console.log(`  viewer:  http://127.0.0.1:${PORT}/         (put this in OBS Browser Source)`);
+    console.log(`  manager: http://127.0.0.1:${PORT}/manager  (edit the overlay here)`);
+  });
+}

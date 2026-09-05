@@ -42,6 +42,11 @@ curl -sSL https://github.com/bluenviron/mediamtx/releases/download/v1.20.1/media
     - set Network buffering to 0 MB
     - FFmpeg options: `rtsp_transport=tcp`
 
+## Running the tests
+
+```
+node --test overlay-manager/test/
+```
 
 ### Paths
 
