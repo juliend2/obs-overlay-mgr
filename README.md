@@ -12,7 +12,9 @@ at, a manager page you edit from, and a WebSocket that pushes updates. See
 ## `testfeed/` — synthetic video sources for testing
 
 Overlays need something moving underneath them. `testfeed/` generates test video
-locally so you don't need a camera or a live stream to work on the compositing.
+locally so you don't need a camera or a live stream to work on the compositing —
+or plug in an HDMI capture stick and feed one real signal to OBS and the browser
+at the same time (see `testfeed/README.md`).
 
 Three transports, in decreasing order of usefulness:
 
@@ -50,12 +52,14 @@ node --test overlay-manager/test/
 
 ### Paths
 
-| Path                    | Source       | Format                                                |
-|-------------------------|--------------|-------------------------------------------------------|
-| `?path=test` (default)  | `testsrc`    | VP8 854x480@25                                        |
-| `?path=smooth`          | `testsrc`    | VP8 640x360@30                                        |
-| `?path=mandelbrot`      | `mandelbrot` | VP8 854x480@25                                        |
-| `?path=h264`            | `testsrc`    | H.264 720p30 — **not playable in Firefox**, see below |
+| Path                    | Source            | Format                                                 |
+|-------------------------|-------------------|--------------------------------------------------------|
+| `?path=test` (default)  | `testsrc`         | VP8 854x480@25                                         |
+| `?path=smooth`          | `testsrc`         | VP8 640x360@30                                         |
+| `?path=mandelbrot`      | `mandelbrot`      | VP8 854x480@25                                         |
+| `?path=h264`            | `testsrc`         | H.264 720p30 — **not playable in Firefox**, see below  |
+| `?path=cam`             | HDMI capture card | H.264 720p30 — needs a stick plugged in, see `testfeed/README.md` |
+| `?path=cam-vp8`         | HDMI capture card | VP8 720p30 — Firefox's copy of the same card feed      |
 
 Add your own in `testfeed/mediamtx.yml`. Any ffmpeg `lavfi` source works:
 `testsrc`, `smptebars`, `mandelbrot`, `life`.

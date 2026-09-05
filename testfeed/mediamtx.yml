@@ -77,3 +77,31 @@ paths:
       -f rtsp rtsp://127.0.0.1:8554/$MTX_PATH
     runOnDemandRestart: true
     runOnDemandCloseAfter: 10s
+
+  # HDMI capture card (a UVC stick plugged into the machine shows up as
+  # /dev/video0; check with `v4l2-ctl --list-devices`, use the even-numbered
+  # device). One ffmpeg = the card's single allowed reader; it publishes two
+  # paths at once so OBS and the browser can watch simultaneously:
+  #   cam     → H.264 720p   → OBS Media Source (decodes H.264 natively)
+  #   cam-vp8 → VP8  720p    → webrtc.html in Firefox (rejects H.264, see above)
+  # OBS: Input rtsp://127.0.0.1:8554/cam, Network Buffering 0, rtsp_transport=tcp.
+  # Browser: http://127.0.0.1:8000/webrtc.html?path=cam-vp8
+  # No `-re` here: a capture device paces itself, unlike the lavfi test sources.
+  # runOnDemand hangs off `cam`, so the feed starts when OBS activates its
+  # source (or a Chromium viewer requests ?path=cam); a Firefox viewer on
+  # cam-vp8 just retries until the encoder is up.
+  cam:
+    runOnDemand: >
+      ffmpeg -hide_banner -loglevel error
+      -f v4l2 -framerate 30 -video_size 1280x720 -i /dev/video0
+      -map 0:v -c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline
+      -pix_fmt yuv420p -g 30
+      -f rtsp rtsp://127.0.0.1:8554/cam
+      -map 0:v -c:v libvpx -deadline realtime -cpu-used 16 -threads 2 -b:v 2M -g 30
+      -f rtsp rtsp://127.0.0.1:8554/cam-vp8
+    runOnDemandRestart: true
+    runOnDemandCloseAfter: 10s
+
+  # sink for the VP8 half of `cam` — no runOnDemand (that would spawn a second
+  # ffmpeg fighting for the card); it just receives cam's second output.
+  cam-vp8:
