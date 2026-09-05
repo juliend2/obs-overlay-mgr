@@ -36,7 +36,11 @@ curl -sSL https://github.com/bluenviron/mediamtx/releases/download/v1.20.1/media
 
 1. `cd testfeed && ./start.sh` (`start.sh` runs MediaMTX.)
 2. go to http://127.0.0.1:8000/webrtc.html
-
+3. then, in OBS, add a Source > Media > 
+    - uncheck "Local file"
+    - paste "rtsp://127.0.0.1:8554/h264" in the "Input" field
+    - set Network buffering to 0 MB
+    - FFmpeg options: `rtsp_transport=tcp`
 
 
 ### Paths
