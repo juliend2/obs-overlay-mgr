@@ -6,7 +6,7 @@
 <style>
   body { font-family: sans-serif; margin: 2rem auto; }
 
-  textarea { width: 100%; height: 320px; font-family: monospace; font-size: 14px; box-sizing: border-box; }
+  textarea { width: 100%; height: 320px; font-family: monospace; font-size: 14px; box-sizing: border-box; display: none; }
 
   button { margin-top: 0.5rem; padding: 0.5rem 1rem; font-size: 14px; }
 
@@ -26,7 +26,7 @@
     <div class="left">
       <h1>overlay-manager</h1>
       <textarea id="editor" spellcheck="false"></textarea><br>
-      <button id="save">Save &amp; push</button><span id="status"></span>
+      <button id="test">Test</button><span id="status"></span>
     </div>
     <div class="right">
       <iframe src="http://localhost:8081/"></iframe>
@@ -39,7 +39,7 @@ async function load() {
   document.getElementById('editor').value = await res.text();
 }
 
-document.getElementById('save').addEventListener('click', async () => {
+async function save() {
   const status = document.getElementById('status');
   status.textContent = 'Saving...';
   try {
@@ -53,6 +53,11 @@ document.getElementById('save').addEventListener('click', async () => {
     status.textContent = 'Error saving';
   }
   setTimeout(() => { status.textContent = ''; }, 2000);
+}
+
+document.getElementById('test').addEventListener('click', () => {
+  document.getElementById('editor').value = '<div style="background: rgba(255, 255, 255, 0.5); color: black;">test</div>';
+  save();
 });
 
 load();
