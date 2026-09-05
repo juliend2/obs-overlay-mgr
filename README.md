@@ -22,7 +22,7 @@ Three transports, in decreasing order of usefulness:
 | **Canvas** | `/`            | nothing           | n/a (rendered in-page) |
 | **MJPEG**  | `/mjpeg.html`  | ffmpeg            | ~1s, single viewer     |
 
-### Quick start
+## Dependencies
 
 ```bash
 sudo apt install ffmpeg
@@ -30,11 +30,14 @@ sudo apt install ffmpeg
 # MediaMTX is gitignored (53 MB) — fetch it once:
 curl -sSL https://github.com/bluenviron/mediamtx/releases/download/v1.20.1/mediamtx_v1.20.1_linux_amd64.tar.gz \
   | tar -xz -C testfeed mediamtx
-
-cd testfeed && ./start.sh
 ```
 
-Then open http://127.0.0.1:8000/webrtc.html . `start.sh` runs MediaMTX.
+## Running it
+
+1. `cd testfeed && ./start.sh` (`start.sh` runs MediaMTX.)
+2. go to http://127.0.0.1:8000/webrtc.html
+
+
 
 ### Paths
 
