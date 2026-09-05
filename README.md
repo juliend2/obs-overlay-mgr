@@ -65,10 +65,10 @@ Add your own in `testfeed/mediamtx.yml`. Any ffmpeg `lavfi` source works:
 | 8189/udp  | WebRTC ICE                        |
 | 8090/tcp  | MJPEG, only while `feed.sh` runs  |
 
-## Codec and hardware constraints
+## Codec constraints
 
-The VP8 / 854x480 defaults are not arbitrary — they're forced by a pincer
-between the browser and the CPU on the dev box.
+The VP8 / 854x480 defaults are not arbitrary — they're forced by what the
+browser will accept.
 
 **Firefox will not accept H.264 over WebRTC here.** Its SDP offer contains no
 H.264 payload type at all, only VP8/VP9/rtx/ulpfec/red. This holds even though
@@ -77,24 +77,17 @@ advertises `H264 42e01f`, but it never reaches the offer. Publishing H.264 gets
 you `closed: codecs not supported by client` from MediaMTX and a `400` in the
 browser.
 
-**The CPU is slow at the codec Firefox does accept.** On a 2-core Celeron N3000
-@ 1.04 GHz, measured libvpx VP8 realtime factors:
-
-| Resolution        | Realtime factor        |
-|-------------------|------------------------|
-| 1280x720@30       | 0.50x — cannot keep up |
-| 960x540@20        | 1.35x                  |
-| **854x480@25**    | **1.33x** ← default    |
-| 640x360@30        | 1.58x                  |
-
-Meanwhile H.264 encodes at 3.3x realtime in software, and the iGPU has VAAPI
-H.264 encode (but *not* VP8 — `vp8_vaapi` produces no packets). So the hardware
-is fast at exactly the codec the browser refuses.
+**Software VP8 encoding is the expensive half.** `libvpx` in realtime mode is
+the most costly step in this pipeline, and it scales steeply with resolution, so
+854x480@25 is a deliberately conservative default rather than a measured ceiling.
+If your machine keeps up, raise the resolution in `testfeed/mediamtx.yml`; if it
+drops frames, use `?path=smooth`. H.264 is substantially cheaper to encode than
+VP8 at the same resolution — but it's the codec the browser refuses.
 
 Two ways out, if 854x480 isn't enough:
 
-- **Install Chromium.** It accepts H.264, which unlocks 720p30 at ~30% CPU, or
-  near-free via VAAPI. Use `?path=h264`.
+- **Install Chromium.** It accepts H.264, so `?path=h264` gives you 720p30 at a
+  fraction of the encoding cost. Note that OBS doesn't need this — see below.
 - **Switch to HLS.** Firefox decodes H.264 fine in `<video>`/MSE — that path
   uses system decoders, not the OpenH264 GMP — so 720p becomes cheap. Costs
   ~2-6s latency instead of sub-second.
@@ -133,8 +126,11 @@ use the full-resolution `h264` path, not the downscaled VP8 ones.
 2. Uncheck **Local File**
 3. **Input:** `rtsp://127.0.0.1:8554/h264`
 4. **Input Format:** leave empty
-5. Check **Restart playback when source becomes active**
-6. Drop **Network Buffering** to the minimum for lower latency
+5. **Network Buffering:** `0` MB — **required**, not a tuning preference. At any
+   higher value OBS completes the RTSP handshake and then never reads from the
+   socket: the source stays 0x0 and renders black, with nothing logged as an
+   error. The stream is fine; only this setting is wrong.
+6. **FFmpeg Options:** `rtsp_transport=tcp`
 
 MediaMTX spawns the encoder on demand, so the feed starts when OBS activates the
 source and stops ~10s after it goes inactive.
@@ -145,13 +141,13 @@ the overlay markup itself rather than just a moving backdrop.
 
 ### Performance
 
-Encoding 720p H.264 and running OBS on a 2-core N3000 is tight, and OBS's own
-output encoder will also be x264 — `h264_vaapi` aborts on this iGPU
-(`i965_encoder.c: assertion 'encoder_context->mfc_context' failed`), so there is
-no hardware encode path. Measured x264 720p30 throughput swings between 3.3x and
-1.5x realtime purely with background load, and this box idles at a load average
-near 6 with k3s running. If OBS drops frames, use `?path=smooth` (640x360) or
-free up CPU first.
+The test feed's encoder and OBS's own output encoder compete for the same
+machine, so background load matters more than it looks: x264 throughput on the
+720p path varies by more than 2x purely with what else is running. If OBS drops
+frames, use `?path=smooth` (640x360) or free up capacity first.
+
+Note that a black source in OBS is almost never a performance problem — check
+**Network Buffering** first, per the steps above.
 
 ## What this does *not* do
 

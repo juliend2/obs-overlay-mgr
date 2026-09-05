@@ -21,6 +21,12 @@ cat <<MSG
   canvas  http://127.0.0.1:8000/
   mjpeg   http://127.0.0.1:8000/mjpeg.html           (needs ./feed.sh separately)
 
+  obs     + > Media Source > Create new, then:
+            Local File        unchecked
+            Input             rtsp://127.0.0.1:8554/h264     h264 1280x720@30
+            Network Buffering 0 MB   <- required, else the source renders black
+            FFmpeg Options    rtsp_transport=tcp
+
   ctrl-c to stop
 MSG
 

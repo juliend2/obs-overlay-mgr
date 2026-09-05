@@ -29,13 +29,11 @@ webrtcAddress: :8889
 webrtcLocalUDPAddress: :8189
 
 paths:
-  # Codec choice is forced by this machine:
-  #   * Firefox offers only VP8/VP9 in its WebRTC SDP (verified: no H.264 payload
-  #     type in the offer, even with the OpenH264 2.6.0 GMP installed).
-  #   * This CPU is a 2-core Celeron N3000 @1.04GHz. Measured libvpx VP8 realtime
-  #     factors: 1280x720@30 = 0.50x (cannot keep up), 854x480@25 = 1.33x,
-  #     640x360@30 = 1.58x.
-  # So: VP8 at 854x480@25 by default, which leaves ~33% headroom.
+  # Codec choice is forced by the browser: Firefox offers only VP8/VP9 in its
+  # WebRTC SDP (verified: no H.264 payload type in the offer, even with the
+  # OpenH264 2.6.0 GMP installed). So VP8 at 854x480@25 by default — software
+  # VP8 encoding is the costliest step here and it scales steeply with
+  # resolution, so this is a conservative default. Raise it if yours keeps up.
   # runOnDemand means ffmpeg only runs while a viewer is connected.
 
   test:
@@ -47,7 +45,7 @@ paths:
     runOnDemandRestart: true
     runOnDemandCloseAfter: 10s
 
-  # smoother motion, lower resolution — most headroom on this CPU
+  # smoother motion, lower resolution — the cheapest path to encode
   smooth:
     runOnDemand: >
       ffmpeg -hide_banner -loglevel error
@@ -66,8 +64,10 @@ paths:
     runOnDemandRestart: true
     runOnDemandCloseAfter: 10s
 
-  # H.264 720p is only 3.3x realtime to encode here (and free via VAAPI), but
-  # Firefox will reject it. Usable if you ever install Chromium.
+  # H.264 720p. Firefox will reject this over WebRTC, but it is the path to use
+  # for OBS's Media Source (which is ffmpeg-based and decodes H.264 natively),
+  # and it plays in Chromium. Cheaper to encode than VP8 at the same size.
+  # In OBS, Network Buffering must be 0 MB or the source renders black.
   h264:
     runOnDemand: >
       ffmpeg -hide_banner -loglevel error
