@@ -19,13 +19,6 @@ const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
 const clients = new Set();
 
-function broadcastReload() {
-  const frame = ws.encodeFrame('reload');
-  for (const socket of clients) {
-    socket.write(frame, (err) => { if (err) clients.delete(socket); });
-  }
-}
-
 const server = http.createServer((req, res) => {
   const url = new URL(req.url, 'http://localhost');
   const pathname = url.pathname;
@@ -66,7 +59,7 @@ const server = http.createServer((req, res) => {
           res.end('Write failed');
           return;
         }
-        broadcastReload();
+        ws.broadcastReload(clients);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true }));
       });
