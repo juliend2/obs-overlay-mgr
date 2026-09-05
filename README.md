@@ -158,6 +158,35 @@ frames, use `?path=smooth` (640x360) or free up capacity first.
 Note that a black source in OBS is almost never a performance problem — check
 **Network Buffering** first, per the steps above.
 
+## Plugging in an HDMI capture card
+
+A USB HDMI stick (game console, camera, or another laptop going in) shows up as
+a device file — `/dev/video0` — that continuously produces pictures. Only one
+program can read it at a time, so nothing reads it directly: one ffmpeg reads
+the card and publishes to MediaMTX, which fans the feed out to OBS and the
+browser simultaneously. The `cam` / `cam-vp8` paths in `testfeed/mediamtx.yml`
+are set up for this; see `testfeed/README.md` for the full explanation.
+
+1. **Identify the device** (one-time): run `v4l2-ctl --list-devices`
+   (`sudo apt install v4l-utils` if missing). A stick lists a video device plus
+   a metadata sibling — use the even-numbered one. If it isn't `/dev/video0`,
+   edit the `-i /dev/video0` in the `cam` path of `testfeed/mediamtx.yml`.
+2. **Start the feed:** `cd testfeed && ./start.sh`
+3. **In OBS: + → Media Source**
+   - uncheck **Local File**
+   - **Input:** `rtsp://127.0.0.1:8554/cam`
+   - **Network Buffering:** `0` MB — required, same trap as above
+   - **FFmpeg Options:** `rtsp_transport=tcp`
+
+   Activating the source starts the encoder.
+4. **In the browser:** open `http://127.0.0.1:8000/webrtc.html?path=cam-vp8`
+   (Firefox gets the VP8 copy; Chromium can also play `?path=cam` directly).
+
+Both watch at once. The encoder starts with the first `cam` viewer, so a
+Firefox page opened before OBS shows "retrying…" for a moment until it's up —
+the player retries automatically. When nobody is watching, ffmpeg stops and
+the card is free for other apps.
+
 ## What this does *not* do
 
 It does not create a `/dev/video*` device. If you need OBS to list the feed
