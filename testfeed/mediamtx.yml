@@ -90,15 +90,18 @@ paths:
   # runOnDemand hangs off `cam`, so the feed starts when OBS activates its
   # source (or a Chromium viewer requests ?path=cam); a Firefox viewer on
   # cam-vp8 just retries until the encoder is up.
+  # -rtsp_transport tcp on both outputs: ffmpeg's RTSP muxer defaults to UDP,
+  # which drops packets on loopback under this dual-encode load (→ "RTP packets
+  # lost" + "invalid FU-A packet" errors in mediamtx).
   cam:
     runOnDemand: >
       ffmpeg -hide_banner -loglevel error
-      -f v4l2 -framerate 30 -video_size 1280x720 -i /dev/video0
+      -f v4l2 -framerate 30 -video_size 1280x720 -i /dev/video3
       -map 0:v -c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline
       -pix_fmt yuv420p -g 30
-      -f rtsp rtsp://127.0.0.1:8554/cam
+      -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:8554/cam
       -map 0:v -c:v libvpx -deadline realtime -cpu-used 16 -threads 2 -b:v 2M -g 30
-      -f rtsp rtsp://127.0.0.1:8554/cam-vp8
+      -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:8554/cam-vp8
     runOnDemandRestart: true
     runOnDemandCloseAfter: 10s
 
