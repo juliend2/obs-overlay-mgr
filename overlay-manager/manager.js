@@ -161,7 +161,7 @@ async function toggleComponentForm(component) {
       }
     });
 
-    $('components').appendChild(container);
+    $('form-container').appendChild(container);
     openForm = { key: component.file, container };
   } finally {
     formToggleBusy = false;
@@ -241,10 +241,10 @@ async function save() {
   }
 }
 
-$('test').addEventListener('click', () => {
-  $('editor').value = '<div style="background: rgba(255, 255, 255, 0.5); color: black;">test</div>';
-  save();
-});
+// $('test').addEventListener('click', () => {
+//   $('editor').value = '<div style="background: rgba(255, 255, 255, 0.5); color: black;">test</div>';
+//   save();
+// });
 
 $('golive').addEventListener('click', async () => {
   const status = $('golive-status');
