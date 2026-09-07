@@ -38,8 +38,15 @@
   </div>
   
 <script>
-async function loadOverlay() {
-  const res = await fetch('/overlay-preview.html', { cache: 'no-store' });
+const params = new URLSearchParams(location.search);
+const mode = params.get('mode')
+const isPreview = params.get('mode') === 'preview';
+const isLive = params.get('mode') === 'live';
+const isOBS = params.get('mode') === 'obs';
+
+// mode (string) can be "preview", "live" or "obs"
+async function loadOverlay(mode) {
+  const res = await fetch(`/overlay-${mode}.html`, { cache: 'no-store' });
   document.getElementById('overlay').innerHTML = await res.text();
 }
 
@@ -47,20 +54,18 @@ function connect() {
   const proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
   const ws = new WebSocket(proto + location.host + '/ws');
   ws.onmessage = (ev) => {
-    if (ev.data === 'reload') loadOverlay();
+    if (ev.data === 'reload') loadOverlay(mode);
   };
   ws.onclose = () => setTimeout(connect, 2000);
   ws.onerror = () => ws.close();
 }
 
-loadOverlay();
+loadOverlay(mode);
 connect();
 </script>
 
 <!-- VIDEO -->
 <script>
-const params = new URLSearchParams(location.search);
-const isPreview = params.get('mode') === 'preview';
 
 // Path comes from ?path=... and must exist in mediamtx.yml (test, mandelbrot).
 const path = params.get('path') || 'test';
@@ -74,12 +79,12 @@ const say = (msg, cls = '') => {
   status.className = cls;
 };
 
-if (!isPreview) {
+if (isPreview || isLive) {
+  video.style.display = 'block';
+} else { // OBS
   video.style.display = 'none';
   video.removeAttribute('src');
   video.load();
-} else {
-  video.style.display = 'block';
 }
 
 let pc, retry;

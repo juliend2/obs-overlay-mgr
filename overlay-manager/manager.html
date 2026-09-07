@@ -30,7 +30,9 @@
 
   <div class="wrap">
     <div class="left">
-      <iframe src="http://localhost:8081/test" style="width: 100%; height: 400px"></iframe>
+      <!--<iframe src="http://localhost:8081/test" style="width: 100%; height:
+        400px"></iframe> -->
+      <iframe src="http://localhost:8081/?mode=preview" style="width: 100%; height: 400px"></iframe>
       <div>
         <textarea id="editor" spellcheck="false"></textarea><br>
         <button id="test">Test</button><span id="test-status" class="status"></span>
@@ -42,7 +44,7 @@
       </div>
     </div>
     <div class="right">
-      <iframe src="http://localhost:8081/" style="width: 100%; height: 400px"></iframe>
+      <iframe src="http://localhost:8081/?mode=live" style="width: 100%; height: 400px"></iframe>
     </div>
   </div>
 
@@ -69,9 +71,21 @@ async function save() {
   setTimeout(() => { status.textContent = ''; }, 2000);
 }
 
-document.getElementById('test').addEventListener('click', () => {
+document.getElementById('test-status').addEventListener('click', () => {
   document.getElementById('editor').value = '<div style="background: rgba(255, 255, 255, 0.5); color: black;">test</div>';
   save();
+});
+
+document.getElementById('golive').addEventListener('click', async () => {
+  const status = document.getElementById('golive-status');
+  status.textContent = 'Going live...';
+  try {
+    const res = await fetch('/golive', { method: 'POST' });
+    status.textContent = res.ok ? 'Live!' : 'Error going live';
+  } catch {
+    status.textContent = 'Error going live';
+  }
+  setTimeout(() => { status.textContent = ''; }, 2000);
 });
 
 load();

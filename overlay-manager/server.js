@@ -1,8 +1,10 @@
 #!/usr/bin/env node
 // Zero-dependency HTTP + WebSocket server: serves the viewer and manager
-// pages, and pushes a "reload" message to viewers whenever /save-preview writes a
-// new overlay-preview.html. WebSocket is hand-rolled (handshake + outgoing framing
-// only) to avoid an npm dependency for a two-message protocol.
+// pages, and pushes a "reload" message to viewers whenever the overlay on
+// disk changes — /save-preview writes a new overlay-preview.html, and
+// /golive publishes that preview into overlay-live.html (what viewers show).
+// WebSocket is hand-rolled (handshake + outgoing framing only) to avoid an
+// npm dependency for a two-message protocol.
 
 import http from 'http';
 import fs from 'fs';
@@ -38,11 +40,29 @@ export const server = http.createServer((req, res) => {
     return web.serveFile(res, OVERLAY_PREVIEW_PATH, 'text/html', req.method);
   }
   if (isRead && pathname === '/overlay-live.html') {
-    return web.serveFile(res, OVERLAY_PREVIEW_PATH, 'text/html', req.method);
+    return web.serveFile(res, OVERLAY_LIVE_PATH, 'text/html', req.method);
   }
   if (req.method === 'POST' && pathname === '/golive') {
-    // TODO: make this endpoint copy what's in overlay-preview.html, into
-    // overlay-live.html
+    // Publish: copy the staged preview over the live overlay, then push a
+    // reload so viewers swap the new content in without a full-page refresh.
+    fs.readFile(OVERLAY_PREVIEW_PATH, 'utf8', (err, html) => {
+      if (err) {
+        res.writeHead(500);
+        res.end('Read failed');
+        return;
+      }
+      fs.writeFile(OVERLAY_LIVE_PATH, html, (err) => {
+        if (err) {
+          res.writeHead(500);
+          res.end('Write failed');
+          return;
+        }
+        ws.broadcastReload(clients);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: true }));
+      });
+    });
+    return;
   }
   if (req.method === 'POST' && pathname === '/save-preview') {
     let body = '';
