@@ -1,10 +1,11 @@
 #!/usr/bin/env node
 // Zero-dependency HTTP + WebSocket server: serves the viewer and manager
-// pages, and pushes a "reload" message to viewers whenever the overlay on
-// disk changes — /save-preview writes a new overlay-preview.html, and
-// /golive publishes that preview into overlay-live.html (what viewers show).
-// WebSocket is hand-rolled (handshake + outgoing framing only) to avoid an
-// npm dependency for a two-message protocol.
+// pages, component templates and presets, and pushes a "reload" message to
+// viewers whenever the overlay on disk changes — /save-preview writes a new
+// overlay-preview.html, and /golive publishes that preview into
+// overlay-live.html (what viewers actually show). WebSocket is hand-rolled
+// (handshake + outgoing framing only) to avoid an npm dependency for a
+// two-message protocol.
 
 import http from 'http';
 import fs from 'fs';
@@ -13,16 +14,40 @@ import crypto from 'crypto';
 import { fileURLToPath, pathToFileURL } from 'url';
 import * as ws from './websocket.js'
 import * as web from './web.js'
+import * as presets from './presets.js'
 
 const PORT = process.env.PORT || 8081;
 const DIR = path.dirname(fileURLToPath(import.meta.url));
+const COMPONENTS_DIR = path.join(DIR, 'components');
+const PRESETS_DIR = path.join(DIR, 'presets');
 const OVERLAY_PREVIEW_PATH = path.join(DIR, 'overlay-preview.html');
 const OVERLAY_LIVE_PATH = path.join(DIR, 'overlay-live.html');
 const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
 const clients = new Set();
 
-export const server = http.createServer((req, res) => {
+// Collects a JSON request body (capped at 1MB, connection destroyed beyond
+// that) and hands the parsed object to `handle`.
+function readJsonBody(req, res, handle) {
+  let body = '';
+  req.on('data', (chunk) => {
+    body += chunk;
+    if (body.length > 1_000_000) req.destroy();
+  });
+  req.on('end', () => {
+    let parsed;
+    try {
+      parsed = JSON.parse(body);
+    } catch {
+      res.writeHead(400);
+      res.end('Invalid JSON');
+      return;
+    }
+    handle(parsed);
+  });
+}
+
+export const server = http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   const pathname = url.pathname;
   const isRead = req.method === 'GET' || req.method === 'HEAD';
@@ -35,6 +60,28 @@ export const server = http.createServer((req, res) => {
   }
   if (isRead && pathname === '/manager') {
     return web.serveFile(res, path.join(DIR, 'manager.html'), 'text/html', req.method);
+  }
+  if (isRead && pathname === '/manager.js') {
+    return web.serveFile(res, path.join(DIR, 'manager.js'), 'text/javascript', req.method);
+  }
+  if (isRead && pathname.startsWith('/components/')) {
+    // Serve component templates, but only from inside components/ — resolve
+    // the path and refuse anything that escapes the directory.
+    let filePath;
+    try {
+      filePath = path.resolve(COMPONENTS_DIR, decodeURIComponent(pathname.slice('/components/'.length)));
+    } catch {
+      res.writeHead(404);
+      res.end('Not found');
+      return;
+    }
+    if (filePath !== COMPONENTS_DIR && !filePath.startsWith(COMPONENTS_DIR + path.sep)) {
+      res.writeHead(404);
+      res.end('Not found');
+      return;
+    }
+    const type = filePath.endsWith('.json') ? 'application/json' : 'text/html';
+    return web.serveFile(res, filePath, type, req.method);
   }
   if (isRead && pathname === '/overlay-preview.html') {
     return web.serveFile(res, OVERLAY_PREVIEW_PATH, 'text/html', req.method);
@@ -65,20 +112,7 @@ export const server = http.createServer((req, res) => {
     return;
   }
   if (req.method === 'POST' && pathname === '/save-preview') {
-    let body = '';
-    req.on('data', (chunk) => {
-      body += chunk;
-      if (body.length > 1_000_000) req.destroy();
-    });
-    req.on('end', () => {
-      let parsed;
-      try {
-        parsed = JSON.parse(body);
-      } catch {
-        res.writeHead(400);
-        res.end('Invalid JSON');
-        return;
-      }
+    return readJsonBody(req, res, (parsed) => {
       if (typeof parsed.html !== 'string') {
         res.writeHead(400);
         res.end('Missing "html" field');
@@ -95,7 +129,67 @@ export const server = http.createServer((req, res) => {
         res.end(JSON.stringify({ ok: true }));
       });
     });
+  }
+  if (pathname === '/presets' && isRead) {
+    try {
+      const list = await presets.listPresets(PRESETS_DIR);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ presets: list }));
+    } catch {
+      res.writeHead(500);
+      res.end('List failed');
+    }
     return;
+  }
+  if (req.method === 'POST' && pathname === '/presets') {
+    return readJsonBody(req, res, async (parsed) => {
+      if (typeof parsed.name !== 'string' || !parsed.name.trim()) {
+        res.writeHead(400);
+        res.end('Missing "name" field');
+        return;
+      }
+      if (typeof parsed.html !== 'string') {
+        res.writeHead(400);
+        res.end('Missing "html" field');
+        return;
+      }
+      try {
+        const saved = await presets.writePreset(PRESETS_DIR, parsed.name.trim(), parsed.html);
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: true, ...saved }));
+      } catch {
+        res.writeHead(500);
+        res.end('Write failed');
+      }
+    });
+  }
+  let presetMatch;
+  if ((presetMatch = pathname.match(/^\/presets\/([^/]+)$/))) {
+    let slug;
+    try {
+      slug = decodeURIComponent(presetMatch[1]);
+    } catch {
+      res.writeHead(404);
+      res.end('Not found');
+      return;
+    }
+    if (req.method === 'GET') {
+      const preset = await presets.readPreset(PRESETS_DIR, slug);
+      if (!preset) {
+        res.writeHead(404);
+        res.end('Not found');
+        return;
+      }
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ slug, ...preset }));
+      return;
+    }
+    if (req.method === 'DELETE') {
+      const deleted = await presets.deletePreset(PRESETS_DIR, slug);
+      res.writeHead(deleted ? 200 : 404, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ ok: deleted }));
+      return;
+    }
   }
   res.writeHead(404);
   res.end('Not found');

@@ -1,3 +1,7 @@
+---
+name: messe du 13 sept 2026
+created: 2026-09-07T16:38:21.790Z
+---
 <style>
 html {
   padding: 0;
@@ -49,7 +53,6 @@ body {
 <div class="wrapper">
   <div class="footer">
     <div class="h1" id="field_1" data-field="field_1" data-label="Nom de l'église" data-type="text">Eglise Saint Jean Baptiste</div>
-    <div class="h2" id="field_2" data-field="field_2" data-label="Date de la messe" data-type="text">Messe du 6 Septembre 2026</div>
+    <div class="h2" id="field_2" data-field="field_2" data-label="Date de la messe" data-type="text">Messe du 13 Septembre 2026</div>
   </div>
-</div>
 </div>

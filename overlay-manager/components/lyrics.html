@@ -1,0 +1,42 @@
+<style>
+html {
+  padding: 0;
+  margin: 0;
+  font-size: 1vw;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.wrapper {
+  font-family: sans-serif;
+  font-size: 2.2rem;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2vw;
+}
+
+.lyrics {
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 1.5rem 2.5rem;
+  max-width: 90%;
+  text-align: center;
+  line-height: 1.6;
+  /* The value comes from a form textarea: keep the author's line breaks. */
+  white-space: pre-line;
+}
+</style>
+
+<div class="wrapper">
+  <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea"></div>
+</div>

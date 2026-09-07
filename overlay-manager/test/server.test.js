@@ -14,8 +14,10 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const APP = path.dirname(HERE);
 const OVERLAY_PREVIEW_PATH = path.join(APP, 'overlay-preview.html');
 const OVERLAY_LIVE_PATH = path.join(APP, 'overlay-live.html');
+const PRESETS_DIR = path.join(APP, 'presets');
 const VIEWER_PATH = path.join(APP, 'viewer.html');
 const MANAGER_PATH = path.join(APP, 'manager.html');
+const MANAGER_JS_PATH = path.join(APP, 'manager.js');
 const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
 // POST /save-preview and POST /golive write the real overlay files, so back
@@ -134,6 +136,10 @@ describe('server integration', () => {
     await new Promise((resolve) => server.close(resolve));
     fs.writeFileSync(OVERLAY_PREVIEW_PATH, originalPreview);
     fs.writeFileSync(OVERLAY_LIVE_PATH, originalLive);
+    // Preset tests write into the real presets dir; sweep up anything left.
+    for (const entry of fs.readdirSync(PRESETS_DIR)) {
+      if (entry.endsWith('.md')) fs.unlinkSync(path.join(PRESETS_DIR, entry));
+    }
   });
 
   describe('static files', () => {
@@ -150,6 +156,36 @@ describe('server integration', () => {
       assert.equal(res.status, 200);
       assert.equal(res.headers.get('content-type'), 'text/html');
       assert.deepEqual(Buffer.from(await res.arrayBuffer()), managerHtml);
+    });
+
+    it('GET /manager.js serves manager.js', async () => {
+      const res = await fetch(`${BASE}/manager.js`);
+      assert.equal(res.status, 200);
+      assert.equal(res.headers.get('content-type'), 'text/javascript');
+      assert.deepEqual(Buffer.from(await res.arrayBuffer()), fs.readFileSync(MANAGER_JS_PATH));
+    });
+
+    it('GET /components/manifest.json serves the manifest as JSON', async () => {
+      const res = await fetch(`${BASE}/components/manifest.json`);
+      assert.equal(res.status, 200);
+      assert.equal(res.headers.get('content-type'), 'application/json');
+      const manifest = JSON.parse(fs.readFileSync(path.join(APP, 'components', 'manifest.json'), 'utf8'));
+      assert.deepEqual(await res.json(), manifest);
+    });
+
+    it('GET /components/<file> serves component templates', async () => {
+      const res = await fetch(`${BASE}/components/messe-sjb-date.html`);
+      assert.equal(res.status, 200);
+      assert.equal(res.headers.get('content-type'), 'text/html');
+      assert.deepEqual(
+        Buffer.from(await res.arrayBuffer()),
+        fs.readFileSync(path.join(APP, 'components', 'messe-sjb-date.html'))
+      );
+    });
+
+    it('refuses component paths that escape the components dir', async () => {
+      const res = await fetch(`${BASE}/components/..%2Fserver.js`);
+      assert.equal(res.status, 404);
     });
 
     it('GET /overlay-preview.html serves the current overlay-preview.html', async () => {
@@ -287,6 +323,106 @@ describe('server integration', () => {
       } finally {
         for (const c of clients) c.socket.destroy();
       }
+    });
+  });
+
+  describe('presets', () => {
+    const NAME = 'Lyrics of Song ABC';
+    const HTML = '<p>la la &lt;b&gt; "quotes" é</p>';
+    let slug;
+
+    it('POST /presets writes a markdown file and returns the slug', async () => {
+      const res = await fetch(`${BASE}/presets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: NAME, html: HTML }),
+      });
+      assert.equal(res.status, 200);
+      const saved = await res.json();
+      assert.equal(saved.slug, 'lyrics-of-song-abc');
+      assert.equal(saved.name, NAME);
+      assert.match(saved.created, /^\d{4}-\d{2}-\d{2}T/);
+      slug = saved.slug;
+
+      const raw = fs.readFileSync(path.join(PRESETS_DIR, `${saved.slug}.md`), 'utf8');
+      assert.ok(raw.startsWith(`---\nname: ${NAME}\ncreated: `));
+    });
+
+    it('GET /presets lists the saved preset', async () => {
+      const res = await fetch(`${BASE}/presets`);
+      assert.equal(res.status, 200);
+      const { presets } = await res.json();
+      assert.ok(presets.some((p) => p.slug === slug && p.name === NAME));
+    });
+
+    it('GET /presets/:slug returns the preset with its html intact', async () => {
+      const res = await fetch(`${BASE}/presets/${slug}`);
+      assert.equal(res.status, 200);
+      const preset = await res.json();
+      assert.equal(preset.name, NAME);
+      assert.equal(preset.html, HTML);
+      assert.match(preset.created, /^\d{4}-\d{2}-\d{2}T/);
+    });
+
+    it('suffixes the slug when the same name is saved again', async () => {
+      const res = await fetch(`${BASE}/presets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: NAME, html: '<p>again</p>' }),
+      });
+      assert.equal(res.status, 200);
+      const saved = await res.json();
+      assert.equal(saved.slug, `${slug}-2`);
+    });
+
+    it('rejects invalid JSON with 400', async () => {
+      const res = await fetch(`${BASE}/presets`, { method: 'POST', body: '{nope' });
+      assert.equal(res.status, 400);
+      assert.equal(await res.text(), 'Invalid JSON');
+    });
+
+    it('rejects a missing name with 400', async () => {
+      const res = await fetch(`${BASE}/presets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html: '<p>x</p>' }),
+      });
+      assert.equal(res.status, 400);
+      assert.equal(await res.text(), 'Missing "name" field');
+    });
+
+    it('rejects a blank name with 400', async () => {
+      const res = await fetch(`${BASE}/presets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: '   ', html: '<p>x</p>' }),
+      });
+      assert.equal(res.status, 400);
+      assert.equal(await res.text(), 'Missing "name" field');
+    });
+
+    it('rejects a missing html field with 400', async () => {
+      const res = await fetch(`${BASE}/presets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'x' }),
+      });
+      assert.equal(res.status, 400);
+      assert.equal(await res.text(), 'Missing "html" field');
+    });
+
+    it('GET /presets/:slug returns 404 for unknown and unsafe slugs', async () => {
+      assert.equal((await fetch(`${BASE}/presets/unknown`)).status, 404);
+      assert.equal((await fetch(`${BASE}/presets/..%2F..%2Fserver.js`)).status, 404);
+    });
+
+    it('DELETE /presets/:slug removes the file', async () => {
+      const res = await fetch(`${BASE}/presets/${slug}`, { method: 'DELETE' });
+      assert.equal(res.status, 200);
+      assert.deepEqual(await res.json(), { ok: true });
+      assert.equal((await fetch(`${BASE}/presets/${slug}`)).status, 404);
+      assert.equal((await fetch(`${BASE}/presets/${slug}`, { method: 'DELETE' })).status, 404);
+      assert.equal(fs.existsSync(path.join(PRESETS_DIR, `${slug}.md`)), false);
     });
   });
 
