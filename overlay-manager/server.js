@@ -27,6 +27,9 @@ export const server = http.createServer((req, res) => {
   if (isRead && pathname === '/') {
     return web.serveFile(res, path.join(DIR, 'viewer.html'), 'text/html', req.method);
   }
+  if (isRead && pathname === '/test') {
+    return web.serveFile(res, path.join(DIR, 'components/messe-sjb-date.html'), 'text/html', req.method);
+  }
   if (isRead && pathname === '/manager') {
     return web.serveFile(res, path.join(DIR, 'manager.html'), 'text/html', req.method);
   }

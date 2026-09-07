@@ -4,6 +4,8 @@
 <meta charset="utf-8">
 <title>overlay-manager</title>
 <style>
+  * { box-sizing: border-box; }
+
   body { font-family: sans-serif; margin: 2rem auto; }
 
   textarea { width: 100%; height: 320px; font-family: monospace; font-size: 14px; box-sizing: border-box; display: none; }
@@ -13,10 +15,14 @@
   #status { margin-left: 1rem; color: #666; }
 
   .wrap {
+    width: 100%;
     display: flex;
   }
   .left, .right {
-    width: 40%;
+    width: 45%;
+  }
+  .middle {
+    width: 10%;
   }
 </style>
 </head>
@@ -24,12 +30,14 @@
 
   <div class="wrap">
     <div class="left">
-      <h1>overlay-manager</h1>
+      <iframe src="http://localhost:8081/test" style="width: 100%; height: 400px"></iframe>
       <textarea id="editor" spellcheck="false"></textarea><br>
+    </div>
+    <div class="middle">
       <button id="test">Test</button><span id="status"></span>
     </div>
     <div class="right">
-      <iframe src="http://localhost:8081/"></iframe>
+      <iframe src="http://localhost:8081/" style="width: 100%; height: 400px"></iframe>
     </div>
   </div>
 
