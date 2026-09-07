@@ -46,7 +46,7 @@
 <script>
 
 async function load() {
-  const res = await fetch('/overlay.html', { cache: 'no-store' });
+  const res = await fetch('/overlay-preview.html', { cache: 'no-store' });
   document.getElementById('editor').value = await res.text();
 }
 
@@ -54,7 +54,7 @@ async function save() {
   const status = document.getElementById('status');
   status.textContent = 'Saving...';
   try {
-    const res = await fetch('/save', {
+    const res = await fetch('/save-preview', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ html: document.getElementById('editor').value }),

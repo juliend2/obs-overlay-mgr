@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 // Zero-dependency HTTP + WebSocket server: serves the viewer and manager
-// pages, and pushes a "reload" message to viewers whenever /save writes a
-// new overlay.html. WebSocket is hand-rolled (handshake + outgoing framing
+// pages, and pushes a "reload" message to viewers whenever /save-preview writes a
+// new overlay-preview.html. WebSocket is hand-rolled (handshake + outgoing framing
 // only) to avoid an npm dependency for a two-message protocol.
 
 import http from 'http';
@@ -14,7 +14,8 @@ import * as web from './web.js'
 
 const PORT = process.env.PORT || 8081;
 const DIR = path.dirname(fileURLToPath(import.meta.url));
-const OVERLAY_PATH = path.join(DIR, 'overlay.html');
+const OVERLAY_PREVIEW_PATH = path.join(DIR, 'overlay-preview.html');
+const OVERLAY_LIVE_PATH = path.join(DIR, 'overlay-live.html');
 const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
 const clients = new Set();
@@ -33,10 +34,17 @@ export const server = http.createServer((req, res) => {
   if (isRead && pathname === '/manager') {
     return web.serveFile(res, path.join(DIR, 'manager.html'), 'text/html', req.method);
   }
-  if (isRead && pathname === '/overlay.html') {
-    return web.serveFile(res, OVERLAY_PATH, 'text/html', req.method);
+  if (isRead && pathname === '/overlay-preview.html') {
+    return web.serveFile(res, OVERLAY_PREVIEW_PATH, 'text/html', req.method);
   }
-  if (req.method === 'POST' && pathname === '/save') {
+  if (isRead && pathname === '/overlay-live.html') {
+    return web.serveFile(res, OVERLAY_PREVIEW_PATH, 'text/html', req.method);
+  }
+  if (req.method === 'POST' && pathname === '/golive') {
+    // TODO: make this endpoint copy what's in overlay-preview.html, into
+    // overlay-live.html
+  }
+  if (req.method === 'POST' && pathname === '/save-preview') {
     let body = '';
     req.on('data', (chunk) => {
       body += chunk;
@@ -56,7 +64,7 @@ export const server = http.createServer((req, res) => {
         res.end('Missing "html" field');
         return;
       }
-      fs.writeFile(OVERLAY_PATH, parsed.html, (err) => {
+      fs.writeFile(OVERLAY_PREVIEW_PATH, parsed.html, (err) => {
         if (err) {
           res.writeHead(500);
           res.end('Write failed');

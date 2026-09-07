@@ -39,7 +39,7 @@
   
 <script>
 async function loadOverlay() {
-  const res = await fetch('/overlay.html', { cache: 'no-store' });
+  const res = await fetch('/overlay-preview.html', { cache: 'no-store' });
   document.getElementById('overlay').innerHTML = await res.text();
 }
 
