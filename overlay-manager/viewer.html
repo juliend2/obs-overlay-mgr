@@ -39,14 +39,17 @@
   
 <script>
 const params = new URLSearchParams(location.search);
-const mode = params.get('mode')
-const isPreview = params.get('mode') === 'preview';
-const isLive = params.get('mode') === 'live';
-const isOBS = params.get('mode') === 'obs';
+const mode = params.get('mode');
+const isPreview = mode === 'preview';
+const isLive = mode === 'live';
+const isOBS = mode === 'obs';
 
-// mode (string) can be "preview", "live" or "obs"
-async function loadOverlay(mode) {
-  const res = await fetch(`/overlay-${mode}.html`, { cache: 'no-store' });
+// "preview" shows the staging overlay; "live" and "obs" both show the live
+// one — "obs" just hides the video (Browser Source). No mode = same as obs.
+const overlayFile = isPreview ? '/overlay-preview.html' : '/overlay-live.html';
+
+async function loadOverlay() {
+  const res = await fetch(overlayFile, { cache: 'no-store' });
   document.getElementById('overlay').innerHTML = await res.text();
 }
 
@@ -54,13 +57,13 @@ function connect() {
   const proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
   const ws = new WebSocket(proto + location.host + '/ws');
   ws.onmessage = (ev) => {
-    if (ev.data === 'reload') loadOverlay(mode);
+    if (ev.data === 'reload') loadOverlay();
   };
   ws.onclose = () => setTimeout(connect, 2000);
   ws.onerror = () => ws.close();
 }
 
-loadOverlay(mode);
+loadOverlay();
 connect();
 </script>
 
