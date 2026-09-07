@@ -35,7 +35,7 @@
       <iframe src="http://localhost:8081/?mode=preview" style="width: 100%; height: 400px"></iframe>
       <div>
         <textarea id="editor" spellcheck="false"></textarea><br>
-        <button id="test">Test</button><span id="test-status" class="status"></span>
+        <button id="test">Test</button><span id="preview-status" class="status"></span>
       </div>
     </div>
     <div class="middle">
@@ -56,7 +56,7 @@ async function load() {
 }
 
 async function save() {
-  const status = document.getElementById('status');
+  const status = document.getElementById('preview-status');
   status.textContent = 'Saving...';
   try {
     const res = await fetch('/save-preview', {
@@ -71,7 +71,7 @@ async function save() {
   setTimeout(() => { status.textContent = ''; }, 2000);
 }
 
-document.getElementById('test-status').addEventListener('click', () => {
+document.getElementById('test').addEventListener('click', () => {
   document.getElementById('editor').value = '<div style="background: rgba(255, 255, 255, 0.5); color: black;">test</div>';
   save();
 });
