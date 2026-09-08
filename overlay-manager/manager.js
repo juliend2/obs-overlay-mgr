@@ -189,14 +189,16 @@ async function loadPresets() {
   for (const preset of presets) {
     const li = document.createElement('li');
 
-    const useBtn = document.createElement('button');
+    const useBtn = document.createElement('a');
+    useBtn.href = "#";
     useBtn.className = 'use';
     useBtn.textContent = preset.name;
     useBtn.title = preset.name;
     const useStatus = document.createElement('span');
     useStatus.className = 'status';
 
-    useBtn.addEventListener('click', async () => {
+    useBtn.addEventListener('click', async (e) => {
+      e.preventDefault();
       flash(useStatus, 'Loading...');
       try {
         const full = await fetchJson(`/presets/${encodeURIComponent(preset.slug)}`);
