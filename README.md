@@ -194,3 +194,15 @@ under **Video Capture Device (V4L2)**, that requires the `v4l2loopback` kernel
 module, which on this machine means a kernel upgrade (headers for the running
 6.12.43 are no longer in the Debian archive) plus MOK enrollment for Secure
 Boot. The pages here are consumable as OBS **Browser Sources** instead.
+
+## TODO
+
+- [ ] modify the components/lyrics.html styles so it's centralized instead of
+  copied each time
+- [ ] import content from wirecast xml file, to create songs presets
+- [ ] create some grouping for the presets:
+    - [ ] paroles de chansons
+    - [ ] pretres
+    - [ ] intro / outro
+- [ ] faire une animation de transition quand on 'go live' avec un preset pour
+  que ce soit smooth

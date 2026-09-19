@@ -123,7 +123,7 @@ async function toggleComponentForm(component) {
     actions.className = 'actions';
 
     const saveBtn = document.createElement('button');
-    saveBtn.textContent = 'Save';
+    saveBtn.textContent = 'Display';
     const saveStatus = document.createElement('span');
     saveStatus.className = 'status';
 
