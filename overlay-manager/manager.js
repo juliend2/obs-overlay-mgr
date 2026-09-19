@@ -225,18 +225,18 @@ async function loadPresets() {
   }
 }
 
-// --- editor / test / go live ---
+// --- html-editor / test / go live ---
 
 async function load() {
   const res = await fetch('/overlay-preview.html', { cache: 'no-store' });
-  $('editor').value = await res.text();
+  $('html-editor').value = await res.text();
 }
 
 async function save() {
   const status = $('test-status');
   flash(status, 'Saving...');
   try {
-    await postJson('/save-preview', { html: $('editor').value });
+    await postJson('/save-preview', { html: $('html-editor').value });
     flash(status, 'Saved');
   } catch {
     flash(status, 'Error saving', false);
@@ -244,7 +244,7 @@ async function save() {
 }
 
 // $('test').addEventListener('click', () => {
-//   $('editor').value = '<div style="background: rgba(255, 255, 255, 0.5); color: black;">test</div>';
+//   $('html-editor').value = '<div style="background: rgba(255, 255, 255, 0.5); color: black;">test</div>';
 //   save();
 // });
 
