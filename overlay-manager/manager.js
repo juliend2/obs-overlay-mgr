@@ -37,6 +37,9 @@ function parseTemplate(html) {
   return doc.getElementById('template-root');
 }
 
+// Extracts from a DOM root element (technically, from the components/*.html)
+// the fields that need to be edited for this component, when creating a new
+// preset.
 function extractFieldsFrom(root) {
   return [...root.querySelectorAll('[data-field]')].map((el) => ({
     name: el.dataset.field,
@@ -46,6 +49,7 @@ function extractFieldsFrom(root) {
   }));
 }
 
+// Builds the field input(s) for the Preset creator form
 function buildFieldInput(field) {
   const label = document.createElement('label');
   label.className = 'field';
@@ -103,7 +107,9 @@ async function toggleComponentForm(component) {
     }
     closeOpenForm();
 
-    const html = await (await fetch(`/components/${component.file}`, { cache: 'no-store' })).text();
+    const html = await (await fetch(`/components/${component.file}`, {
+      cache: 'no-store'
+    })).text();
     const root = parseTemplate(html);
 
     const container = document.createElement('div');
@@ -168,6 +174,7 @@ async function toggleComponentForm(component) {
   }
 }
 
+// Loads the template components
 async function loadComponents() {
   const { components } = await fetchJson('/components/manifest.json');
   const host = $('components');
@@ -175,7 +182,8 @@ async function loadComponents() {
   for (const component of components) {
     const btn = document.createElement('button');
     btn.textContent = component.label;
-    btn.addEventListener('click', () => toggleComponentForm(component).catch((err) => console.error(err)));
+    btn.addEventListener('click',
+      () => toggleComponentForm(component).catch((err) => console.error(err)));
     host.appendChild(btn);
   }
 }
@@ -227,21 +235,21 @@ async function loadPresets() {
 
 // --- html-editor / test / go live ---
 
-async function load() {
-  const res = await fetch('/overlay-preview.html', { cache: 'no-store' });
-  $('html-editor').value = await res.text();
-}
+// async function load() {
+//   const res = await fetch('/overlay-preview.html', { cache: 'no-store' });
+//   $('html-editor').value = await res.text();
+// }
 
-async function save() {
-  const status = $('test-status');
-  flash(status, 'Saving...');
-  try {
-    await postJson('/save-preview', { html: $('html-editor').value });
-    flash(status, 'Saved');
-  } catch {
-    flash(status, 'Error saving', false);
-  }
-}
+// async function save() {
+//   const status = $('test-status');
+//   flash(status, 'Saving...');
+//   try {
+//     await postJson('/save-preview', { html: $('html-editor').value });
+//     flash(status, 'Saved');
+//   } catch {
+//     flash(status, 'Error saving', false);
+//   }
+// }
 
 // $('test').addEventListener('click', () => {
 //   $('html-editor').value = '<div style="background: rgba(255, 255, 255, 0.5); color: black;">test</div>';
@@ -259,6 +267,6 @@ $('golive').addEventListener('click', async () => {
   }
 });
 
-load();
+//load();
 loadComponents().catch((err) => console.error(err));
 loadPresets().catch((err) => console.error(err));
