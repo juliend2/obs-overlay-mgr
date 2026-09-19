@@ -154,7 +154,8 @@ export const server = http.createServer(async (req, res) => {
         return;
       }
       try {
-        const saved = await presets.writePreset(PRESETS_DIR, parsed.name.trim(), parsed.html);
+        const category = typeof parsed.category === 'string' ? parsed.category.trim() : '';
+        const saved = await presets.writePreset(PRESETS_DIR, parsed.name.trim(), parsed.html, category);
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true, ...saved }));
       } catch {

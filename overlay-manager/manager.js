@@ -131,12 +131,18 @@ async function toggleComponentForm(component) {
     presetName.type = 'text';
     presetName.placeholder = 'Nom du preset';
 
+    const presetCategory = document.createElement('input');
+    presetCategory.type = 'text';
+    presetCategory.placeholder = 'Catégorie';
+    presetCategory.value = component.category || '';
+    presetCategory.setAttribute('list', 'preset-categories');
+
     const presetBtn = document.createElement('button');
     presetBtn.textContent = 'Save as preset';
     const presetStatus = document.createElement('span');
     presetStatus.className = 'status';
 
-    actions.append(saveBtn, saveStatus, presetName, presetBtn, presetStatus);
+    actions.append(saveBtn, saveStatus, presetName, presetCategory, presetBtn, presetStatus);
     container.appendChild(actions);
 
     const rendered = () => renderComponent(root, collectValues(container));
@@ -159,7 +165,7 @@ async function toggleComponentForm(component) {
       }
       flash(presetStatus, 'Saving...');
       try {
-        await postJson('/presets', { name, html: rendered() });
+        await postJson('/presets', { name, html: rendered(), category: presetCategory.value.trim() });
         presetName.value = '';
         flash(presetStatus, 'Preset saved');
         await loadPresets();
@@ -193,46 +199,102 @@ async function loadComponents() {
 
 // --- presets ---
 
+// Categories currently seen across presets; feeds the datalist of the
+// preset creation forms (pick an existing one or type a new name).
+let knownCategories = [];
+
+// Categories the user manually collapsed, so the open/closed state of the
+// <details> groups survives list re-renders (save/delete).
+const closedCategories = new Set();
+
+function refreshCategoryDatalist() {
+  let datalist = $('preset-categories');
+  if (!datalist) {
+    datalist = document.createElement('datalist');
+    datalist.id = 'preset-categories';
+    document.body.appendChild(datalist);
+  }
+  datalist.replaceChildren(...knownCategories.map((category) => {
+    const option = document.createElement('option');
+    option.value = category;
+    return option;
+  }));
+}
+
+function buildPresetItem(preset) {
+  const li = document.createElement('li');
+
+  const useBtn = document.createElement('a');
+  useBtn.href = "#";
+  useBtn.className = 'use';
+  useBtn.textContent = preset.name;
+  useBtn.title = preset.name;
+  const useStatus = document.createElement('span');
+  useStatus.className = 'status';
+
+  useBtn.addEventListener('click', async (e) => {
+    e.preventDefault();
+    flash(useStatus, 'Loading...');
+    try {
+      const full = await fetchJson(`/presets/${encodeURIComponent(preset.slug)}`);
+      await postJson('/save-preview', { html: full.html });
+      flash(useStatus, 'Loaded');
+    } catch {
+      flash(useStatus, 'Error', false);
+    }
+  });
+
+  const delBtn = document.createElement('button');
+  delBtn.textContent = 'Delete';
+  delBtn.addEventListener('click', async () => {
+    try {
+      await fetch(`/presets/${encodeURIComponent(preset.slug)}`, { method: 'DELETE' });
+      await loadPresets();
+    } catch {
+      flash(useStatus, 'Delete failed', false);
+    }
+  });
+
+  li.append(useBtn, delBtn, useStatus);
+  return li;
+}
+
 async function loadPresets() {
   const { presets } = await fetchJson('/presets');
   const host = $('presets');
   host.innerHTML = '';
+
+  const groups = new Map();
   for (const preset of presets) {
-    const li = document.createElement('li');
+    const category = preset.category || '';
+    if (!groups.has(category)) groups.set(category, []);
+    groups.get(category).push(preset);
+  }
+  knownCategories = [...groups.keys()].filter(Boolean).sort((a, b) => a.localeCompare(b));
+  refreshCategoryDatalist();
 
-    const useBtn = document.createElement('a');
-    useBtn.href = "#";
-    useBtn.className = 'use';
-    useBtn.textContent = preset.name;
-    useBtn.title = preset.name;
-    const useStatus = document.createElement('span');
-    useStatus.className = 'status';
+  for (const [category, items] of [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
+    if (!category) continue; // uncategorized presets are listed directly, no group
 
-    useBtn.addEventListener('click', async (e) => {
-      e.preventDefault();
-      flash(useStatus, 'Loading...');
-      try {
-        const full = await fetchJson(`/presets/${encodeURIComponent(preset.slug)}`);
-        await postJson('/save-preview', { html: full.html });
-        flash(useStatus, 'Loaded');
-      } catch {
-        flash(useStatus, 'Error', false);
-      }
+    const details = document.createElement('details');
+    details.open = !closedCategories.has(category);
+    details.addEventListener('toggle', () => {
+      if (details.open) closedCategories.delete(category);
+      else closedCategories.add(category);
     });
 
-    const delBtn = document.createElement('button');
-    delBtn.textContent = 'Delete';
-    delBtn.addEventListener('click', async () => {
-      try {
-        await fetch(`/presets/${encodeURIComponent(preset.slug)}`, { method: 'DELETE' });
-        await loadPresets();
-      } catch {
-        flash(useStatus, 'Delete failed', false);
-      }
-    });
+    const summary = document.createElement('summary');
+    summary.textContent = category;
 
-    li.append(useBtn, delBtn, useStatus);
-    host.appendChild(li);
+    const list = document.createElement('ul');
+    for (const preset of items) list.appendChild(buildPresetItem(preset));
+
+    details.append(summary, list);
+    host.appendChild(details);
+  }
+
+  for (const preset of groups.get('') || []) {
+    host.appendChild(buildPresetItem(preset));
   }
 }
 

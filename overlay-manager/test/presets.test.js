@@ -41,7 +41,24 @@ describe('writePreset / readPreset round trip', () => {
     assert.ok(raw.endsWith(`---\n${html}`));
 
     const read = await readPreset(tmpDir, saved.slug);
-    assert.deepEqual(read, { name: 'Lyrics of Song ABC', created: saved.created, html });
+    assert.deepEqual(read, { name: 'Lyrics of Song ABC', created: saved.created, category: '', html });
+  });
+
+  it('writes the category to the frontmatter and reads it back', async () => {
+    const saved = await writePreset(tmpDir, 'Categorized', '<p>c</p>', 'Messe');
+    const raw = fs.readFileSync(path.join(tmpDir, `${saved.slug}.md`), 'utf8');
+    assert.match(raw, /^---\nname: Categorized\ncreated: [^\n]+\ncategory: Messe\n---\n/);
+
+    const read = await readPreset(tmpDir, saved.slug);
+    assert.equal(read.category, 'Messe');
+  });
+
+  it('single-lines categories that contain newlines', async () => {
+    const saved = await writePreset(tmpDir, 'Cat lines', '<p>x</p>', 'Two\ncats');
+    const raw = fs.readFileSync(path.join(tmpDir, `${saved.slug}.md`), 'utf8');
+    assert.ok(raw.includes('category: Two cats'));
+    const read = await readPreset(tmpDir, saved.slug);
+    assert.equal(read.category, 'Two cats');
   });
 
   it('suffixes the slug when the name is taken again', async () => {
@@ -72,7 +89,7 @@ describe('listPresets', () => {
 
   it('lists presets newest first and skips non-markdown files', async () => {
     const dir = path.join(tmpDir, 'list');
-    await writePreset(dir, 'First', '<p>1</p>');
+    await writePreset(dir, 'First', '<p>1</p>', 'Messe');
     await delay(10);
     await writePreset(dir, 'Second', '<p>2</p>');
     fs.writeFileSync(path.join(dir, '.gitkeep'), '');
@@ -86,6 +103,11 @@ describe('listPresets', () => {
     assert.deepEqual(
       list.map((p) => p.slug),
       ['second', 'first']
+    );
+    // Categories come along, with '' for presets saved without one.
+    assert.deepEqual(
+      list.map((p) => p.category),
+      ['', 'Messe']
     );
   });
 });

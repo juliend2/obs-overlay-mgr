@@ -6,12 +6,13 @@ import path from 'path';
 //   ---
 //   name: Lyrics of Song ABC
 //   created: 2026-09-07T10:00:00.000Z
+//   category: Chants
 //   ---
 //   <div class="wrapper">…rendered overlay HTML…</div>
 //
-// Only `name` and `created` are ever written, so a hand-rolled parser is
-// enough — no YAML dependency. The body is the overlay HTML, stored and
-// returned byte-for-byte.
+// `category` is optional and only written when non-empty, so a hand-rolled
+// parser is enough — no YAML dependency. The body is the overlay HTML,
+// stored and returned byte-for-byte.
 
 const SLUG_RE = /^[a-z0-9]+(?:-[a-z0-9]+)*$/;
 
@@ -29,10 +30,12 @@ function filePath(dir, slug) {
   return path.join(dir, `${slug}.md`);
 }
 
-function serialize(name, created, html) {
-  // Frontmatter must stay single-line, so collapse any newlines in the name.
+function serialize(name, created, category, html) {
+  // Frontmatter must stay single-line, so collapse any newlines in the name
+  // and category.
   const title = name.replace(/\s*\r?\n\s*/g, ' ');
-  return `---\nname: ${title}\ncreated: ${created}\n---\n${html}`;
+  const cat = category ? `\ncategory: ${category.replace(/\s*\r?\n\s*/g, ' ')}` : '';
+  return `---\nname: ${title}\ncreated: ${created}${cat}\n---\n${html}`;
 }
 
 function parse(raw) {
@@ -43,7 +46,12 @@ function parse(raw) {
     const idx = line.indexOf(':');
     if (idx > 0) meta[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
   }
-  return { name: meta.name || 'Untitled', created: meta.created || '', html: match[2] };
+  return {
+    name: meta.name || 'Untitled',
+    created: meta.created || '',
+    category: meta.category || '',
+    html: match[2],
+  };
 }
 
 export async function listPresets(dir) {
@@ -60,7 +68,12 @@ export async function listPresets(dir) {
     const raw = await fs.promises.readFile(path.join(dir, entry), 'utf8');
     const parsed = parse(raw);
     if (parsed) {
-      presets.push({ slug: entry.slice(0, -3), name: parsed.name, created: parsed.created });
+      presets.push({
+        slug: entry.slice(0, -3),
+        name: parsed.name,
+        created: parsed.created,
+        category: parsed.category,
+      });
     }
   }
   presets.sort((a, b) => (a.created < b.created ? 1 : -1)); // newest first
@@ -77,7 +90,7 @@ export async function readPreset(dir, slug) {
   }
 }
 
-export async function writePreset(dir, name, html) {
+export async function writePreset(dir, name, html, category = '') {
   await fs.promises.mkdir(dir, { recursive: true });
   const base = slugify(name);
   const taken = new Set(
@@ -88,8 +101,8 @@ export async function writePreset(dir, name, html) {
   let slug = base;
   for (let i = 2; taken.has(slug); i++) slug = `${base}-${i}`;
   const created = new Date().toISOString();
-  await fs.promises.writeFile(filePath(dir, slug), serialize(name, created, html));
-  return { slug, name, created };
+  await fs.promises.writeFile(filePath(dir, slug), serialize(name, created, category, html));
+  return { slug, name, created, category };
 }
 
 export async function deletePreset(dir, slug) {

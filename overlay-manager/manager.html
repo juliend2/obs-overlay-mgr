@@ -79,7 +79,15 @@
   #presets { overflow-y: scroll; overflow-x: hidden; }
 
   /* presets */
-  #presets { list-style: none; padding: 0; margin: 0.5rem 0 0; }
+  #presets { margin: 0.5rem 0 0; }
+  #presets details { margin: 0.25rem 0; }
+  #presets summary {
+    cursor: pointer;
+    user-select: none;
+    font-size: 13px;
+    color: #333;
+  }
+  #presets ul { list-style: none; padding: 0; margin: 0.25rem 0 0 0.75rem; }
   #presets li { display: flex; gap: 0.4rem; align-items: center; margin: 0.25rem 0; }
   #presets li a { background: magenta; color: white; padding-left: .2vw; }
   #presets li a:hover { background: white; color: magenta; text-decoration: none; }
@@ -116,7 +124,7 @@
     </div>
     <div class="col-third">
       <h3>Presets</h3>
-      <ul id="presets"></ul>
+      <div id="presets"></div>
     </div>
   </div>
 

@@ -348,6 +348,24 @@ describe('server integration', () => {
       assert.ok(raw.startsWith(`---\nname: ${NAME}\ncreated: `));
     });
 
+    it('POST /presets with a category stores it in the frontmatter and lists it', async () => {
+      const res = await fetch(`${BASE}/presets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Categorized preset', html: '<p>cat</p>', category: 'Messe' }),
+      });
+      assert.equal(res.status, 200);
+      const saved = await res.json();
+      assert.equal(saved.category, 'Messe');
+
+      const raw = fs.readFileSync(path.join(PRESETS_DIR, `${saved.slug}.md`), 'utf8');
+      assert.match(raw, /^---\nname: Categorized preset\ncreated: [^\n]+\ncategory: Messe\n---\n/);
+
+      const listed = await (await fetch(`${BASE}/presets`)).json();
+      const found = listed.presets.find((p) => p.slug === saved.slug);
+      assert.equal(found.category, 'Messe');
+    });
+
     it('GET /presets lists the saved preset', async () => {
       const res = await fetch(`${BASE}/presets`);
       assert.equal(res.status, 200);
