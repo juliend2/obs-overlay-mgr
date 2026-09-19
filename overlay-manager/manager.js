@@ -181,11 +181,13 @@ async function loadComponents() {
   const host = $('components');
   host.innerHTML = '';
   for (const component of components) {
+    const div = document.createElement('div')
     const btn = document.createElement('button');
     btn.textContent = component.label;
     btn.addEventListener('click',
       () => toggleComponentForm(component).catch((err) => console.error(err)));
-    host.appendChild(btn);
+    div.appendChild(btn)
+    host.appendChild(div)
   }
 }
 

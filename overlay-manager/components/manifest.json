@@ -2,11 +2,11 @@
   "components": [
     {
       "file": "messe-sjb-date.html",
-      "label": "Ajouter Eglise Saint Jean Baptiste"
+      "label": "Ajouter 'Eglise Saint Jean Baptiste'"
     },
     {
       "file": "lyrics.html",
-      "label": "Ajouter des paroles"
+      "label": "Ajouter un chant"
     }
   ]
 }
