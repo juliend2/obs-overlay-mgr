@@ -21,6 +21,7 @@ async function postJson(url, body) {
   });
 }
 
+// Displays a temporary message next to an element
 function flash(statusEl, message, ok = true) {
   clearTimeout(statusEl._flashTimer);
   statusEl.textContent = message;
@@ -256,6 +257,7 @@ async function loadPresets() {
 //   save();
 // });
 
+// Button that sends the preview in live:
 $('golive').addEventListener('click', async () => {
   const status = $('golive-status');
   flash(status, 'Going live...');
