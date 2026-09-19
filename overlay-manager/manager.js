@@ -259,6 +259,19 @@ async function loadPresets() {
 //   save();
 // });
 
+// --- iframes ---
+
+// Keeps the preview/live iframes at a 16:9 aspect ratio: width stays at 100%
+// and the height is recomputed whenever the frame's size changes.
+const ratioObserver = new ResizeObserver((entries) => {
+  for (const entry of entries) {
+    entry.target.style.height = `${Math.round(entry.contentRect.width * 9 / 16)}px`;
+  }
+});
+for (const iframe of document.querySelectorAll('iframe.overlay-frame')) {
+  ratioObserver.observe(iframe);
+}
+
 // Button that sends the preview in live:
 $('golive').addEventListener('click', async () => {
   const status = $('golive-status');
