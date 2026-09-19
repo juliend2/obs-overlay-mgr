@@ -37,7 +37,7 @@ function parseTemplate(html) {
   return doc.getElementById('template-root');
 }
 
-function extractFields(root) {
+function extractFieldsFrom(root) {
   return [...root.querySelectorAll('[data-field]')].map((el) => ({
     name: el.dataset.field,
     label: el.dataset.label || el.dataset.field,
@@ -108,7 +108,7 @@ async function toggleComponentForm(component) {
 
     const container = document.createElement('div');
     container.className = 'form';
-    for (const field of extractFields(root)) {
+    for (const field of extractFieldsFrom(root)) {
       container.appendChild(buildFieldInput(field));
     }
 

@@ -71,7 +71,3 @@ in OBS afterwards.
 **Port 8081**, not 8000, so it doesn't collide with `testfeed/`'s dev server
 if you're running both at once.
 
-Verified end-to-end: `GET /`, `/manager`, `/overlay.html`, a `POST /save`,
-and — via a throwaway raw-socket test client speaking the handshake and
-frame format by hand — that a connected viewer actually receives the
-`reload` frame after a save.
