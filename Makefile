@@ -6,3 +6,6 @@ feed:
 
 manager:
 	cd overlay-manager && ./start.sh
+
+lyrics:
+	cd wirecast_songs && node ./generate-song-presets.js
