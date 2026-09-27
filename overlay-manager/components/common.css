@@ -59,9 +59,9 @@ body {
 /* lyrics.html */
 
 .lyrics-wrapper {
-  font-size: 2.2rem;
-  align-items: center;
-  justify-content: center;
+  font-size: 1.2rem;
+  align-items: left;
+  justify-content: flex-start;
 }
 
 .lyrics {
@@ -69,7 +69,7 @@ body {
   color: white;
   padding: 1.5rem 2.5rem;
   max-width: 90%;
-  text-align: center;
+  text-align: left;
   line-height: 1.6;
   /* The value comes from a form textarea: keep the author's line breaks. */
   white-space: pre-line;
