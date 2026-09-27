@@ -261,6 +261,9 @@ function buildPresetItem(preset) {
 
 async function loadPresets() {
   const { presets } = await fetchJson('/presets');
+  // Alphabetical (ascending) within each category and in the uncategorized
+  // list — grouping below preserves this order; the API returns newest-first.
+  presets.sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }));
   const host = $('presets');
   host.innerHTML = '';
 
