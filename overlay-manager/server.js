@@ -19,7 +19,9 @@ import * as presets from './presets.js'
 const PORT = process.env.PORT || 8081;
 const DIR = path.dirname(fileURLToPath(import.meta.url));
 const COMPONENTS_DIR = path.join(DIR, 'components');
-const PRESETS_DIR = path.join(DIR, 'presets');
+const PRESETS_DIR = process.env.PRESETS_DIR
+  ? path.resolve(process.env.PRESETS_DIR)
+  : path.join(DIR, 'presets');
 const OVERLAY_PREVIEW_PATH = path.join(DIR, 'overlay-preview.html');
 const OVERLAY_LIVE_PATH = path.join(DIR, 'overlay-live.html');
 const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';

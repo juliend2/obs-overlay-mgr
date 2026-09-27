@@ -3,9 +3,9 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import net from 'node:net';
 import crypto from 'node:crypto';
+import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { server } from '../server.js';
 
 // Black-box integration tests for server.js: real HTTP via fetch, and a
 // real raw TCP client speaking the WebSocket handshake by hand. No mocks.
@@ -14,7 +14,6 @@ const HERE = path.dirname(fileURLToPath(import.meta.url));
 const APP = path.dirname(HERE);
 const OVERLAY_PREVIEW_PATH = path.join(APP, 'overlay-preview.html');
 const OVERLAY_LIVE_PATH = path.join(APP, 'overlay-live.html');
-const PRESETS_DIR = path.join(APP, 'presets');
 const VIEWER_PATH = path.join(APP, 'viewer.html');
 const MANAGER_PATH = path.join(APP, 'manager.html');
 const MANAGER_JS_PATH = path.join(APP, 'manager.js');
@@ -26,6 +25,13 @@ const originalPreview = fs.readFileSync(OVERLAY_PREVIEW_PATH, 'utf8');
 const originalLive = fs.readFileSync(OVERLAY_LIVE_PATH, 'utf8');
 const viewerHtml = fs.readFileSync(VIEWER_PATH);
 const managerHtml = fs.readFileSync(MANAGER_PATH);
+
+// Throwaway presets dir: the server reads PRESETS_DIR at import time, so the
+// env var is set before dynamically importing server.js in before(). Tests
+// must never write into (or sweep out) the real presets/ directory.
+const TEST_PRESETS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'presets-test-'));
+const PRESETS_DIR = TEST_PRESETS_DIR;
+let server;
 
 function freePort() {
   return new Promise((resolve, reject) => {
@@ -126,6 +132,8 @@ let BASE;
 
 describe('server integration', () => {
   before(async () => {
+    process.env.PRESETS_DIR = TEST_PRESETS_DIR;
+    ({ server } = await import('../server.js'));
     port = await freePort();
     BASE = `http://127.0.0.1:${port}`;
     await new Promise((resolve) => server.listen(port, '127.0.0.1', resolve));
@@ -136,10 +144,7 @@ describe('server integration', () => {
     await new Promise((resolve) => server.close(resolve));
     fs.writeFileSync(OVERLAY_PREVIEW_PATH, originalPreview);
     fs.writeFileSync(OVERLAY_LIVE_PATH, originalLive);
-    // Preset tests write into the real presets dir; sweep up anything left.
-    for (const entry of fs.readdirSync(PRESETS_DIR)) {
-      if (entry.endsWith('.md')) fs.unlinkSync(path.join(PRESETS_DIR, entry));
-    }
+    fs.rmSync(TEST_PRESETS_DIR, { recursive: true, force: true });
   });
 
   describe('static files', () => {
