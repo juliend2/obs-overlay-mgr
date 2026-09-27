@@ -30,7 +30,7 @@ function filePath(dir, slug) {
   return path.join(dir, `${slug}.md`);
 }
 
-function serialize(name, created, category, html) {
+export function serialize(name, created, category, html) {
   // Frontmatter must stay single-line, so collapse any newlines in the name
   // and category.
   const title = name.replace(/\s*\r?\n\s*/g, ' ');

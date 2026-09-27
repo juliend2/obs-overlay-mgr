@@ -1,0 +1,61 @@
+---
+name: bob
+created: 2026-09-19T17:00:32.843Z
+category: Messe
+---
+<style>
+html {
+  padding: 0;
+  margin: 0;
+  font-size: 1vw;
+}
+
+
+body {
+  padding: 0;
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.wrapper {
+  font-family: sans-serif;
+  font-size: 1.4rem;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  padding: 2vw;
+}
+
+.h1, .h2 {
+  padding: .6rem;
+}
+.h1 {
+  background: white;
+  background: linear-gradient(90deg,rgba(255, 255, 255, 1) 0%, rgba(255, 255,
+    255, 1) 0%, rgba(255, 255, 255, 0) 100%);
+  color: black;
+  font-size: 2rem;
+}
+.h2 {
+  background: black;
+  background: linear-gradient(90deg,rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
+  color: white;
+  font-size: 1.8rem;
+}
+.footer {
+  align-self: flex-end;
+  width: 100%;
+}
+</style>
+
+<div class="wrapper">
+  <div class="footer">
+    <div class="h1" data-field="field_1" data-label="Nom de l'église" data-type="text">Eglise Saint Jean Baptiste</div>
+    <div class="h2" data-field="field_2" data-label="Date de la messe" data-type="text">Messe du 6 Septembre 2026</div>
+  </div>
+</div>
