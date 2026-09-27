@@ -6,5 +6,6 @@ category: Chants
 <link rel="stylesheet" href="components/common.css">
 
 <div class="wrapper lyrics-wrapper">
-  <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Dans ta miséricorde, écoute-nous, Seigneur.</div>
+  <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Dans ta miséricorde, 
+écoute-nous, Seigneur.</div>
 </div>

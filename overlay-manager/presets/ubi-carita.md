@@ -6,5 +6,7 @@ category: Chants
 <link rel="stylesheet" href="components/common.css">
 
 <div class="wrapper lyrics-wrapper">
-  <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea"> Ubi caritas et amor Ubi caritas Deus ibi est</div>
+  <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea"> Ubi caritas et amor
+ Ubi caritas
+ Deus ibi est</div>
 </div>

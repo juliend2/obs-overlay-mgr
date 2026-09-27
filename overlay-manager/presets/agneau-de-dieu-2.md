@@ -6,10 +6,22 @@ category: Chants
 <link rel="stylesheet" href="components/common.css">
 
 <div class="wrapper lyrics-wrapper">
-  <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Agneau de Dieu, toi qui enlèvesle péché de notre monde,Entends nos cœurs, vois notre foi,viens nous sauver, viens et prends pitié.
+  <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Agneau de Dieu, toi qui enlèves
+le péché de notre monde,
 
-Agneau de Dieu, toi qui enlèvesle péché de notre monde,Entends nos cœurs, vois notre foi,viens nous sauver, viens et prends pitié.
+Entends nos cœurs, vois notre foi,
+viens nous sauver, viens et prends pitié.
 
-Agneau de Dieu, toi qui enlèvesle péché de notre monde,Entends nos cœurs, vois notre foi,viens nous combler, donne-nous la paix.
+Agneau de Dieu, toi qui enlèves
+le péché de notre monde,
+
+Entends nos cœurs, vois notre foi,
+viens nous sauver, viens et prends pitié.
+
+Agneau de Dieu, toi qui enlèves
+le péché de notre monde,
+
+Entends nos cœurs, vois notre foi,
+viens nous combler, donne-nous la paix.
 </div>
 </div>

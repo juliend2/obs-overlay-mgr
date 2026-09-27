@@ -6,7 +6,13 @@ category: Chants
 <link rel="stylesheet" href="components/common.css">
 
 <div class="wrapper lyrics-wrapper">
-  <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">R. Je suis vivant, Voyez mes mains, touchez mes plaies. N’ayez pas peur ! Mettez la main dans mon côté, Voici mon corps ressuscité. Croyez-en moi, Je vous donne ma paix.
+  <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">R. Je suis vivant, 
+Voyez mes mains, touchez mes plaies. 
+N’ayez pas peur ! 
+Mettez la main dans mon côté, 
+Voici mon corps ressuscité. 
+Croyez-en moi, 
+Je vous donne ma paix.
 
 
 1. Sur moi, vous aviez roulé la pierre, 

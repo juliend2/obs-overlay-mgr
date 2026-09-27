@@ -6,5 +6,9 @@ category: Chants
 <link rel="stylesheet" href="components/common.css">
 
 <div class="wrapper lyrics-wrapper">
-  <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Gloire et louange à toi, Seigneur Jésus !Je vous donne un commandement nouveau, dit le Seigneur :« Aimez-vous les uns les autrescomme je vous ai aimés. »</div>
+  <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Gloire et louange à toi, Seigneur Jésus !
+
+Je vous donne un commandement nouveau, dit le Seigneur :
+« Aimez-vous les uns les autres
+comme je vous ai aimés. »</div>
 </div>

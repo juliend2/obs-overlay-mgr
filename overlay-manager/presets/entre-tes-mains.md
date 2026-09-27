@@ -6,5 +6,8 @@ category: Chants
 <link rel="stylesheet" href="components/common.css">
 
 <div class="wrapper lyrics-wrapper">
-  <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">En mangeant ce pain,en buvant ce vin,nous chantons ta gloire,car tu viendras demain.</div>
+  <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">En mangeant ce pain,
+en buvant ce vin,
+nous chantons ta gloire,
+car tu viendras demain.</div>
 </div>

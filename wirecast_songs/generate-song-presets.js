@@ -160,6 +160,14 @@ function scanDocument(xml) {
   return { sources, assets, shots };
 }
 
+// Wirecast stores soft line breaks as vertical tabs (U+000B), which the
+// browser has no use for and ends up displaying as a "␋" glyph in the
+// overlay. Real newlines are what the lyrics component's `white-space:
+// pre-line` expects.
+function normalizeLineBreaks(text) {
+  return text.replace(/\u000b/g, '\n');
+}
+
 function extractSongs(xml) {
   const { sources, assets, shots } = scanDocument(xml);
 
@@ -174,9 +182,9 @@ function extractSongs(xml) {
       || null;
     if (!sourceId) continue;
 
-    const content = decodeURIComponent(
+    const content = normalizeLineBreaks(decodeURIComponent(
       Buffer.from(sources.get(sourceId), 'base64').toString('utf8'),
-    );
+    ));
     if (content.trim().length < 30) continue;
 
     songs.push({
