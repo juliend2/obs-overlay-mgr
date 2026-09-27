@@ -80,7 +80,9 @@ export const server = http.createServer(async (req, res) => {
       res.end('Not found');
       return;
     }
-    const type = filePath.endsWith('.json') ? 'application/json' : 'text/html';
+    const type = filePath.endsWith('.json') ? 'application/json'
+      : filePath.endsWith('.css') ? 'text/css'
+      : 'text/html';
     return web.serveFile(res, filePath, type, req.method);
   }
   if (isRead && pathname === '/overlay-preview.html') {

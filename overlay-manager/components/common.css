@@ -1,0 +1,76 @@
+/* Shared stylesheet for the components/*.html templates.
+   Components carry <link rel="stylesheet" href="components/common.css">,
+   which stays inside the fragment when it is saved into the overlay and
+   injected by viewer.html — the viewer page sits at /, so the href must
+   resolve from there to /components/common.css. */
+
+html {
+  padding: 0;
+  margin: 0;
+  font-size: 1vw;
+}
+
+body {
+  padding: 0;
+  margin: 0;
+  width: 100vw;
+  height: 100vh;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+.wrapper {
+  font-family: sans-serif;
+  height: 100%;
+  width: 100%;
+  display: flex;
+  padding: 2vw;
+}
+
+/* messe-sjb-date.html */
+
+.date-wrapper {
+  font-size: 1.4rem;
+}
+
+.h1, .h2 {
+  padding: .6rem;
+}
+.h1 {
+  background: white;
+  background: linear-gradient(90deg,rgba(255, 255, 255, 1) 0%, rgba(255, 255,
+    255, 1) 0%, rgba(255, 255, 255, 0) 100%);
+  color: black;
+  font-size: 2rem;
+}
+.h2 {
+  background: black;
+  background: linear-gradient(90deg,rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 1) 0%, rgba(0, 0, 0, 0) 100%);
+  color: white;
+  font-size: 1.8rem;
+}
+.footer {
+  align-self: flex-end;
+  width: 100%;
+}
+
+/* lyrics.html */
+
+.lyrics-wrapper {
+  font-size: 2.2rem;
+  align-items: center;
+  justify-content: center;
+}
+
+.lyrics {
+  background: rgba(0, 0, 0, 0.6);
+  color: white;
+  padding: 1.5rem 2.5rem;
+  max-width: 90%;
+  text-align: center;
+  line-height: 1.6;
+  /* The value comes from a form textarea: keep the author's line breaks. */
+  white-space: pre-line;
+}
