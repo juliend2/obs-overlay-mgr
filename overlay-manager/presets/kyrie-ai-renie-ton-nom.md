@@ -21,17 +21,5 @@ Christe Eleison,Christe Elesion
 Pardonne-moi,Seigneur,Je n’ai pas su aimer
 Pardonne-moi,Seigneur, je me suis dérobé
 Je ne suis pas resté le gardien de mon frère
-Pardonne-moi et purifie mon cœur
-
-
-
-
-
-
-
-
-
-
-
-</div>
+Pardonne-moi et purifie mon cœur</div>
 </div>

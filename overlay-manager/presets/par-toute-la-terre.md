@@ -34,24 +34,5 @@ consacrés pour l’annoncer !
 Que nos lèvres chantent sa bonté,
 la splendeur de son dessein,
 gloire à notre Dieu, roi tout puissant,
-éternel est son amour !
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
+éternel est son amour !</div>
 </div>

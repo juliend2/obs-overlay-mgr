@@ -26,19 +26,5 @@ Que ma bouche chante ta louange.
 Tu affermis nos mains pour le combat,
 Que ma bouche chante ta louange.
 Seigneur tu nous fortifies dans la foi !
-Que ma bouche chante ta louange. 
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
+Que ma bouche chante ta louange.</div>
 </div>

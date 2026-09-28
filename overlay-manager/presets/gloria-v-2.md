@@ -17,16 +17,5 @@ Prends pitié de nous.
 5. Car toi seul es saint, toi seul es Seigneur,
 Toi seul es le Très Haut, Jésus-Christ,
 avec le Saint-Esprit dans la gloire du Père.
-Gloire, gloire à Dieu!
-
-
-
-
-
-
-
-
-
-
-</div>
+Gloire, gloire à Dieu!</div>
 </div>

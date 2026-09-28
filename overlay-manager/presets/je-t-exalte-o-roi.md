@@ -22,11 +22,5 @@ Qu´ils parlent, ô Dieu de ta prouesse.
 3. Le Seigneur est vérité en ses paroles,
 Il est amour en toutes ses œuvres,
 Il retient tous ceux qui tombent,
-Il redresse tous ceux qui sont courbés.
-
-
-
-
-
-</div>
+Il redresse tous ceux qui sont courbés.</div>
 </div>

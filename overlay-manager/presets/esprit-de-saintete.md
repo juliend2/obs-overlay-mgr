@@ -12,6 +12,5 @@ Chaque jour, fais de nous des témoins du Seigneur.
 Tu es la lumière qui vient nous éclairer,
 Le Libérateur qui vient nous délivrer,
 Le Consolateur, Esprit de vérité,
-En toi l'espérance et la fidélité.
-</div>
+En toi l'espérance et la fidélité.</div>
 </div>

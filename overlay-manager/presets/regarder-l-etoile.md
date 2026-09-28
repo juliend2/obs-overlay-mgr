@@ -24,14 +24,5 @@ Emporté par les courants de tristesse
 Si tu la suis, tu ne dévies pas,
 Si tu la pries, tu ne faiblis pas.
 Tu ne crains rien, Elle est avec toi
-Et jusqu'au bout, Elle te guidera
-
-
-
-
-
-
-
-
-</div>
+Et jusqu'au bout, Elle te guidera</div>
 </div>

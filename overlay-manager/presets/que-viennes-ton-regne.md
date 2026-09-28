@@ -40,7 +40,5 @@ Que ta volonté soit faite
 Que coule en torrents
 Ton Esprit de vérité
 Donne-nous ton espérance
-Ton amour, ta Sainteté
-
-</div>
+Ton amour, ta Sainteté</div>
 </div>

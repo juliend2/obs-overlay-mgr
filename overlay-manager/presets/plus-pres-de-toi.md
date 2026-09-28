@@ -22,9 +22,5 @@ Moi, je t’offre mon cœur pour qu’il soit ta demeure.
 3. Seigneur sur cette terre, montre-moi ton amour ;
 Sans toi à mes côtés, je ne fais que tomber.
 Viens affermir en moi l’esprit de charité,
-Que je sache donner, aimer et pardonner.
-
-
-
-</div>
+Que je sache donner, aimer et pardonner.</div>
 </div>

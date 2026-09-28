@@ -22,11 +22,5 @@ Un cœur ouvert pour l'écouter?
 Laisserons-nous à notre fête
 Un pas de danse à l'étranger
 Trouvera-t-il quand il viendra
-Des mains tendues pour l'inviter?
-
-
-
-
-
-</div>
+Des mains tendues pour l'inviter?</div>
 </div>

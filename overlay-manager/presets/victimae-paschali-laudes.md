@@ -31,12 +31,5 @@ praecedet suos in Galilaeam.
 Scimus Christum surrexisse
 a mortuis vere:
 tu nobis, victor Rex, miserere.
-Amen. Alleluia.
-
-
-
-
-
-
-</div>
+Amen. Alleluia.</div>
 </div>

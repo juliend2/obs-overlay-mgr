@@ -20,17 +20,5 @@ qu’il soit ma vie, ma prière.
 Père des pauvres et des petits, 
 mon rempart, mon seul abri.
 Prends-moi dans Ta main Seigneur, 
-garde-moi près de Ton cœur.
-
-
-
-
-
-
-
-
-
-
-
-</div>
+garde-moi près de Ton cœur.</div>
 </div>

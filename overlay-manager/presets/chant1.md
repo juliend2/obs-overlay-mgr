@@ -19,5 +19,5 @@ Strophe 2
 Tu étends mes ailes pour toucher les cieux,
 Protégé par ta main.
 Ta grâce m'appelle à lever les yeux
-Et suivre ton chemin. </div>
+Et suivre ton chemin.</div>
 </div>

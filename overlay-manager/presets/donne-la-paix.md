@@ -7,6 +7,5 @@ category: Chants
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Donne la paix, ô Seigneur,
 à qui se confie en toi.
 Donne, donne la paix, ô Seigneur,
-donne la paix de Dieu.
-</div>
+donne la paix de Dieu.</div>
 </div>

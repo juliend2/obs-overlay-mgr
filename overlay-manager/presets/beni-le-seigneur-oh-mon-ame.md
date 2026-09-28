@@ -22,7 +22,5 @@ Bénis le Seigneur, ô mon âme !
 Comme un père pour ses enfants,
 tendre est le Seigneur pour qui le craint,
 de son cœur jaillit l’amour.
-Bénis le Seigneur, ô mon âme !
-
-</div>
+Bénis le Seigneur, ô mon âme !</div>
 </div>

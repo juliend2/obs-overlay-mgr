@@ -5,5 +5,5 @@ category: Chants
 ---
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Jésus le Christ, lumière intérieure,
-Ne laisse pas mes ténèbres me parler. Jésus le Christ, lumière intéri eure, Donne-moi d'accueillir ton amour. </div>
+Ne laisse pas mes ténèbres me parler. Jésus le Christ, lumière intéri eure, Donne-moi d'accueillir ton amour.</div>
 </div>

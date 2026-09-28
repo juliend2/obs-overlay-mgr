@@ -27,6 +27,5 @@ Je me donne à toi, mon Seigneur
 5. Vierge Marie
 Garde mon chemin dans l'abandon, la confiance de l'amour
 Humblement, dans le silence de mon cœur
-Je me donne à toi, mon Seigneur
-</div>
+Je me donne à toi, mon Seigneur</div>
 </div>

@@ -17,7 +17,5 @@ un monde libre et assoiffé?
 Laisserons-nous à nos églises
 Un peu d'espace à l'étranger
 Trouvera-t-il quand il viendra
-Des cœurs de pauvres et d'affamés?
-
-</div>
+Des cœurs de pauvres et d'affamés?</div>
 </div>

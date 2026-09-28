@@ -17,7 +17,5 @@ Jésus, que ton règne vienne.
 
 Venez, rameaux à la main.
 Célébrez le Dieu qui vous sauve :
-Aujourd’hui s’ouvre son règne.
-
-</div>
+Aujourd’hui s’ouvre son règne.</div>
 </div>

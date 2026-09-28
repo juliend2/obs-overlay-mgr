@@ -25,6 +25,5 @@ mes habits funèbres en parure de joie. R
 4. Que mon cœur ne se taise pas,
 qu’il soit en fête pour toi,
 et que sans fin, Seigneur, mon Dieu,
-je te rende grâce ! R
-</div>
+je te rende grâce ! R</div>
 </div>

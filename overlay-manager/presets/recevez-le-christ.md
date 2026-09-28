@@ -32,5 +32,5 @@ L'eau vive de l'Esprit.
 5. Seigneur, tu m'appelles à te suivre. 
 Viens au secours de ma faiblesse. 
 En mon coeur, viens, établis ta demeure, 
-Que brûle ton Amour. </div>
+Que brûle ton Amour.</div>
 </div>

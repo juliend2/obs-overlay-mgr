@@ -17,6 +17,5 @@ R. Sois loué Seigneur, pour ta grandeur,
 Sois loué pour tous tes bienfaits. 
 Gloire à toi Seigneur, tu es vainqueur, 
 Ton amour inonde nos cœurs. 
-Que ma bouche chante ta louange. 
-</div>
+Que ma bouche chante ta louange.</div>
 </div>

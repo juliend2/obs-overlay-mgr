@@ -32,27 +32,5 @@ Avance, ne crains pas
 Tends la main à tous ceux
 Qui cheminent avec toi
 Vers la maison de Dieu
-Petit trésor, tu es sa bien-aimée
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
+Petit trésor, tu es sa bien-aimée</div>
 </div>

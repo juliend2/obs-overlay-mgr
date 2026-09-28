@@ -17,7 +17,5 @@ tout ce qu’il attendra de vous.
 Avec un cœur plein de confiance,
 remettez à Dieu votre vie,
 ayez foi en sa providence,
-c’est son amour qui nous conduit pour vivre.
-
-</div>
+c’est son amour qui nous conduit pour vivre.</div>
 </div>

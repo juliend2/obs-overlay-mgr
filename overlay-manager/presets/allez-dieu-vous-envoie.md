@@ -20,6 +20,5 @@ Par votre voix
 
 Par vous il veut sauver et relever les hommes
 Car il est l'agneau immolé
-La vie triomphe par le nom de Jésus Ressuscité
-</div>
+La vie triomphe par le nom de Jésus Ressuscité</div>
 </div>

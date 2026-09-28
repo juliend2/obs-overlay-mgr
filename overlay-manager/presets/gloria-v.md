@@ -22,25 +22,5 @@ Gloire, gloire à toi!
 3. Seigneur Dieu, agneau de Dieu
 Seigneur, le fils du Père
 Toi qui enlèves le péché du monde,
-prends pitié de nous.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
+prends pitié de nous.</div>
 </div>

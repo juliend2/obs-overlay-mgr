@@ -26,8 +26,5 @@ le pain qui rend heureux et vient d’ailleurs !
 Si nous marchons jusqu’à ce lieu béni,
 jusqu’au buisson qui brûle en notre vie,
 nous entendrons Dieu livrer son secret :
-« Je suis Celui qui Est, tel est mon Nom ! »
-
-
-</div>
+« Je suis Celui qui Est, tel est mon Nom ! »</div>
 </div>

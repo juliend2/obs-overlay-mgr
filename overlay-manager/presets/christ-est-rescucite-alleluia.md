@@ -26,15 +26,5 @@ Louez-le car il vient pour vous sauver,
 exultez car voici votre Sauveur,
 il est Dieu, il est Roi victorieux, Alléluia.
 
-Alléluia, alléluia, alléluia !
-
-
-
-
-
-
-
-
-
-</div>
+Alléluia, alléluia, alléluia !</div>
 </div>

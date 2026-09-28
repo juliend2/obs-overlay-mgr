@@ -14,8 +14,5 @@ Pour aimer en vérité,
 Viens, Esprit Saint, nous brûler de ton feu !
 Nous accueillons ta clarté
 Pour grandir en liberté,
-Viens, Esprit Saint, viens transformer nos vies !
-
-
-</div>
+Viens, Esprit Saint, viens transformer nos vies !</div>
 </div>

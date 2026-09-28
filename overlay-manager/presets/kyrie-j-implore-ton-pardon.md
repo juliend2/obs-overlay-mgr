@@ -17,14 +17,5 @@ de ton cœur, je reviens vers toi.
 Seigneur, je viens pour implorer, 
 ton pardon sur mon péché.
 De tout mon cœur, de toute ma foi, 
-de ton cœur, je reviens vers toi.
-
-
-
-
-
-
-
-
-</div>
+de ton cœur, je reviens vers toi.</div>
 </div>

@@ -20,7 +20,5 @@ le désir de mon cœur pour toi !
 
 Je suis la lumière du monde : 
 qui me suit ne marchera pas dans les ténèbres,
-mais aura la lumière de la vie !
-
-</div>
+mais aura la lumière de la vie !</div>
 </div>

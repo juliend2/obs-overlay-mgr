@@ -17,6 +17,5 @@ Jésus, ton doux agneau, croit reposer en toi.
 Comme toi, je possède en moi
 le Tout-Puissant.
 Et je ne tremble pas en voyant ma faiblesse,
-le trésor de la mère appartient à l’enfant.
-</div>
+le trésor de la mère appartient à l’enfant.</div>
 </div>

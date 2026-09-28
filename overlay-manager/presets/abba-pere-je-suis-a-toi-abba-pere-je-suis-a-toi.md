@@ -28,15 +28,5 @@ Abba Père, je suis émerveillé,
 saisi par l’immensité de ton amour pour moi.
 Abba Père, si grande est ta tendresse,
 ton cœur est grand ouvert 
-et je viens plonger dans tes bras !
-
-
-
-
-
-
-
-
-
-</div>
+et je viens plonger dans tes bras !</div>
 </div>

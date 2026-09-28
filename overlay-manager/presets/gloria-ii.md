@@ -18,17 +18,5 @@ Gloire à toi dans les siècles!
 
 Gloire à toi, éternel amour,
 Esprit Saint qui nous ouvres au Père!
-Gloire à toi dans les siècles!
-
-
-
-
-
-
-
-
-
-
-
-</div>
+Gloire à toi dans les siècles!</div>
 </div>

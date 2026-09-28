@@ -29,12 +29,5 @@ en cette Eucharistie.
 Chassons toute indolence, 
 le Christ est parmi nous,
 accueillons sa présence,
-et offrons-nous à Lui.
-
-
-
-
-
-
-</div>
+et offrons-nous à Lui.</div>
 </div>

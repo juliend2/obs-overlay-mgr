@@ -26,14 +26,5 @@ Par mes blessures, je vous offre le salut.
 3. Dis-moi, ô mort, où est ta victoire ?  
 Je suis descendu au plus profond des enfers. 
 Et je reviens vers vous resplendissant de gloire, 
-Accompagné de la foule des rachetés.  
-
-
-
-
-
-
-
-
-</div>
+Accompagné de la foule des rachetés.</div>
 </div>

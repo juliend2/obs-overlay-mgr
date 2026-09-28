@@ -26,6 +26,5 @@ Viens Saint Esprit embraser les nations
 Viens Saint Esprit sur cette génération
 Viens Saint Esprit embraser les nations
 Viens Saint Esprit sur cette génération
-Oh-oh-oh-oh-oh-oh-oh-oh-oh-oh
-</div>
+Oh-oh-oh-oh-oh-oh-oh-oh-oh-oh</div>
 </div>

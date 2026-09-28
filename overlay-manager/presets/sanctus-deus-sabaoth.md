@@ -8,6 +8,5 @@ category: Chants
 Pleni sunt caeli et terra Gloria tua
 Hosanna in excelsis (bis)
 Bénédictus qui venit in nomine Domini.
-Hosanna in excelsis. (Bis)
-</div>
+Hosanna in excelsis. (Bis)</div>
 </div>

@@ -17,7 +17,5 @@ En sacrement du salut.
 Qu´il est grand, ô Seigneur ce mystère
 Qui nous rend dignes de vivre en toi.
 Prends nos vies et reçois nos louanges,
-Comme une offrande d´amour.
-
-</div>
+Comme une offrande d´amour.</div>
 </div>

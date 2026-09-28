@@ -27,7 +27,5 @@ Vivant, vivant, puissant, puissant,
 Vivant, Dieu vivant,
 Puissant, tout-puissant,
 Dieu vivant, Dieu tout-puissant,
-Dieu vivant, Dieu tout-puissant !
-
-</div>
+Dieu vivant, Dieu tout-puissant !</div>
 </div>

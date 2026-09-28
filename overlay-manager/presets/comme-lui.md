@@ -28,26 +28,5 @@ Au milieu de notre monde.
 4 - Offrir le pain de chaque cène
 Aux gens qui ont faim dans leur cœur.
 Être pour eux des signes d'évangile,
-Au milieu de notre monde.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
+Au milieu de notre monde.</div>
 </div>

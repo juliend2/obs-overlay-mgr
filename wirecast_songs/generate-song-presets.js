@@ -182,10 +182,12 @@ function extractSongs(xml) {
       || null;
     if (!sourceId) continue;
 
+    // trim(): the lyrics div uses `white-space: pre-line`, so leading/trailing
+    // whitespace in the text renders as blank lines and makes it grow.
     const content = normalizeLineBreaks(decodeURIComponent(
       Buffer.from(sources.get(sourceId), 'base64').toString('utf8'),
-    ));
-    if (content.trim().length < 30) continue;
+    )).trim();
+    if (content.length < 30) continue;
 
     songs.push({
       title: titleAsset.name,

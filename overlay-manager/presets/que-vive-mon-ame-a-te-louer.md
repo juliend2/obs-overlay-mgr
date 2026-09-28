@@ -24,7 +24,5 @@ Plus douce que le miel est ta promesse.
 
 4. Heureux ceux qui méditent sur la sagesse !
 Vivifie-moi, apprends-moi tes volontés ;
-Dès l’aube, de ta joie tu m’as comblé.
-
-</div>
+Dès l’aube, de ta joie tu m’as comblé.</div>
 </div>

@@ -22,7 +22,5 @@ le Seigneur, héros Sauveur, est en toi. »
 Au milieu de toi, il exultera de joie,
 l’amour de Dieu te renouvellera.
 Il dansera pour toi avec des cris de joie,
-comme aux jours de fête, il exultera.
-
-</div>
+comme aux jours de fête, il exultera.</div>
 </div>

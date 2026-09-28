@@ -20,6 +20,5 @@ Prodige aujourd’hui.
 Revers ou succès
 Bons choix et erreurs
 Versés dans ton coeur
-Abîme infini.
-</div>
+Abîme infini.</div>
 </div>

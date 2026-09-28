@@ -24,11 +24,5 @@ Esprit de Dieu, Esprit du Dieu vivant,
 Souffle du nord, souffle du sud,
 Souffle de l'est, souffle de l'ouest.
 Esprit de Dieu, Esprit du Dieu vivant,
-Souffle des quatre vents et descends sur nous.
-
-
-
-
-
-</div>
+Souffle des quatre vents et descends sur nous.</div>
 </div>

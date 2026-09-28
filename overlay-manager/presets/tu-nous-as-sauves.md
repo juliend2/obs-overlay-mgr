@@ -22,9 +22,5 @@ Nous chantons ta victoire.
 Tu nous donnes ton Esprit,
 Pour que nous vivions en toi.
 Il nous envoie aujourd’hui
-Proclamer tes merveilles.
-
-
-
-</div>
+Proclamer tes merveilles.</div>
 </div>

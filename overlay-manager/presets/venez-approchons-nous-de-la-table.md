@@ -33,13 +33,5 @@ Il nous fait reposer.
 Il restaure notre âme, 
 Il nous garde du mal,
 Quand Il dresse pour nous 
-la Table du Salut.
-
-
-
-
-
-
-
-</div>
+la Table du Salut.</div>
 </div>

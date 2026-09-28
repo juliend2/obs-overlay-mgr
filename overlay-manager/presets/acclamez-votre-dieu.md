@@ -22,11 +22,5 @@ En ses mains remettez vos vies.
 Venez au banquet, buvez à la source,
 Dieu vous invite, écoutez sa voix !
 Venez sans argent, approchez de lui,
-Écoutez, alors vous vivrez.
-
-
-
-
-
-</div>
+Écoutez, alors vous vivrez.</div>
 </div>

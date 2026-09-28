@@ -25,27 +25,5 @@ Prends pitié de nous, reçois nos prières
 Car Toi seul es saint, Toi seul es Seigneur,
 Tu es le Très-Haut, Jésus-Christ,
 Dans l’unité du Saint-Esprit,
-Et dans la gloire de Dieu le Père.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
+Et dans la gloire de Dieu le Père.</div>
 </div>

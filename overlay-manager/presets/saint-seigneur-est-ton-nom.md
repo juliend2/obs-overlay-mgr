@@ -12,11 +12,5 @@ Jésus-Christ le Seigneur !
 Cieux et terre sont remplis, 
 ta joie brille en nos cœurs.
 Acclamons, acclamons, 
-Jésus-Christ le Seigneur !
-
-
-
-
-
-</div>
+Jésus-Christ le Seigneur !</div>
 </div>

@@ -11,6 +11,5 @@ vous seront données en plus,
 
 2. L'homme ne vivra pas de pain seulement,
 Mais de toutes paroles
-Qui sortent de la bouche de Dieu.
-</div>
+Qui sortent de la bouche de Dieu.</div>
 </div>

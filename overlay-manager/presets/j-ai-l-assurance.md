@@ -22,10 +22,5 @@ Je suis comblé, sûr de ton amour !
 C'est mon histoire, c'est là mon chant,
 Louer mon Sauveur le jour durant.
 C'est mon histoire, c'est là mon chant,
-Louer mon Sauveur le jour durant.
-
-
-
-
-</div>
+Louer mon Sauveur le jour durant.</div>
 </div>

@@ -17,7 +17,5 @@ je te comblerai de mon Esprit.
 Le Seigneur m’a appelé dès le sein de ma mère,
 Il a prononcé mon nom.
 C’est lui qui m’a formé pour être son serviteur,
-le témoin de sa gloire.
-
-</div>
+le témoin de sa gloire.</div>
 </div>

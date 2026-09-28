@@ -21,5 +21,5 @@ C'est par moi seul que vous vient la vie éternelle.
 5. Voici mon corps, le pain de la vie, 
 Voici mon sang répandu pour votre salut. 
 Ceux qui accueilleront en eux ma nourriture, 
-Je les ressusciterai à la fin des temps.  </div>
+Je les ressusciterai à la fin des temps.</div>
 </div>

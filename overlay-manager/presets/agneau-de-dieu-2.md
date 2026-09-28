@@ -20,6 +20,5 @@ Agneau de Dieu, toi qui enlèves
 le péché de notre monde,
 
 Entends nos cœurs, vois notre foi,
-viens nous combler, donne-nous la paix.
-</div>
+viens nous combler, donne-nous la paix.</div>
 </div>

@@ -25,7 +25,5 @@ Car tu es fidèle,
 Tu es toujours là,
 Tout près de tous ceux qui te cherchent,
 Tu réponds à ceux qui t’appellent.
-Gloire à toi !
-
-</div>
+Gloire à toi !</div>
 </div>

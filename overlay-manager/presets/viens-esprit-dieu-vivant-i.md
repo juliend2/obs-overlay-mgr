@@ -23,6 +23,5 @@ Toi le consolateur
 
 Viens esprit de vérité
 Viens purifier nos cœurs
-Viens nous renouveler
-</div>
+Viens nous renouveler</div>
 </div>

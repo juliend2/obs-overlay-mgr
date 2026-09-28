@@ -31,7 +31,5 @@ Dieu vivant, Dieu très-haut
 Tu es le Dieu d'amour
 Mon Dieu, tu es grand, tu es beau
 Dieu vivant, Dieu très-haut
-Dieu présent en toute création
-
-</div>
+Dieu présent en toute création</div>
 </div>

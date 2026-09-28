@@ -11,6 +11,5 @@ Le ciel et la terre sont remplis de ta gloire,
 Hosanna Hosanna au plus haut des Cieux
 
 Bénis soit celui qui vient au nom du Seigneur,
-Hosanna Hosanna au plus haut des Cieux
-</div>
+Hosanna Hosanna au plus haut des Cieux</div>
 </div>

@@ -22,6 +22,5 @@ Viens me prendre par la main
 4. Fais que j'entende, Seigneur
 Tous mes frères qui crient vers moi
 À leurs souffrances et à leurs appels
-Que mon cœur ne soit pas sourd
-</div>
+Que mon cœur ne soit pas sourd</div>
 </div>

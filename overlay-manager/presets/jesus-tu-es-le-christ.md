@@ -32,35 +32,5 @@ tu sais bien que je t’aime.
 5. Jésus, mon Dieu, je t’aime et je t’adore,
 je suis à toi, Jésus, viens vivre en moi.
 Que ton amour brûle en mon cœur,
-sois mon maître et Seigneur.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
+sois mon maître et Seigneur.</div>
 </div>

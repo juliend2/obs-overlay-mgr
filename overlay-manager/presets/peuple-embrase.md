@@ -17,6 +17,5 @@ Seigneur, fais-le maintenant.
 Notre Père, plein de bonté,
 Nos cœurs à toi s'abandonnent.
 Pour ce monde que tu as tant aimé,
-Seigneur, voici nos couronnes.
-</div>
+Seigneur, voici nos couronnes.</div>
 </div>

@@ -27,15 +27,5 @@ Mais espérer toujours.
 Espérer plus que tout
 Le pardon qui nous sauve
 Et la miséricorde
-Mais espérer toujours.
-
-
-
-
-
-
-
-
-
-</div>
+Mais espérer toujours.</div>
 </div>

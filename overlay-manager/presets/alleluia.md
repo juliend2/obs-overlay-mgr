@@ -7,6 +7,5 @@ category: Chants
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Alléluia, Lumière des nations, 
 Alléluia, alléluia!
 Alléluia, Jésus nous t’acclamons,
-Alléluia, alléluia!
-</div>
+Alléluia, alléluia!</div>
 </div>

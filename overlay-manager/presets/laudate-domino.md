@@ -16,7 +16,5 @@ Que tout être vivant chante louange au Seigneur.
 Acclamez, acclamez Dieu toute la terre,
 chantez à la gloire de son nom, en disant :
 "Toute la terre se prosterne devant toi,
-elle chante pour toi, elle chante pour ton nom"
-
-</div>
+elle chante pour toi, elle chante pour ton nom"</div>
 </div>

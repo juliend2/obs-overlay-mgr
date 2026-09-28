@@ -19,5 +19,5 @@ Refrain
 Tu m'offres chaque jour
 Ton infaillible amour ;
 Toi, qui as fixé le cours des étoiles,
-Sois mon ancre, sois ma voile ! </div>
+Sois mon ancre, sois ma voile !</div>
 </div>

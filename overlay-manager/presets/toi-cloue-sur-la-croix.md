@@ -22,11 +22,5 @@ tu as sauvé notre monde !
 Gloire à toi, Dieu, tu es père ! 
 Gloire à Jésus, toi mon frère !
 Gloire à l’Esprit, tu unis la terre ! 
-Ô Dieu si bon, voici ma prière !
-
-
-
-
-
-</div>
+Ô Dieu si bon, voici ma prière !</div>
 </div>

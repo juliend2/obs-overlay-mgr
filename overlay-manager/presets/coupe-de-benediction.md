@@ -20,17 +20,5 @@ moi, dont tu brisas les chaînes ?
 Je t’offrirai le sacrifice d’action de grâce,
 j’invoquerai le nom du Seigneur.
 Je tiendrai mes promesses au Seigneur,
-oui, devant tout son peuple.
-
-
-
-
-
-
-
-
-
-
-
-</div>
+oui, devant tout son peuple.</div>
 </div>

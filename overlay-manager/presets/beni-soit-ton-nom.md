@@ -29,14 +29,5 @@ Béni soit ton nom
 Béni soit ton nom
 Sur la route semée de souffrance
 S’il m’en coute d offrir ma louange
-Béni soit ton nom
-
-
-
-
-
-
-
-
-</div>
+Béni soit ton nom</div>
 </div>

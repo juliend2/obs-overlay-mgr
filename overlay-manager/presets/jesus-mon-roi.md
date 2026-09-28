@@ -20,5 +20,5 @@ Pour les offrir sur la croix à notre Père.
 3. Cœur glorieux et cœur plein de feu, 
 Cœur d'où jaillit la source de vie, 
 Cœur amoureux nous ouvrant le ciel
-Pour nous offrir dans la gloire à notre Père. </div>
+Pour nous offrir dans la gloire à notre Père.</div>
 </div>

@@ -29,11 +29,5 @@ Il vous conduira au Père
 et fera de vous des témoins.
 Cherchez, vous trouverez, 
 demandez, vous obtiendrez,
-afin que le Père  soit glorifié en vous !
-
-
-
-
-
-</div>
+afin que le Père  soit glorifié en vous !</div>
 </div>

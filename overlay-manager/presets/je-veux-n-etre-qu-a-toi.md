@@ -24,22 +24,5 @@ Je veux n’être qu’à toi, Jésus, je t’aime.
 
 Rien n’est plus beau que ton Nom,
 rien n’est plus saint que le sang du pardon.
-Je veux n’être qu’à toi, Jésus, mon Roi.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
+Je veux n’être qu’à toi, Jésus, mon Roi.</div>
 </div>

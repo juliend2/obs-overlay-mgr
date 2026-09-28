@@ -29,11 +29,5 @@ qui surpasse tout bien.
 Ce que nos yeux contemplent, 
 sans beauté ni éclat,
 c’est l’amour qui s’abaisse, 
-et nous élève à Lui.
-
-
-
-
-
-</div>
+et nous élève à Lui.</div>
 </div>

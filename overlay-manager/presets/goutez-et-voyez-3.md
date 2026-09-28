@@ -26,6 +26,5 @@ livré pour le Salut.
 Devenez le temple saint 
 du Christ Ressuscité,
 devenez le temple saint,
-demeure du Sauveur.
-</div>
+demeure du Sauveur.</div>
 </div>

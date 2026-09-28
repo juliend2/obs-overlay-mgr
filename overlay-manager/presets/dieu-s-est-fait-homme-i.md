@@ -22,10 +22,5 @@ Accueillons sa présence et offrons-nous à lui.
 Dieu se fait nourriture pour demeurer en nous,
 II se fait vulnérable et nous attire à lui.
 Mystère d’indigence d’un Dieu qui s’humilie
-Pour que sa créature soit transformée en lui.
-
-
-
-
-</div>
+Pour que sa créature soit transformée en lui.</div>
 </div>

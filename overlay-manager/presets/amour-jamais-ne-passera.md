@@ -33,13 +33,5 @@ La charité supporte tout.
 Un jour, les langues vont se taire,
 Les prophéties disparaîtront,
 Devant Dieu le Seigneur notre maître,
-Seul l’amour restera.
-
-
-
-
-
-
-
-</div>
+Seul l’amour restera.</div>
 </div>

@@ -4,7 +4,5 @@ created: 2026-09-27T17:50:34.902Z
 category: Chants
 ---
 <div class="wrapper lyrics-wrapper">
-  <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">
-Laudate omnes gentes, laudate Dominum
-</div>
+  <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Laudate omnes gentes, laudate Dominum</div>
 </div>

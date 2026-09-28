@@ -27,7 +27,5 @@ Mon Seigneur et mon Dieu
 3. Tu as posé tes yeux sur ma misère
 M'as libéré du poids de mon péché
 Tu vois mon cœur, oui, tu sais tout
-Tu sais bien que je t'aime
-
-</div>
+Tu sais bien que je t'aime</div>
 </div>

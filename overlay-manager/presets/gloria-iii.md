@@ -20,21 +20,5 @@ Toi qui es assis à la droite du Père, prends pitié de nous.
 Car toi seul es saint, 
 Toi seul es Seigneur, toi seul es le Très-Haut : Jésus-Christ, 
 avec le Saint Esprit, dans la gloire de Dieu le Père. 
-Amen.
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-</div>
+Amen.</div>
 </div>

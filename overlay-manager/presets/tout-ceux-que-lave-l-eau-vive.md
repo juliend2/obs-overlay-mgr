@@ -12,6 +12,5 @@ Alléluia ! (bis).
 4. Ton cœur, Jésus est la source,
 Alléluia ! (bis)
 D´où coule l´eau de la grâce,
-Alléluia ! (bis)
-</div>
+Alléluia ! (bis)</div>
 </div>

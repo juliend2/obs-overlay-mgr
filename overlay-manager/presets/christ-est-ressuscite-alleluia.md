@@ -30,12 +30,5 @@ en signe de la paix de Dieu.
 
 7. Je suis le Sauveur, Maître de tout !
 Je vous donne aujourd’hui la robe de clarté
-des fils transfigurés de Dieu.
-
-
-
-
-
-
-</div>
+des fils transfigurés de Dieu.</div>
 </div>

@@ -30,11 +30,5 @@ hâte, Seigneur, le temps du rendez-vous !
 Pain de partage en qui nous prenons corps,
 signe d’amour qui fait trembler la mort !
 Vin fraternel, promesse d’unité,
-viens vivre en nous, Seigneur ressuscité !
-
-
-
-
-
-</div>
+viens vivre en nous, Seigneur ressuscité !</div>
 </div>

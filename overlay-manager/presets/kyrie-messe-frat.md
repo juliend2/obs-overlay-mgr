@@ -8,6 +8,5 @@ category: Chants
 
 Prends pitié O Christ, O Christ prends pitié.Prends pitié O Christ, O Christ prends pitié.
 
-Prends pitié Seigneur, O Seigneur prends pitié.Prends pitié Seigneur, O Seigneur prends pitié.
-</div>
+Prends pitié Seigneur, O Seigneur prends pitié.Prends pitié Seigneur, O Seigneur prends pitié.</div>
 </div>

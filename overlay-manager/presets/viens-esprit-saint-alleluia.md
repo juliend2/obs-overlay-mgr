@@ -18,6 +18,5 @@ Viens Saint Esprit dans le cœur de tes fidèles !
 Qu’ils soient brûlés au feu de ton amour.
 
 Alléluia, alléluia, alléluia.
-Alléluia, alléluia, alléluia.
-</div>
+Alléluia, alléluia, alléluia.</div>
 </div>

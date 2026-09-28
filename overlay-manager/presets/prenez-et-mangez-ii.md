@@ -27,13 +27,5 @@ Recevez l’Esprit et proclamez le Salut.
 Soyez mes témoins,
 je vous ferai pécheurs d’hommes.
 Je suis avec vous pour toujours,
-n’ayez pas peur.
-
-
-
-
-
-
-
-</div>
+n’ayez pas peur.</div>
 </div>
