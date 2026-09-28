@@ -400,6 +400,48 @@ describe('server integration', () => {
       assert.equal(saved.slug, `${slug}-2`);
     });
 
+    it('PUT /presets/:slug renames, moves the file and keeps the html', async () => {
+      const res = await fetch(`${BASE}/presets/${slug}-2`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Renamed Song' }),
+      });
+      assert.equal(res.status, 200);
+      const renamed = await res.json();
+      assert.equal(renamed.name, 'Renamed Song');
+      assert.equal(renamed.slug, 'renamed-song');
+
+      assert.equal((await fetch(`${BASE}/presets/${slug}-2`)).status, 404);
+      const got = await (await fetch(`${BASE}/presets/renamed-song`)).json();
+      assert.equal(got.name, 'Renamed Song');
+      assert.equal(got.html, '<p>again</p>');
+    });
+
+    it('PUT /presets/:slug rejects a missing name with 400', async () => {
+      const res = await fetch(`${BASE}/presets/renamed-song`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ html: '<p>x</p>' }),
+      });
+      assert.equal(res.status, 400);
+      assert.equal(await res.text(), 'Missing "name" field');
+    });
+
+    it('PUT /presets/:slug returns 404 for unknown and unsafe slugs', async () => {
+      const res = await fetch(`${BASE}/presets/unknown`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'X' }),
+      });
+      assert.equal(res.status, 404);
+      const unsafe = await fetch(`${BASE}/presets/..%2F..%2Fserver.js`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'X' }),
+      });
+      assert.equal(unsafe.status, 404);
+    });
+
     it('rejects invalid JSON with 400', async () => {
       const res = await fetch(`${BASE}/presets`, { method: 'POST', body: '{nope' });
       assert.equal(res.status, 400);

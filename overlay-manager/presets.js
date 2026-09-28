@@ -122,6 +122,34 @@ export async function writePreset(dir, name, html, category = '') {
   return { slug, name, created, category };
 }
 
+// Renames a preset: rewrites the frontmatter name, moves the file to the new
+// slug (suffixing it like writePreset when the target slug is taken) and
+// keeps the original creation date, category and html. An accent/case-only
+// change keeps the same slug and rewrites the file in place. Returns the new
+// preset record, or null when the source slug doesn't exist.
+export async function renamePreset(dir, slug, name) {
+  if (!SLUG_RE.test(slug)) return null; // also blocks path traversal
+  const existing = await readPreset(dir, slug);
+  if (!existing) return null;
+  const created = existing.created;
+  const category = existing.category;
+  const html = existing.html;
+  let target = slugify(name);
+  if (target !== slug) {
+    const taken = new Set(
+      (await fs.promises.readdir(dir))
+        .filter((entry) => entry.endsWith('.md') && entry.slice(0, -3) !== slug)
+        .map((entry) => entry.slice(0, -3))
+    );
+    for (let i = 2; taken.has(target); i++) target = `${slugify(name)}-${i}`;
+    await fs.promises.writeFile(filePath(dir, target), serialize(name, created, category, html));
+    await fs.promises.unlink(filePath(dir, slug));
+  } else {
+    await fs.promises.writeFile(filePath(dir, slug), serialize(name, created, category, html));
+  }
+  return { slug: target, name, created, category };
+}
+
 export async function deletePreset(dir, slug) {
   if (!SLUG_RE.test(slug)) return false; // also blocks path traversal
   try {

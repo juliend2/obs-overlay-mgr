@@ -198,6 +198,30 @@ export const server = http.createServer(async (req, res) => {
       res.end(JSON.stringify({ slug, ...preset }));
       return;
     }
+    if (req.method === 'PUT') {
+      // Rename: new name in the JSON body; the file moves to the new slug
+      // (creation date, category and html are kept).
+      return readJsonBody(req, res, async (parsed) => {
+        if (typeof parsed.name !== 'string' || !parsed.name.trim()) {
+          res.writeHead(400);
+          res.end('Missing "name" field');
+          return;
+        }
+        try {
+          const renamed = await presets.renamePreset(PRESETS_DIR, slug, parsed.name.trim());
+          if (!renamed) {
+            res.writeHead(404);
+            res.end('Not found');
+            return;
+          }
+          res.writeHead(200, { 'Content-Type': 'application/json' });
+          res.end(JSON.stringify({ ok: true, ...renamed }));
+        } catch {
+          res.writeHead(500);
+          res.end('Rename failed');
+        }
+      });
+    }
     if (req.method === 'DELETE') {
       const deleted = await presets.deletePreset(PRESETS_DIR, slug);
       res.writeHead(deleted ? 200 : 404, { 'Content-Type': 'application/json' });

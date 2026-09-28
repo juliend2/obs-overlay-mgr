@@ -270,6 +270,61 @@ function refreshCategoryDatalist() {
   }));
 }
 
+// In-place rename: double-click the preset name to edit it. Blurring the
+// field saves (PUT /presets/:slug), Escape cancels. A name that changes the
+// slug moves the file, so the list is re-rendered from the updated cache.
+function startRename(useBtn, useStatus, preset) {
+  const li = useBtn.parentElement;
+  const input = document.createElement('input');
+  input.type = 'text';
+  input.value = preset.name;
+  input.className = 'rename';
+  let closed = false;
+  const finish = () => {
+    if (closed) return;
+    closed = true;
+    input.remove();
+    useBtn.style.display = '';
+  };
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape') finish();
+    if (e.key === 'Enter') input.blur(); // commit, same as clicking away
+  });
+  input.addEventListener('blur', async () => {
+    if (closed) return;
+    const name = input.value.trim();
+    if (!name || name === preset.name) {
+      finish();
+      return;
+    }
+    closed = true; // the re-render below detaches the input -> a blur follows
+    flash(useStatus, 'Saving...');
+    const oldSlug = preset.slug;
+    try {
+      const renamed = await fetchJson(`/presets/${encodeURIComponent(oldSlug)}`, {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name }),
+      });
+      preset.name = renamed.name;
+      preset.slug = renamed.slug;
+      preset._name = normalize(preset.name);
+      if (selectedSlug === oldSlug) selectedSlug = renamed.slug;
+      renderPresetList();
+    } catch {
+      flash(useStatus, 'Rename failed', false);
+      // `closed` is already true (set before the request, to guard against
+      // the blur the re-render would cause), so restore the anchor directly.
+      input.remove();
+      useBtn.style.display = '';
+    }
+  });
+  useBtn.style.display = 'none';
+  li.insertBefore(input, useBtn.nextSibling);
+  input.focus();
+  input.select();
+}
+
 function buildPresetItem(preset) {
   const li = document.createElement('li');
 
@@ -282,23 +337,35 @@ function buildPresetItem(preset) {
   const useStatus = document.createElement('span');
   useStatus.className = 'status';
 
-  useBtn.addEventListener('click', async (e) => {
+  let clickTimer;
+  useBtn.addEventListener('click', (e) => {
     e.preventDefault();
-    flash(useStatus, 'Loading...');
-    try {
-      const full = await fetchJson(`/presets/${encodeURIComponent(preset.slug)}`);
-      await postJson('/save-preview', { html: full.html });
-      // Only one preset is marked at a time: swap the class in place (no
-      // re-render, so the list keeps its scroll position).
-      selectedSlug = preset.slug;
-      for (const el of document.querySelectorAll('#presets li a.selected')) {
-        el.classList.remove('selected');
+    clearTimeout(clickTimer);
+    // Load on click, but wait a beat first: a double-click means "rename",
+    // and the dblclick event would otherwise fire two loads first.
+    clickTimer = setTimeout(async () => {
+      flash(useStatus, 'Loading...');
+      try {
+        const full = await fetchJson(`/presets/${encodeURIComponent(preset.slug)}`);
+        await postJson('/save-preview', { html: full.html });
+        // Only one preset is marked at a time: swap the class in place (no
+        // re-render, so the list keeps its scroll position).
+        selectedSlug = preset.slug;
+        for (const el of document.querySelectorAll('#presets li a.selected')) {
+          el.classList.remove('selected');
+        }
+        useBtn.classList.add('selected');
+        flash(useStatus, 'Loaded');
+      } catch {
+        flash(useStatus, 'Error', false);
       }
-      useBtn.classList.add('selected');
-      flash(useStatus, 'Loaded');
-    } catch {
-      flash(useStatus, 'Error', false);
-    }
+    }, 250);
+  });
+
+  useBtn.addEventListener('dblclick', (e) => {
+    e.preventDefault();
+    clearTimeout(clickTimer);
+    startRename(useBtn, useStatus, preset);
   });
 
   const delBtn = document.createElement('button');
@@ -346,6 +413,7 @@ async function loadPresets() {
 function renderPresetList() {
   const query = normalize($('preset-search').value);
   const host = $('presets');
+  const scrollTop = host.scrollTop; // keep the view stable across re-renders
   host.innerHTML = '';
 
   const matches = query
@@ -357,6 +425,7 @@ function renderPresetList() {
     none.className = 'no-match';
     none.textContent = 'Aucun preset trouvé';
     host.appendChild(none);
+    host.scrollTop = scrollTop;
     return;
   }
 
@@ -392,6 +461,7 @@ function renderPresetList() {
   for (const preset of groups.get('') || []) {
     host.appendChild(buildPresetItem(preset));
   }
+  host.scrollTop = scrollTop;
 }
 
 // --- html-editor / test / go live ---

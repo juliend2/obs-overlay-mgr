@@ -3,7 +3,7 @@ import assert from 'node:assert/strict';
 import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
-import { slugify, listPresets, readPreset, writePreset, deletePreset } from '../presets.js';
+import { slugify, listPresets, readPreset, writePreset, renamePreset, deletePreset } from '../presets.js';
 
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'presets-test-'));
 
@@ -128,6 +128,47 @@ describe('listPresets', () => {
     const [preset] = await listPresets(dir);
     assert.equal(preset.name, 'Chanson Écrite');
     assert.equal(preset.text, 'viens, saint-esprit eteins la flamme');
+  });
+});
+
+describe('renamePreset', () => {
+  it('renames, moves the file and keeps created/category/html', async () => {
+    const dir = path.join(tmpDir, 'rename');
+    const saved = await writePreset(dir, 'Old Name', '<p>x</p>', 'Messe');
+    const renamed = await renamePreset(dir, saved.slug, 'New Name');
+    assert.equal(renamed.slug, 'new-name');
+    assert.equal(renamed.name, 'New Name');
+    assert.equal(renamed.created, saved.created);
+    assert.equal(renamed.category, 'Messe');
+    assert.equal(fs.existsSync(path.join(dir, 'old-name.md')), false);
+    const read = await readPreset(dir, 'new-name');
+    assert.equal(read.html, '<p>x</p>');
+    assert.equal(read.created, saved.created);
+  });
+
+  it('suffixes the new slug when the target name is taken', async () => {
+    const dir = path.join(tmpDir, 'rename-collide');
+    await writePreset(dir, 'Target', '<p>t</p>');
+    const saved = await writePreset(dir, 'Other', '<p>o</p>');
+    const renamed = await renamePreset(dir, saved.slug, 'Target');
+    assert.equal(renamed.slug, 'target-2');
+    assert.equal(fs.existsSync(path.join(dir, 'other.md')), false);
+    assert.equal((await readPreset(dir, 'target-2')).html, '<p>o</p>');
+    assert.equal((await readPreset(dir, 'target')).html, '<p>t</p>');
+  });
+
+  it('keeps the slug for an accent/case-only change', async () => {
+    const dir = path.join(tmpDir, 'rename-accents');
+    const saved = await writePreset(dir, 'Eglise', '<p>e</p>');
+    const renamed = await renamePreset(dir, saved.slug, 'Église');
+    assert.equal(renamed.slug, 'eglise');
+    assert.equal(renamed.name, 'Église');
+    assert.equal(fs.existsSync(path.join(dir, 'eglise.md')), true);
+  });
+
+  it('returns null for a missing or unsafe slug', async () => {
+    assert.equal(await renamePreset(tmpDir, 'nope', 'X'), null);
+    assert.equal(await renamePreset(tmpDir, '../presets', 'X'), null);
   });
 });
 
