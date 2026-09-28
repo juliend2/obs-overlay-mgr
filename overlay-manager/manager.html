@@ -91,6 +91,15 @@
   #presets li a { background: magenta; color: white; padding-left: .2vw; }
   #presets li a:hover { background: white; color: magenta; text-decoration: none; }
   #presets .use { flex: 1; text-align: left; overflow: hidden; text-overflow: ellipsis; }
+
+  /* fuzzy search */
+  #preset-search {
+    width: 100%;
+    margin: 0 0 0.25rem;
+    padding: 0.25rem;
+    font-size: 13px;
+  }
+  #presets .no-match { margin: 0.5rem 0.75rem; font-size: 13px; color: #777; }
 </style>
 </head>
 <body>
@@ -123,6 +132,7 @@
     </div>
     <div class="col-third">
       <h3>Presets</h3>
+      <input id="preset-search" type="text" placeholder="Rechercher dans les presets…" autocomplete="off">
       <div id="presets"></div>
     </div>
   </div>

@@ -369,6 +369,8 @@ describe('server integration', () => {
       const listed = await (await fetch(`${BASE}/presets`)).json();
       const found = listed.presets.find((p) => p.slug === saved.slug);
       assert.equal(found.category, 'Messe');
+      // The list endpoint also ships the tag-stripped body for fuzzy search.
+      assert.equal(found.text, 'cat');
     });
 
     it('GET /presets lists the saved preset', async () => {

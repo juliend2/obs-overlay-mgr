@@ -54,6 +54,22 @@ function parse(raw) {
   };
 }
 
+// Tag-stripped, lowercase, accent-stripped body with whitespace collapsed —
+// the haystack the manager page fuzzy-searches over. Comments, <style> and
+// <script> blocks are dropped so CSS selectors don't pollute the text. Only
+// the list endpoint ships it (readPreset keeps returning the raw html).
+function searchableText(html) {
+  return html
+    .replace(/<!--[\s\S]*?-->/g, ' ')
+    .replace(/<(style|script)\b[^>]*>[\s\S]*?<\/\1\s*>/gi, ' ')
+    .replace(/<[^>]*>/g, ' ')
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '') // strip accents (é -> e), same as slugify
+    .toLowerCase()
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
 export async function listPresets(dir) {
   let entries;
   try {
@@ -73,6 +89,7 @@ export async function listPresets(dir) {
         name: parsed.name,
         created: parsed.created,
         category: parsed.category,
+        text: searchableText(parsed.html),
       });
     }
   }

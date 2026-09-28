@@ -206,3 +206,12 @@ Boot. The pages here are consumable as OBS **Browser Sources** instead.
     - [ ] intro / outro
 - [ ] faire une animation de transition quand on 'go live' avec un preset pour
   que ce soit smooth
+- [x] fuzzy search of presets in /manager, searching content, not just names
+    - [x] no new endpoint: the `GET /presets` response carries a `text` field
+      (tag-stripped body, lowercase, accents folded) from `listPresets()`
+    - [x] the client-side preset list is cached and fuzzy-matched in the
+      browser over `name + category + text` on a debounced input (~150ms)
+    - [x] scorer: hand-rolled subsequence match, bonuses for contiguous runs
+      and word starts, name/category weighted above body — no fuse.js dep
+    - scale-up fallback if presets ever reach thousands: `GET /presets?q=...`
+      server-side (not needed at the current ~150-preset, ~80KB-text scale)

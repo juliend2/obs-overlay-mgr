@@ -207,6 +207,51 @@ let knownCategories = [];
 // <details> groups survives list re-renders (save/delete).
 const closedCategories = new Set();
 
+// Full preset list from the server, kept so the fuzzy search can filter the
+// rendered list without re-fetching. `text` (tag-stripped body, already
+// lowercase and accent-free) comes from the /presets endpoint; `_name` and
+// `_category` are precomputed here with the same normalization.
+let presetsCache = [];
+
+// Lowercase + strip accents, so "Église" matches a query of "eglise" (same
+// folding as slugify/searchableText server-side).
+function normalize(str) {
+  return str
+    .toLowerCase()
+    .normalize('NFD')
+    .replace(/[\u0300-\u036f]/g, '');
+}
+
+// Scores `query` matched as a subsequence of `haystack` (both pre-normalized).
+// Returns 0 when the query is not a subsequence; otherwise a positive score
+// that rewards contiguous runs and word starts, so hits like "abba" inside the
+// name "Abba Père" rank above scattered letters across the lyrics.
+function fuzzyScore(query, haystack) {
+  if (!query) return 1;
+  let score = 0;
+  let matched = 0;
+  let prev = -2; // haystack index of the previous matched character
+  for (let i = 0; i < haystack.length && matched < query.length; i++) {
+    if (haystack[i] !== query[matched]) continue;
+    score += 1;
+    if (i === prev + 1) score += 2; // contiguous with the previous hit
+    if (i === 0 || haystack[i - 1] === ' ') score += 3; // start of a word
+    prev = i;
+    matched++;
+  }
+  return matched === query.length ? score : 0;
+}
+
+// Best score across the searchable fields, with name and category matches
+// weighted above body-text matches.
+function presetScore(preset, query) {
+  return Math.max(
+    fuzzyScore(query, preset._name) * 3,
+    fuzzyScore(query, preset._category) * 2,
+    fuzzyScore(query, preset._text),
+  );
+}
+
 function refreshCategoryDatalist() {
   let datalist = $('preset-categories');
   if (!datalist) {
@@ -259,32 +304,67 @@ function buildPresetItem(preset) {
   return li;
 }
 
+// Fetches the preset list (including searchable text) and refreshes the
+// category datalist from the full, unfiltered list.
 async function loadPresets() {
   const { presets } = await fetchJson('/presets');
   // Alphabetical (ascending) within each category and in the uncategorized
   // list — grouping below preserves this order; the API returns newest-first.
   presets.sort((a, b) => a.name.localeCompare(b.name, 'fr', { sensitivity: 'base' }));
+  presetsCache = presets.map((preset) => ({
+    ...preset,
+    _name: normalize(preset.name),
+    _category: normalize(preset.category),
+    // Server-side normalized already; an absent field means a pre-fuzzy-search
+    // server response (stale process), so search just falls back to
+    // name/category instead of crashing.
+    _text: preset.text ?? '',
+  }));
+  knownCategories = [...new Set(presets.map((p) => p.category).filter(Boolean))]
+    .sort((a, b) => a.localeCompare(b));
+  refreshCategoryDatalist();
+  renderPresetList();
+}
+
+// Re-renders the presets list, keeping only the presets whose fuzzy score
+// against the search input is above zero (an empty query keeps everything).
+// Groups with no matches are hidden entirely, and every group is forced open
+// while a query is active so matches can't hide behind a collapsed category.
+function renderPresetList() {
+  const query = normalize($('preset-search').value);
   const host = $('presets');
   host.innerHTML = '';
 
+  const matches = query
+    ? presetsCache.filter((preset) => presetScore(preset, query) > 0)
+    : presetsCache;
+
+  if (!matches.length) {
+    const none = document.createElement('div');
+    none.className = 'no-match';
+    none.textContent = 'Aucun preset trouvé';
+    host.appendChild(none);
+    return;
+  }
+
   const groups = new Map();
-  for (const preset of presets) {
+  for (const preset of matches) {
     const category = preset.category || '';
     if (!groups.has(category)) groups.set(category, []);
     groups.get(category).push(preset);
   }
-  knownCategories = [...groups.keys()].filter(Boolean).sort((a, b) => a.localeCompare(b));
-  refreshCategoryDatalist();
 
   for (const [category, items] of [...groups.entries()].sort((a, b) => a[0].localeCompare(b[0]))) {
     if (!category) continue; // uncategorized presets are listed directly, no group
 
     const details = document.createElement('details');
-    details.open = !closedCategories.has(category);
-    details.addEventListener('toggle', () => {
-      if (details.open) closedCategories.delete(category);
-      else closedCategories.add(category);
-    });
+    details.open = query ? true : !closedCategories.has(category);
+    if (!query) {
+      details.addEventListener('toggle', () => {
+        if (details.open) closedCategories.delete(category);
+        else closedCategories.add(category);
+      });
+    }
 
     const summary = document.createElement('summary');
     summary.textContent = category;
@@ -352,3 +432,11 @@ $('golive').addEventListener('click', async () => {
 //load();
 loadComponents().catch((err) => console.error(err));
 loadPresets().catch((err) => console.error(err));
+
+// Fuzzy search over presets: debounce the keystrokes (~150ms) then re-render
+// the list from the cached copy — no request is involved in filtering.
+let searchTimer;
+$('preset-search').addEventListener('input', () => {
+  clearTimeout(searchTimer);
+  searchTimer = setTimeout(renderPresetList, 150);
+});

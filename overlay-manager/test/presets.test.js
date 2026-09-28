@@ -109,6 +109,25 @@ describe('listPresets', () => {
       list.map((p) => p.category),
       ['', 'Messe']
     );
+    // So does the searchable text (tag-stripped body).
+    assert.deepEqual(
+      list.map((p) => p.text),
+      ['2', '1']
+    );
+  });
+
+  it('searchable text strips tags, style/script blocks and accents', async () => {
+    const dir = path.join(tmpDir, 'text');
+    await writePreset(
+      dir,
+      'Chanson Écrite',
+      '<!-- comment -->\n<style>.a { color: red }</style>\n'
+      + '<h1>Viens, Saint-Esprit</h1><p>Éteins <b>la</b> flamme</p>\n'
+      + '<script>console.log("x")</script>'
+    );
+    const [preset] = await listPresets(dir);
+    assert.equal(preset.name, 'Chanson Écrite');
+    assert.equal(preset.text, 'viens, saint-esprit eteins la flamme');
   });
 });
 
