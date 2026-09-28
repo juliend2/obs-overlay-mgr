@@ -303,6 +303,7 @@ function buildPresetItem(preset) {
 
   const delBtn = document.createElement('button');
   delBtn.textContent = 'Delete';
+  delBtn.classList.add('delete-btn');
   delBtn.addEventListener('click', async () => {
     try {
       await fetch(`/presets/${encodeURIComponent(preset.slug)}`, { method: 'DELETE' });
