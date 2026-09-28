@@ -3,8 +3,6 @@ name: Ma lumiere mon salut
 created: 2026-09-27T17:50:34.395Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">R.Le Seigneur est ma lumière et mon salut ;
 De qui aurais-je crainte ?

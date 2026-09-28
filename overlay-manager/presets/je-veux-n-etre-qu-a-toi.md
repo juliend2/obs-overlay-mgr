@@ -3,8 +3,6 @@ name: Je veux n'être qu'à toi
 created: 2026-09-27T17:50:35.288Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Reçois de moi le parfum qui t’es dû,
 la beauté de ton Nom en mon âme éperdue.

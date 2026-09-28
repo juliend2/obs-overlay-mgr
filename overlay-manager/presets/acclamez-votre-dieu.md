@@ -3,8 +3,6 @@ name: Acclamez votre Dieu
 created: 2026-09-27T17:50:35.447Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Acclamez votre Dieu sur toute la terre,
 Célébrez-le par vos chants de joie !

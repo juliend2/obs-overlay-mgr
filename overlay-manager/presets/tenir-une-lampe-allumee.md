@@ -3,8 +3,6 @@ name: Tenir une lampe allumée
 created: 2026-09-27T17:50:34.146Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Trouver dans ma vie ta présence, 
 tenir une lampe allumée,

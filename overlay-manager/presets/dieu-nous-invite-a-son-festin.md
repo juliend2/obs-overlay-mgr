@@ -3,8 +3,6 @@ name: Dieu nous invite à son festin
 created: 2026-09-27T17:50:35.746Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">R. Dieu nous invite à son festin,
 Table où Lui-même se donne ;

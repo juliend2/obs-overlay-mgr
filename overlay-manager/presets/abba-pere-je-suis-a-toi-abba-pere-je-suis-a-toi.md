@@ -3,8 +3,6 @@ name: Abba Père, je suis à toi, Abba Père, je suis à toi.
 created: 2026-09-27T17:50:34.921Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Bien avant le chant qui créa l’univers, 
 bien avant l’Esprit qui planait sur la Terre,

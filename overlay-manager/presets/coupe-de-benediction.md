@@ -3,8 +3,6 @@ name: Coupe de benediction
 created: 2026-09-27T17:50:34.935Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">La coupe de bénédiction
 est communion au sang du Christ

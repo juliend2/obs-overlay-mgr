@@ -3,8 +3,6 @@ name: Oh Dieu car tu es bon
 created: 2026-09-27T17:50:34.865Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">1 - Sans fin j'exulterai, pour toi je chanterai,
 Ô Dieu car tu es bon.

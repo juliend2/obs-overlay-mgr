@@ -3,8 +3,6 @@ name: Souffle de Dieu
 created: 2026-09-27T17:50:34.752Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Ton vent, nul ne sait d’où il vient,
 s’il n’écoute ta voix.

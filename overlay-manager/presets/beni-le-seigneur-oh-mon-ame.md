@@ -3,8 +3,6 @@ name: Béni le Seigneur oh mon âme
 created: 2026-09-27T17:50:34.869Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Bénis le Seigneur, ô mon âme,
 du fond de mon être, son Saint Nom.

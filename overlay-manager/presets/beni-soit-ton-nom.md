@@ -3,8 +3,6 @@ name: Béni soit ton nom
 created: 2026-09-27T17:50:34.507Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">1/Bénis soit ton nom
 Là ou tu donnes l'abondance

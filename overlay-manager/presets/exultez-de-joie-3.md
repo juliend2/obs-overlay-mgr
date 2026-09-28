@@ -3,8 +3,6 @@ name: Exultez de joie 3
 created: 2026-09-27T17:50:34.991Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">À quoi servirait-il de naître, sans le bonheur d’être sauvé ?
 Merveilleuse bonté de ta grâce, pour l’esclave, tu livres le Fils.

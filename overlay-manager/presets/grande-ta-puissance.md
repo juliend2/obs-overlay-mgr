@@ -3,8 +3,6 @@ name: Grande ta puissance
 created: 2026-09-27T17:50:34.322Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Il est bon de chanter
 Notre joie d´être aimés,

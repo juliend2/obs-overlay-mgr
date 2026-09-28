@@ -3,8 +3,6 @@ name: Christ est rescucité Alleluia
 created: 2026-09-27T17:50:35.168Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Jésus Christ est Seigneur, alléluia.
 Jésus Christ est vivant, ressuscité,

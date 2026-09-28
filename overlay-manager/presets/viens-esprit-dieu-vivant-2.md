@@ -3,8 +3,6 @@ name: Viens esprit dieu vivant 2
 created: 2026-09-27T17:50:34.196Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">R. Esprit de lumière, Esprit Créateur,
 Restaure en nous la joie, le feu, l’Espérance.

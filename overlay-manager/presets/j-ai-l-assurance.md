@@ -3,8 +3,6 @@ name: J'ai l'assurance
 created: 2026-09-27T17:50:35.438Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">J'ai l'assurance de mon salut
 Par la présence du Seigneur Jésus.

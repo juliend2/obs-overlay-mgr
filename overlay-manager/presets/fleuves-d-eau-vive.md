@@ -3,8 +3,6 @@ name: Fleuves d'eau vive
 created: 2026-09-27T17:50:35.152Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">1. J´ai vu des fleuves d´eau vive,
 Alléluia (bis)

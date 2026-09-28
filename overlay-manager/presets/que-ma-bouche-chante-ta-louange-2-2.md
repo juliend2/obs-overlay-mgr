@@ -3,8 +3,6 @@ name: Que ma bouche chante ta louange 2/2
 created: 2026-09-27T17:50:34.703Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">3. Tu viens sauver tes enfants égarés,
 Que ma bouche chante ta louange.

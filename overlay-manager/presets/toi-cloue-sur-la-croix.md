@@ -3,8 +3,6 @@ name: Toi cloué sur la croix
 created: 2026-09-27T17:50:34.927Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Toi, cloué sur la croix pour moi,
 mon salut, mon Dieu, toi que j’aime !

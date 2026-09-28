@@ -3,8 +3,6 @@ name: Vivons en enfants de lumière,
 created: 2026-09-27T17:50:34.857Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Vivons en enfants de lumière, sur les
 chemins où l’Esprit nous conduit :

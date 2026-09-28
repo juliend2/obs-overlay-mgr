@@ -3,8 +3,6 @@ name: Chant2
 created: 2026-09-27T17:50:35.774Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Tu m'offres chaque jour
 Ton infaillible amour ;

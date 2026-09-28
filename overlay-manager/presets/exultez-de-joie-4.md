@@ -3,8 +3,6 @@ name: Exultez de joie 4
 created: 2026-09-27T17:50:34.993Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Cette nuit qui sanctifie, nous rend l’innocence et la joie,
 chasse tout crime et toute haine, et nous dispose à l’unité.

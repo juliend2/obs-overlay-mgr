@@ -3,6 +3,10 @@
 <head>
 <meta charset="utf-8">
 <title>overlay</title>
+<!-- Shared component styles load once here, NOT inside the injected overlay
+     fragment — a <link> inside the fragment is re-fetched on every reload
+     (no-store), flashing unstyled text. -->
+<link rel="stylesheet" href="/components/common.css">
 <style>
   html, body {
     margin: 0;

@@ -3,8 +3,6 @@ name: Père Saint
 created: 2026-09-27T17:50:35.475Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Père Saint, vois ton peuple qui t´offre
 Ces présents que tu lui as donnés,

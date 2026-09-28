@@ -3,8 +3,6 @@ name: Recevez le Christ
 created: 2026-09-27T17:50:35.722Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">1. Voici le Fils aimé du Père, 
 Don de Dieu pour sauver le monde. 

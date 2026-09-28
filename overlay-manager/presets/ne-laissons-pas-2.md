@@ -3,8 +3,6 @@ name: Ne laissons pas 2
 created: 2026-09-27T17:50:35.496Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Ne laissons pas mourir la terre
 Ne laissons pas mourir le feu

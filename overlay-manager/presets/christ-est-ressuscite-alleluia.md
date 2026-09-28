@@ -3,8 +3,6 @@ name: Christ est ressuscité Alleluia
 created: 2026-09-27T17:50:35.082Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">R: Christ est ressuscité, Alléluia !
 Christ est ressuscité, Alléluia !

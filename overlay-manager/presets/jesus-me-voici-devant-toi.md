@@ -3,8 +3,6 @@ name: Jésus me voici devant toi
 created: 2026-09-27T17:50:34.859Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Jésus me voici devant toi
 Tout simplement dans le silence

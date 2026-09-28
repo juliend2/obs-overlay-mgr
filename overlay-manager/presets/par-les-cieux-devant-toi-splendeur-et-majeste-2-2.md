@@ -3,8 +3,6 @@ name: Par les cieux devant toi, splendeur et majesté 2/2
 created: 2026-09-27T17:50:34.864Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Par toutes les montagnes et toutes les vallées
 Par l'ombre des forêts et par les fleurs des champs

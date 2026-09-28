@@ -3,8 +3,6 @@ name: Qui regarde vers lui resplendira
 created: 2026-09-27T17:50:35.574Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Qui regarde vers Lui resplendira
 Sans ombre ni trouble au visage. (bis)

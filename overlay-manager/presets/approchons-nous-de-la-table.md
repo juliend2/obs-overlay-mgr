@@ -3,8 +3,6 @@ name: Approchons-nous de la table
 created: 2026-09-27T17:50:35.605Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">1.Approchons-nous de la table où le Christ va s’offrir parmi nous, 
 Donnons-lui ce que nous sommes, car le Christ va nous transformer en lui.

@@ -3,8 +3,6 @@ name: Nous avons faim de ton eglise
 created: 2026-09-27T17:50:34.855Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Pain de l’Exode, épreuve du désert,
 goût du printemps pour ceux qui ont souffert,

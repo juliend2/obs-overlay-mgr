@@ -3,8 +3,6 @@ name: Mon Seigneur Mon Dieu
 created: 2026-09-27T17:50:35.181Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Doux Jésus, Agneau vainqueur, 
 sois le maître de mon cœur.

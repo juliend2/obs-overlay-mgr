@@ -3,8 +3,6 @@ name: Dieu nous appelle
 created: 2026-09-27T17:50:34.886Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Pareil au vent que l’on ne voit jamais,
 et qui pourtant fait chanter nos forêts,

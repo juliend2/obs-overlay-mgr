@@ -3,8 +3,6 @@ name: Plus près de toi
 created: 2026-09-27T17:50:34.914Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">R. Plus près de toi mon Dieu,
 J’aimerais reposer : c’est toi qui m’as créé,

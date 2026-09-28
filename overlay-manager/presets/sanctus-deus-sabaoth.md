@@ -3,8 +3,6 @@ name: Sanctus Deus Sábaoth
 created: 2026-09-27T17:50:34.131Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Sanctus, Sanctus, Sanctus Dominus ! Dominus Deus Sabaoth (bis)
 Pleni sunt caeli et terra Gloria tua

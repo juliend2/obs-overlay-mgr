@@ -3,8 +3,6 @@ name: Envoie ta puissance
 created: 2026-09-27T17:50:35.383Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Esprit de Dieu, Esprit du Dieu vivant,
 Souffle du nord, souffle du sud,

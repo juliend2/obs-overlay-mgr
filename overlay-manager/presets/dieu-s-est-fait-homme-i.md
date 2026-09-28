@@ -3,8 +3,6 @@ name: Dieu s'est fait homme I
 created: 2026-09-27T17:50:34.454Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Notre Dieu s’est fait homme pour que l’homme soit Dieu,
 Mystère inépuisable, fontaine du Salut.

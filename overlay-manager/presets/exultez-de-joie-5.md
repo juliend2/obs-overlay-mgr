@@ -3,8 +3,6 @@ name: Exultez de joie 5
 created: 2026-09-27T17:50:35.014Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Aussi nous t’en prions, Seigneur, que brille sans fin dans la nuit,
 la flamme du cierge pascal, qui se joint à la clarté des cieux.

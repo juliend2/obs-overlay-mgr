@@ -3,8 +3,6 @@ name: Ne crains pas je suis ton Dieu
 created: 2026-09-27T17:50:34.884Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Ne crains pas, je suis ton Dieu,
 c’est moi qui t’ai choisi, appelé par ton nom.

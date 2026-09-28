@@ -3,8 +3,6 @@ name: Je t'exalte Seigneur
 created: 2026-09-27T17:50:35.124Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Refrain: Je t’exalte, Seigneur ; tu m’as relevé.
 

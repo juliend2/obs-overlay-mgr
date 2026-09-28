@@ -57,6 +57,12 @@ To see a preview with the video, see: http://localhost:8081/?mode=preview
 `innerHTML` into `viewer.html`, so don't put `<html>`/`<body>` tags in it —
 just the markup you want on screen.
 
+**Shared styles live in `components/common.css`, linked by the host page.**
+`viewer.html`, `manager.html` and the `/test` wrapper link it once in
+`<head>`; templates and presets must not carry a `<link>` themselves — a
+stylesheet link inside the injected fragment is re-fetched on every reload
+(`no-store`) and flashes unstyled text.
+
 **WebSocket is hand-rolled, deliberately.** The protocol only ever needs one
 message (`"reload"`, server → viewer), so pulling in the `ws` package for it
 felt like overkill. `server.js` does the `Sec-WebSocket-Accept` handshake and

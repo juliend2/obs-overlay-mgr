@@ -3,8 +3,6 @@ name: Humblement par ton silence
 created: 2026-09-27T17:50:34.912Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Humblement, dans le silence de mon cœur
 Je me donne à toi, mon Seigneur

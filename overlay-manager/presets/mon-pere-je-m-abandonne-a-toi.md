@@ -3,8 +3,6 @@ name: Mon Père, je m’abandonne à toi
 created: 2026-09-27T17:50:34.860Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">1. Mon Père, mon Père, je m’abandonne à toi,
 Fais de moi ce qu’il te plaira.

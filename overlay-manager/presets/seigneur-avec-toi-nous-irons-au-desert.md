@@ -3,8 +3,6 @@ name: Seigneur, avec toi, nous irons au désert
 created: 2026-09-27T17:50:35.679Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">1 - Seigneur, avec toi nous irons au désert,
 Poussés comme toi par l’Esprit,                       (2)

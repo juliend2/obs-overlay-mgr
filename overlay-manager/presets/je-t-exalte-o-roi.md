@@ -3,8 +3,6 @@ name: Je t'exalte O Roi
 created: 2026-09-27T17:50:34.601Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">R. Je t´exalte, ô Roi mon Dieu, 
 Je bénis ton Nom à jamais,

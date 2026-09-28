@@ -3,8 +3,6 @@ name: Tout commence en JC prenons la route
 created: 2026-09-27T17:50:34.856Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Tout recommence en Jésus Christ !
 Prenons la route qui nous mène à lui !

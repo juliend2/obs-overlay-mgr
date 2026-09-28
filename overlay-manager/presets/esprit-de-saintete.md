@@ -3,8 +3,6 @@ name: Esprit de sainteté
 created: 2026-09-27T17:50:34.710Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Esprit de sainteté, viens combler nos cœurs,
 Tout au fond de nos vies, réveille ta puissance.

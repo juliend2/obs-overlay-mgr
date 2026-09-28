@@ -1,8 +1,8 @@
-/* Shared stylesheet for the components/*.html templates.
-   Components carry <link rel="stylesheet" href="components/common.css">,
-   which stays inside the fragment when it is saved into the overlay and
-   injected by viewer.html — the viewer page sits at /, so the href must
-   resolve from there to /components/common.css. */
+/* Shared stylesheet for the components/*.html templates and the presets
+   built from them. The host pages (viewer.html, manager.html, the /test
+   wrapper) link this file once in <head>; fragments must NOT carry a
+   <link> themselves — one injected via innerHTML is re-fetched on every
+   reload (no-store) and flashes unstyled text. */
 
 html {
   padding: 0;

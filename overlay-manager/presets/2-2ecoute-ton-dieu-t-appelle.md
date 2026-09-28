@@ -3,8 +3,6 @@ name: 2/2Écoute, ton Dieu t’appelle
 created: 2026-09-27T17:50:34.892Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Quitte le cortège de l’indifférence,
 laisse les sentiers de ton désespoir,

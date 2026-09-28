@@ -3,8 +3,6 @@ name: Kyrie Messe Frat
 created: 2026-09-27T17:50:34.610Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Prends pitié Seigneur, O Seigneur prends pitié. Prends pitié Seigneur, O Seigneur prends pitié.
 

@@ -3,8 +3,6 @@ name: Dieu s'est fait homme 2
 created: 2026-09-27T17:50:34.463Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">II frappe à notre porte le Seigneur Tout-Puissant,
 II attend humble et pauvre, mendiant de notre amour.

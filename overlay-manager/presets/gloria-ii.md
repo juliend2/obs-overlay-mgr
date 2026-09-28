@@ -3,8 +3,6 @@ name: Gloria II
 created: 2026-09-27T17:50:34.227Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Gloire à Dieu et joie dans le ciel
 Gloire à Dieu et paix sur la terre!

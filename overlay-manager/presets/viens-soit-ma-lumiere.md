@@ -3,8 +3,6 @@ name: Viens soit ma lumiere
 created: 2026-09-27T17:50:35.250Z
 category: Chants
 ---
-<link rel="stylesheet" href="components/common.css">
-
 <div class="wrapper lyrics-wrapper">
   <div class="lyrics" data-field="lyrics" data-label="Paroles" data-type="textarea">Viens, sois ma lumière, mon feu d’amour, 
 porte-moi dans les trous des pauvres. 
