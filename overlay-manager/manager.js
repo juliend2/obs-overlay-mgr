@@ -213,6 +213,10 @@ const closedCategories = new Set();
 // `_category` are precomputed here with the same normalization.
 let presetsCache = [];
 
+// Slug of the preset currently loaded into the preview; its name renders
+// black in the list and the mark survives list re-renders (save/delete).
+let selectedSlug = null;
+
 // Lowercase + strip accents, so "Église" matches a query of "eglise" (same
 // folding as slugify/searchableText server-side).
 function normalize(str) {
@@ -274,6 +278,7 @@ function buildPresetItem(preset) {
   useBtn.className = 'use';
   useBtn.textContent = preset.name;
   useBtn.title = preset.name;
+  if (preset.slug === selectedSlug) useBtn.classList.add('selected');
   const useStatus = document.createElement('span');
   useStatus.className = 'status';
 
@@ -283,6 +288,13 @@ function buildPresetItem(preset) {
     try {
       const full = await fetchJson(`/presets/${encodeURIComponent(preset.slug)}`);
       await postJson('/save-preview', { html: full.html });
+      // Only one preset is marked at a time: swap the class in place (no
+      // re-render, so the list keeps its scroll position).
+      selectedSlug = preset.slug;
+      for (const el of document.querySelectorAll('#presets li a.selected')) {
+        el.classList.remove('selected');
+      }
+      useBtn.classList.add('selected');
       flash(useStatus, 'Loaded');
     } catch {
       flash(useStatus, 'Error', false);
