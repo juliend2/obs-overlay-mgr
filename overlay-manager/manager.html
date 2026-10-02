@@ -65,6 +65,11 @@
       ".";
   }
 
+  /* Keep the search controls at the top instead of stretching the input row. */
+  .col-third:has(#preset-search) {
+    grid-template-rows: min-content minmax(var(--search-box-height), 1fr);
+  }
+
   /* forms */
   .form {
     padding: 0.75rem;
