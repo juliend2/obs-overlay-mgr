@@ -134,7 +134,6 @@ let BASE;
 describe('server integration', () => {
   before(async () => {
     process.env.PRESETS_DIR = TEST_PRESETS_DIR;
-    if (!liveExisted) fs.writeFileSync(OVERLAY_LIVE_PATH, '');
     ({ server } = await import('../server.js'));
     port = await freePort();
     BASE = `http://127.0.0.1:${port}`;
@@ -205,7 +204,8 @@ describe('server integration', () => {
     it('GET /overlay-live.html serves the current overlay-live.html', async () => {
       const res = await fetch(`${BASE}/overlay-live.html`);
       assert.equal(res.status, 200);
-      assert.deepEqual(Buffer.from(await res.arrayBuffer()), fs.readFileSync(OVERLAY_LIVE_PATH));
+      const expected = liveExisted ? fs.readFileSync(OVERLAY_LIVE_PATH) : Buffer.from('');
+      assert.deepEqual(Buffer.from(await res.arrayBuffer()), expected);
     });
 
     it('GET on an unknown path returns 404', async () => {

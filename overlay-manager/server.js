@@ -100,6 +100,14 @@ export const server = http.createServer(async (req, res) => {
     return web.serveFile(res, OVERLAY_PREVIEW_PATH, 'text/html', req.method);
   }
   if (isRead && pathname === '/overlay-live.html') {
+    // The live file is generated on the first publish and is intentionally
+    // ignored by git. Serve an empty overlay until that happens.
+    if (!fs.existsSync(OVERLAY_LIVE_PATH)) {
+      res.writeHead(200, { 'Content-Type': 'text/html', 'Cache-Control': 'no-store' });
+      if (req.method !== 'HEAD') res.end('');
+      else res.end();
+      return;
+    }
     return web.serveFile(res, OVERLAY_LIVE_PATH, 'text/html', req.method);
   }
   if (req.method === 'POST' && pathname === '/golive') {
