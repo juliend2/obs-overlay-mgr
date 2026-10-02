@@ -232,6 +232,12 @@ function normalize(str) {
 // name "Abba Père" rank above scattered letters across the lyrics.
 function fuzzyScore(query, haystack) {
   if (!query) return 1;
+  const contiguous = haystack.indexOf(query);
+  if (contiguous !== -1) {
+    // A literal match is substantially stronger than a subsequence match.
+    // Keep a small position bonus so earlier matches still win ties.
+    return 1000 + query.length * 10 - contiguous;
+  }
   let score = 0;
   let matched = 0;
   let prev = -2; // haystack index of the previous matched character
@@ -417,7 +423,11 @@ function renderPresetList() {
   host.innerHTML = '';
 
   const matches = query
-    ? presetsCache.filter((preset) => presetScore(preset, query) > 0)
+    ? presetsCache
+      .map((preset, index) => ({ preset, score: presetScore(preset, query), index }))
+      .filter(({ score }) => score > 0)
+      .sort((a, b) => b.score - a.score || a.index - b.index)
+      .map(({ preset }) => preset)
     : presetsCache;
 
   if (!matches.length) {

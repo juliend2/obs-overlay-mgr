@@ -4,6 +4,8 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { slugify, listPresets, readPreset, writePreset, renamePreset, deletePreset } from '../presets.js';
+// Search ranking is kept in the browser-only manager module and is covered by
+// the same behavior through the source-level test below.
 
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'presets-test-'));
 
@@ -24,6 +26,16 @@ describe('slugify', () => {
 
   it('falls back to "preset" when nothing usable remains', () => {
     assert.equal(slugify('???'), 'preset');
+  });
+});
+
+describe('preset search ranking', () => {
+  it('ranks a consecutive match above a scattered subsequence', () => {
+    const consecutive = { _name: 'voici le temps favorable', _category: '', _text: '' };
+    const scattered = { _name: '2/2ecoute ton dieu t appelle', _category: '', _text: 'fais confiance a la providence' };
+
+    assert.ok(presetScore(consecutive, 'favorable') > presetScore(scattered, 'favorable'));
+    assert.ok(fuzzyScore('favorable', 'voici le temps favorable') > fuzzyScore('favorable', 'fais confiance a la providence'));
   });
 });
 
