@@ -7,6 +7,9 @@
      the fragments themselves must not carry the <link> (see viewer.html). -->
 <link rel="stylesheet" href="/components/common.css">
 <style>
+  :root {
+    --search-box-height: 2rem;
+  }
   /* general stuff */
   * { box-sizing: border-box; }
 
@@ -54,7 +57,7 @@
     min-height: 0;
     display: grid;
     grid-template-columns: 1fr;
-    grid-template-rows: min-content minmax(0, 1fr);
+    grid-template-rows: min-content minmax(var(--search-box-height), 1fr);
     gap: 0px 0px;
     grid-auto-flow: row;
     grid-template-areas:
@@ -105,6 +108,7 @@
   /* fuzzy search */
   #preset-search {
     width: 100%;
+    height: var(--search-box-height);
     margin: 0 0 0.25rem;
     padding: 0.25rem;
     font-size: 13px;
