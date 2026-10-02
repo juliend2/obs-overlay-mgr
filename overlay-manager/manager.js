@@ -7,6 +7,32 @@
 
 const $ = (id) => document.getElementById(id);
 
+function fuzzyScore(query, haystack) {
+  if (!query) return 1;
+  const contiguous = haystack.indexOf(query);
+  if (contiguous !== -1) return 1000 + query.length * 10 - contiguous;
+  let score = 0;
+  let matched = 0;
+  let prev = -2;
+  for (let i = 0; i < haystack.length && matched < query.length; i++) {
+    if (haystack[i] !== query[matched]) continue;
+    score += 1;
+    if (i === prev + 1) score += 2;
+    if (i === 0 || haystack[i - 1] === ' ') score += 3;
+    prev = i;
+    matched++;
+  }
+  return matched === query.length ? score : 0;
+}
+
+function presetScore(preset, query) {
+  return Math.max(
+    fuzzyScore(query, preset._name) * 3,
+    fuzzyScore(query, preset._category) * 2,
+    fuzzyScore(query, preset._text),
+  );
+}
+
 async function fetchJson(url, options) {
   const res = await fetch(url, options);
   if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
@@ -230,38 +256,8 @@ function normalize(str) {
 // Returns 0 when the query is not a subsequence; otherwise a positive score
 // that rewards contiguous runs and word starts, so hits like "abba" inside the
 // name "Abba Père" rank above scattered letters across the lyrics.
-function fuzzyScore(query, haystack) {
-  if (!query) return 1;
-  const contiguous = haystack.indexOf(query);
-  if (contiguous !== -1) {
-    // A literal match is substantially stronger than a subsequence match.
-    // Keep a small position bonus so earlier matches still win ties.
-    return 1000 + query.length * 10 - contiguous;
-  }
-  let score = 0;
-  let matched = 0;
-  let prev = -2; // haystack index of the previous matched character
-  for (let i = 0; i < haystack.length && matched < query.length; i++) {
-    if (haystack[i] !== query[matched]) continue;
-    score += 1;
-    if (i === prev + 1) score += 2; // contiguous with the previous hit
-    if (i === 0 || haystack[i - 1] === ' ') score += 3; // start of a word
-    prev = i;
-    matched++;
-  }
-  return matched === query.length ? score : 0;
-}
-
 // Best score across the searchable fields, with name and category matches
 // weighted above body-text matches.
-function presetScore(preset, query) {
-  return Math.max(
-    fuzzyScore(query, preset._name) * 3,
-    fuzzyScore(query, preset._category) * 2,
-    fuzzyScore(query, preset._text),
-  );
-}
-
 function refreshCategoryDatalist() {
   let datalist = $('preset-categories');
   if (!datalist) {

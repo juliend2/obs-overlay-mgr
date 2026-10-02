@@ -22,7 +22,8 @@ const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 // POST /save-preview and POST /golive write the real overlay files, so back
 // them up and restore them.
 const originalPreview = fs.readFileSync(OVERLAY_PREVIEW_PATH, 'utf8');
-const originalLive = fs.readFileSync(OVERLAY_LIVE_PATH, 'utf8');
+const liveExisted = fs.existsSync(OVERLAY_LIVE_PATH);
+const originalLive = liveExisted ? fs.readFileSync(OVERLAY_LIVE_PATH, 'utf8') : null;
 const viewerHtml = fs.readFileSync(VIEWER_PATH);
 const managerHtml = fs.readFileSync(MANAGER_PATH);
 
@@ -133,6 +134,7 @@ let BASE;
 describe('server integration', () => {
   before(async () => {
     process.env.PRESETS_DIR = TEST_PRESETS_DIR;
+    if (!liveExisted) fs.writeFileSync(OVERLAY_LIVE_PATH, '');
     ({ server } = await import('../server.js'));
     port = await freePort();
     BASE = `http://127.0.0.1:${port}`;
@@ -143,7 +145,8 @@ describe('server integration', () => {
     server.closeIdleConnections();
     await new Promise((resolve) => server.close(resolve));
     fs.writeFileSync(OVERLAY_PREVIEW_PATH, originalPreview);
-    fs.writeFileSync(OVERLAY_LIVE_PATH, originalLive);
+    if (liveExisted) fs.writeFileSync(OVERLAY_LIVE_PATH, originalLive);
+    else fs.rmSync(OVERLAY_LIVE_PATH, { force: true });
     fs.rmSync(TEST_PRESETS_DIR, { recursive: true, force: true });
   });
 

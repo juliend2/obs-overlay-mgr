@@ -4,8 +4,7 @@ import fs from 'node:fs';
 import os from 'node:os';
 import path from 'node:path';
 import { slugify, listPresets, readPreset, writePreset, renamePreset, deletePreset } from '../presets.js';
-// Search ranking is kept in the browser-only manager module and is covered by
-// the same behavior through the source-level test below.
+import { fuzzyScore, presetScore } from '../search.js';
 
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'presets-test-'));
 
