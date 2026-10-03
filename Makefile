@@ -1,5 +1,5 @@
 test:
-	node --test overlay-manager/test/
+	node --test overlay-manager/test/*.test.js
 
 feed:
 	cd testfeed && ./start.sh
