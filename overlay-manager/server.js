@@ -125,7 +125,7 @@ export const server = http.createServer(async (req, res) => {
           res.end('Write failed');
           return;
         }
-        ws.broadcastReload(clients);
+        ws.broadcastReload(clients, 'live');
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true }));
       });
@@ -145,7 +145,7 @@ export const server = http.createServer(async (req, res) => {
           res.end('Write failed');
           return;
         }
-        ws.broadcastReload(clients);
+        ws.broadcastReload(clients, 'preview');
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true }));
       });

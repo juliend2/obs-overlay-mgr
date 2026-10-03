@@ -126,7 +126,10 @@ function readFrames(socket, n, initial = Buffer.alloc(0)) {
   });
 }
 
-const RELOAD_FRAME = Buffer.concat([Buffer.from([0x81, 0x06]), Buffer.from('reload')]);
+const RELOAD_FRAME = (target) => {
+  const payload = Buffer.from(`reload:${target}`);
+  return Buffer.concat([Buffer.from([0x81, payload.length]), payload]);
+};
 
 let port;
 let BASE;
@@ -308,7 +311,7 @@ describe('server integration', () => {
         const golivePromise = fetch(`${BASE}/golive`, { method: 'POST' });
         const frames = await readFrames(socket, 1, rest);
         assert.equal(frames.length, 1);
-        assert.deepEqual(frames[0], RELOAD_FRAME);
+        assert.deepEqual(frames[0], RELOAD_FRAME('live'));
         const res = await golivePromise;
         assert.equal(res.status, 200);
       } finally {
@@ -324,8 +327,8 @@ describe('server integration', () => {
           readFrames(clients[0].socket, 1, clients[0].rest),
           readFrames(clients[1].socket, 1, clients[1].rest),
         ]);
-        assert.deepEqual(framesA[0], RELOAD_FRAME);
-        assert.deepEqual(framesB[0], RELOAD_FRAME);
+        assert.deepEqual(framesA[0], RELOAD_FRAME('live'));
+        assert.deepEqual(framesB[0], RELOAD_FRAME('live'));
         const res = await golivePromise;
         assert.equal(res.status, 200);
       } finally {
@@ -514,7 +517,7 @@ describe('server integration', () => {
       await assert.rejects(wsConnect(port, '/nope'));
     });
 
-    it('pushes a reload frame to a connected viewer on save', async () => {
+    it('pushes a preview reload frame to a connected viewer on save', async () => {
       const { socket, rest } = await wsConnect(port);
       try {
         const savePromise = fetch(`${BASE}/save-preview`, {
@@ -524,7 +527,7 @@ describe('server integration', () => {
         });
         const frames = await readFrames(socket, 1, rest);
         assert.equal(frames.length, 1);
-        assert.deepEqual(frames[0], RELOAD_FRAME);
+        assert.deepEqual(frames[0], RELOAD_FRAME('preview'));
         const res = await savePromise;
         assert.equal(res.status, 200);
       } finally {

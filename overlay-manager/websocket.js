@@ -18,10 +18,9 @@ export function encodeFrame(str) {
   return Buffer.concat([header, payload]);
 }
 
-export function broadcastReload(clients) {
-  const frame = encodeFrame('reload');
+export function broadcastReload(clients, target = 'all') {
+  const frame = encodeFrame(`reload:${target}`);
   for (const socket of clients) {
     socket.write(frame, (err) => { if (err) clients.delete(socket); });
   }
 }
-

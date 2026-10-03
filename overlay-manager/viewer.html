@@ -25,6 +25,7 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
+    transition: opacity 180ms ease-in-out;
   }
   #v {
     display: block;
@@ -54,14 +55,25 @@ const overlayFile = isPreview ? '/overlay-preview.html' : '/overlay-live.html';
 
 async function loadOverlay() {
   const res = await fetch(overlayFile, { cache: 'no-store' });
-  document.getElementById('overlay').innerHTML = await res.text();
+  const overlay = document.getElementById('overlay');
+  const html = await res.text();
+
+  // Keep the viewer document mounted and crossfade only the overlay content.
+  if (isLive && overlay.innerHTML) {
+    overlay.style.opacity = '0';
+    await new Promise((resolve) => setTimeout(resolve, 180));
+  }
+  overlay.innerHTML = html;
+  if (isLive) {
+    requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+  }
 }
 
 function connect() {
   const proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
   const ws = new WebSocket(proto + location.host + '/ws');
   ws.onmessage = (ev) => {
-    if (ev.data === 'reload') loadOverlay();
+    if (ev.data === 'reload:all' || ev.data === `reload:${mode}`) loadOverlay();
   };
   ws.onclose = () => setTimeout(connect, 2000);
   ws.onerror = () => ws.close();
