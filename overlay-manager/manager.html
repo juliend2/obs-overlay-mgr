@@ -91,6 +91,36 @@
   #form-container,
   #presets { overflow-y: scroll; overflow-x: hidden; }
 
+  /* Dark-mode friendly scrollbars for the manager's scrollable panels. */
+  #components,
+  #form-container,
+  #presets {
+    scrollbar-color: #777 #252525;
+    scrollbar-width: thin;
+  }
+  #components::-webkit-scrollbar,
+  #form-container::-webkit-scrollbar,
+  #presets::-webkit-scrollbar {
+    width: 9px;
+  }
+  #components::-webkit-scrollbar-track,
+  #form-container::-webkit-scrollbar-track,
+  #presets::-webkit-scrollbar-track {
+    background: #252525;
+  }
+  #components::-webkit-scrollbar-thumb,
+  #form-container::-webkit-scrollbar-thumb,
+  #presets::-webkit-scrollbar-thumb {
+    background: #777;
+    border-radius: 5px;
+    border: 2px solid #252525;
+  }
+  #components::-webkit-scrollbar-thumb:hover,
+  #form-container::-webkit-scrollbar-thumb:hover,
+  #presets::-webkit-scrollbar-thumb:hover {
+    background: #888;
+  }
+
   /* presets */
   #presets { margin: 0.5rem 0 0; }
   #presets details { margin: 0.25rem 0; }
