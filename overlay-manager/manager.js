@@ -29,6 +29,7 @@ function flash(statusEl, message, ok = true) {
   statusEl._flashTimer = setTimeout(() => { statusEl.textContent = ''; }, 2000);
 }
 
+
 // --- component forms ---
 
 // Wrapping the fragment before parsing keeps <style> blocks inside the root
