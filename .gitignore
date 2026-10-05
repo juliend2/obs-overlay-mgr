@@ -1,5 +1,6 @@
 /overlay-manager/overlay-preview.html
 /overlay-manager/overlay-live.html
+/overlay-manager/layers-state.json
 /testfeed/mediamtx
 *.swp
 overlay.html

@@ -9,7 +9,10 @@ const $ = (id) => document.getElementById(id);
 
 async function fetchJson(url, options) {
   const res = await fetch(url, options);
-  if (!res.ok) throw new Error(`${res.status} ${res.statusText}`);
+  if (!res.ok) {
+    const detail = (await res.text()).trim();
+    throw new Error(detail || `${res.status} ${res.statusText}`);
+  }
   return res.json();
 }
 
@@ -214,9 +217,10 @@ const closedCategories = new Set();
 // `_category` are precomputed here with the same normalization.
 let presetsCache = [];
 
-// Slug of the preset currently loaded into the preview; its name renders
-// black in the list and the mark survives list re-renders (save/delete).
-let selectedSlug = null;
+// Current preview selection, one preset slug per configured layer id.
+let selectedByLayer = {};
+let configuredLayers = [];
+const EMPTY_PRESET = '_VIDE';
 
 // Lowercase + strip accents, so "Église" matches a query of "eglise" (same
 // folding as slugify/searchableText server-side).
@@ -312,7 +316,9 @@ function startRename(useBtn, useStatus, preset) {
       preset.name = renamed.name;
       preset.slug = renamed.slug;
       preset._name = normalize(preset.name);
-      if (selectedSlug === oldSlug) selectedSlug = renamed.slug;
+      for (const [layerId, slug] of Object.entries(selectedByLayer)) {
+        if (slug === oldSlug) selectedByLayer[layerId] = renamed.slug;
+      }
       renderPresetList();
     } catch {
       flash(useStatus, 'Rename failed', false);
@@ -336,7 +342,8 @@ function buildPresetItem(preset) {
   useBtn.className = 'use';
   useBtn.textContent = preset.name;
   useBtn.title = preset.name;
-  if (preset.slug === selectedSlug) useBtn.classList.add('selected');
+  const layer = configuredLayers.find((item) => item.category === preset.category);
+  if (layer && selectedByLayer[layer.id] === preset.slug) useBtn.classList.add('selected');
   const useStatus = document.createElement('span');
   useStatus.className = 'status';
 
@@ -349,18 +356,17 @@ function buildPresetItem(preset) {
     clickTimer = setTimeout(async () => {
       flash(useStatus, 'Loading...');
       try {
-        const full = await fetchJson(`/presets/${encodeURIComponent(preset.slug)}`);
-        await postJson('/save-preview', { html: full.html });
-        // Only one preset is marked at a time: swap the class in place (no
-        // re-render, so the list keeps its scroll position).
-        selectedSlug = preset.slug;
-        for (const el of document.querySelectorAll('#presets li a.selected')) {
-          el.classList.remove('selected');
+        const layer = configuredLayers.find((item) => item.category === preset.category);
+        if (!layer) {
+          flash(useStatus, 'Category is not a layer', false);
+          return;
         }
-        useBtn.classList.add('selected');
+        selectedByLayer[layer.id] = preset.slug;
+        await saveLayerSelection();
+        renderPresetList();
         flash(useStatus, 'Loaded');
-      } catch {
-        flash(useStatus, 'Error', false);
+      } catch (err) {
+        flash(useStatus, err.message || 'Error', false);
       }
     }, 250);
   });
@@ -387,9 +393,59 @@ function buildPresetItem(preset) {
   return li;
 }
 
+function addEmptyPresetItems() {
+  for (const layer of configuredLayers) {
+    const category = layer.category;
+    if ($('preset-search') && normalize($('preset-search').value)
+      && !presetsCache.some((preset) => preset.category === category && presetScore(preset, normalize($('preset-search').value)) > 0)) {
+      continue;
+    }
+    const details = [...document.querySelectorAll('#presets details')]
+      .find((element) => element.querySelector('summary')?.textContent === category);
+    if (!details) continue;
+    const list = details.querySelector('ul');
+    const li = document.createElement('li');
+    const useBtn = document.createElement('a');
+    useBtn.href = '#';
+    useBtn.className = 'use';
+    useBtn.textContent = EMPTY_PRESET;
+    if (!selectedByLayer[layer.id] || selectedByLayer[layer.id] === EMPTY_PRESET) {
+      useBtn.classList.add('selected');
+    }
+    useBtn.addEventListener('click', async (event) => {
+      event.preventDefault();
+      try {
+        selectedByLayer[layer.id] = EMPTY_PRESET;
+        await saveLayerSelection();
+        renderPresetList();
+      } catch (err) {
+        flash(useBtn, err.message || 'Error', false);
+      }
+    });
+    li.appendChild(useBtn);
+    list.prepend(li);
+  }
+}
+
+async function saveLayerSelection() {
+  const state = {};
+  for (const layer of configuredLayers) {
+    const slug = selectedByLayer[layer.id];
+    if (typeof slug === 'string' && slug.trim()) state[layer.id] = slug;
+  }
+  const saved = await postJson('/layers/state', { layers: state });
+  selectedByLayer = { ...saved.state };
+}
+
 // Fetches the preset list (including searchable text) and refreshes the
 // category datalist from the full, unfiltered list.
 async function loadPresets() {
+  const layerData = await fetchJson('/layers');
+  configuredLayers = layerData.layers;
+  const configuredIds = new Set(configuredLayers.map((layer) => layer.id));
+  selectedByLayer = Object.fromEntries(
+    Object.entries(layerData.state).filter(([id]) => configuredIds.has(id))
+  );
   const { presets } = await fetchJson('/presets');
   // Alphabetical (ascending) within each category and in the uncategorized
   // list — grouping below preserves this order; the API returns newest-first.
@@ -432,6 +488,7 @@ function renderPresetList() {
     none.className = 'no-match';
     none.textContent = 'Aucun preset trouvé';
     host.appendChild(none);
+    addEmptyPresetItems();
     host.scrollTop = scrollTop;
     return;
   }
@@ -468,6 +525,7 @@ function renderPresetList() {
   for (const preset of groups.get('') || []) {
     host.appendChild(buildPresetItem(preset));
   }
+  addEmptyPresetItems();
   host.scrollTop = scrollTop;
 }
 

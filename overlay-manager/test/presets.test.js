@@ -5,6 +5,7 @@ import os from 'node:os';
 import path from 'node:path';
 import { slugify, listPresets, readPreset, writePreset, renamePreset, deletePreset } from '../presets.js';
 import { fuzzyScore, presetScore } from '../search.js';
+import { composeLayers, loadLayers, saveLayerState, loadLayerState, EMPTY_PRESET } from '../layers.js';
 
 const tmpDir = fs.mkdtempSync(path.join(os.tmpdir(), 'presets-test-'));
 
@@ -198,5 +199,33 @@ describe('deletePreset', () => {
     assert.equal(await readPreset(tmpDir, '../presets'), null);
     assert.equal(await deletePreset(tmpDir, '..'), false);
     assert.equal(await deletePreset(tmpDir, 'a/b'), false);
+  });
+});
+
+describe('layers', () => {
+  it('composes active layers in configuration order and skips _VIDE', async () => {
+    const result = await composeLayers(
+      [
+        { id: 'chants', category: 'Chants' },
+        { id: 'messe', category: 'Messe' },
+      ],
+      { chants: 'chant', messe: EMPTY_PRESET },
+      async (slug) => ({ category: 'Chants', html: `<p>${slug}</p>` }),
+    );
+    assert.equal(result, '<div data-overlay-layer="chants"><p>chant</p></div>');
+  });
+
+  it('persists and reloads layer state', async () => {
+    const file = path.join(tmpDir, 'layers-state.json');
+    await saveLayerState(file, { chants: 'chant' });
+    assert.deepEqual(await loadLayerState(file), { chants: 'chant' });
+  });
+
+  it('loads the repository layer configuration', async () => {
+    const configured = await loadLayers(path.join(process.cwd(), 'overlay-manager', 'layers.json'));
+    assert.deepEqual(configured.map(({ id, category }) => ({ id, category })), [
+      { id: 'chants', category: 'Chants' },
+      { id: 'messe', category: 'Messe' },
+    ]);
   });
 });

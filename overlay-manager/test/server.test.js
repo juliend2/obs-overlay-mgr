@@ -337,6 +337,45 @@ describe('server integration', () => {
     });
   });
 
+  describe('layered preview', () => {
+    it('composes presets from multiple categories in layer order', async () => {
+      const first = await fetch(`${BASE}/presets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Layered chant', html: '<p>chant</p>', category: 'Chants' }),
+      });
+      const firstPreset = await first.json();
+      const second = await fetch(`${BASE}/presets`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: 'Layered messe', html: '<p>messe</p>', category: 'Messe' }),
+      });
+      const secondPreset = await second.json();
+
+      const selected = await fetch(`${BASE}/layers/state`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ layers: { chants: firstPreset.slug, messe: secondPreset.slug } }),
+      });
+      assert.equal(selected.status, 200);
+      assert.equal(
+        await (await fetch(`${BASE}/overlay-preview.html`)).text(),
+        '<div data-overlay-layer="chants"><p>chant</p></div>\n'
+        + '<div data-overlay-layer="messe"><p>messe</p></div>'
+      );
+    });
+
+    it('returns the validation reason for a preset from the wrong category', async () => {
+      const response = await fetch(`${BASE}/layers/state`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ layers: { chants: 'layered-messe' } }),
+      });
+      assert.equal(response.status, 400);
+      assert.equal(await response.text(), 'Category mismatch');
+    });
+  });
+
   describe('presets', () => {
     const NAME = 'Lyrics of Song ABC';
     const HTML = '<p>la la &lt;b&gt; "quotes" é</p>';

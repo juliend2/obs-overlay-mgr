@@ -15,6 +15,7 @@ import { fileURLToPath, pathToFileURL } from 'url';
 import * as ws from './websocket.js'
 import * as web from './web.js'
 import * as presets from './presets.js'
+import * as layers from './layers.js'
 
 const PORT = process.env.PORT || 8081;
 const DIR = path.dirname(fileURLToPath(import.meta.url));
@@ -24,9 +25,42 @@ const PRESETS_DIR = process.env.PRESETS_DIR
   : path.join(DIR, 'presets');
 const OVERLAY_PREVIEW_PATH = path.join(DIR, 'overlay-preview.html');
 const OVERLAY_LIVE_PATH = path.join(DIR, 'overlay-live.html');
+const LAYER_PATHS = layers.layerPaths(DIR);
 const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
 const clients = new Set();
+
+async function configuredLayers() {
+  return layers.loadLayers(LAYER_PATHS.config);
+}
+
+async function composeCurrentLayers() {
+  const configured = await configuredLayers();
+  const state = await layers.loadLayerState(LAYER_PATHS.state);
+  const html = await layers.composeLayers(
+    configured,
+    state,
+    (slug) => presets.readPreset(PRESETS_DIR, slug)
+  );
+  return { configured, state, html };
+}
+
+async function normalizedLayerState(configured, state) {
+  const normalized = {};
+  for (const layer of configured) {
+    const slug = state[layer.id];
+    if (!slug || slug === layers.EMPTY_PRESET) continue;
+    const preset = await presets.readPreset(PRESETS_DIR, slug);
+    if (preset && preset.category === layer.category) normalized[layer.id] = slug;
+  }
+  return normalized;
+}
+
+async function writePreviewFromLayers() {
+  const composed = await composeCurrentLayers();
+  await fs.promises.writeFile(OVERLAY_PREVIEW_PATH, composed.html);
+  return composed;
+}
 
 // Collects a JSON request body (capped at 1MB, connection destroyed beyond
 // that) and hands the parsed object to `handle`.
@@ -99,6 +133,22 @@ export const server = http.createServer(async (req, res) => {
   if (isRead && pathname === '/overlay-preview.html') {
     return web.serveFile(res, OVERLAY_PREVIEW_PATH, 'text/html', req.method);
   }
+  if (isRead && pathname === '/layers') {
+    try {
+      const configured = await configuredLayers();
+      const state = await normalizedLayerState(
+        configured,
+        await layers.loadLayerState(LAYER_PATHS.state)
+      );
+      await layers.saveLayerState(LAYER_PATHS.state, state);
+      res.writeHead(200, { 'Content-Type': 'application/json' });
+      res.end(JSON.stringify({ layers: configured, state, emptyPreset: layers.EMPTY_PRESET }));
+    } catch {
+      res.writeHead(500);
+      res.end('Layer configuration failed');
+    }
+    return;
+  }
   if (isRead && pathname === '/overlay-live.html') {
     // The live file is generated on the first publish and is intentionally
     // ignored by git. Serve an empty overlay until that happens.
@@ -149,6 +199,44 @@ export const server = http.createServer(async (req, res) => {
         res.writeHead(200, { 'Content-Type': 'application/json' });
         res.end(JSON.stringify({ ok: true }));
       });
+    });
+  }
+  if (req.method === 'POST' && pathname === '/layers/state') {
+    return readJsonBody(req, res, async (parsed) => {
+      if (!parsed || !parsed.layers || typeof parsed.layers !== 'object' || Array.isArray(parsed.layers)) {
+        res.writeHead(400);
+        res.end('Missing "layers" field');
+        return;
+      }
+      try {
+        const configured = await configuredLayers();
+        const allowed = new Map(configured.map((layer) => [layer.id, layer]));
+        const state = {};
+        for (const [id, slug] of Object.entries(parsed.layers)) {
+          const layer = allowed.get(id);
+          if (!layer || typeof slug !== 'string' || !slug.trim()) continue;
+          if (slug !== layers.EMPTY_PRESET) {
+            const preset = await presets.readPreset(PRESETS_DIR, slug);
+            if (!preset) throw new Error(`Preset not found: ${slug}`);
+            if (preset.category !== layer.category) throw new Error('Category mismatch');
+          }
+          state[id] = slug;
+        }
+        await layers.saveLayerState(LAYER_PATHS.state, state);
+        const html = await layers.composeLayers(
+          configured,
+          state,
+          (slug) => presets.readPreset(PRESETS_DIR, slug)
+        );
+        await fs.promises.writeFile(OVERLAY_PREVIEW_PATH, html);
+        ws.broadcastReload(clients, 'preview');
+        res.writeHead(200, { 'Content-Type': 'application/json' });
+        res.end(JSON.stringify({ ok: true, state }));
+      } catch (err) {
+        const clientError = err.message.startsWith('Preset not found') || err.message === 'Category mismatch';
+        res.writeHead(clientError ? 400 : 500, { 'Content-Type': 'text/plain' });
+        res.end(clientError ? err.message : 'Layer state failed');
+      }
     });
   }
   if (pathname === '/presets' && isRead) {

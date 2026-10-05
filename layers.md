@@ -10,12 +10,8 @@ preview and, after clicking **Go live**, in `overlay-live.html`.
 
 ## Recommended Model
 
-Each configured layer has:
-
-- a stable identifier;
-- a category;
-- a position in the layer order;
-- one selected preset, or no preset.
+Each configured layer has a stable identifier, a category, a position in the
+layer order, and one selected preset or no preset.
 
 Example configuration:
 
@@ -56,9 +52,9 @@ Adding or reordering layers would only require changing `layers.json`.
 Every configured layer should expose a virtual `_VIDE` option. Selecting it
 disables that layer and contributes no HTML to the composed overlay.
 
-The recommended implementation is to generate `_VIDE` in the manager UI
-instead of creating a file on disk. It is a reserved value, not an ordinary
-preset.
+The recommended implementation is to generate `_VIDE` in the existing preset
+selector instead of creating a file on disk. It is a reserved value, not an
+ordinary preset.
 
 This avoids unnecessary files and makes the disabled state unambiguous. A user
 should not create a normal preset named `_VIDE`.
@@ -91,21 +87,41 @@ like `overlay-live.html`.
 
 ## Manager UI
 
-Add a layer-selection area near the preview:
+Keep the current category-grouped preset selector as the only selection UI. Do
+not add a separate layer-selection panel or a second set of selectors.
+
+The existing list remains structurally similar:
 
 ```text
-Layers
+Chants
+  _VIDE
+  Alleluia
+  Viens Esprit Saint
 
-Chants   [ Alleluia              v ]
-Messe    [ Messe du dimanche     v ]
+Messe
+  _VIDE
+  Messe du dimanche
 ```
 
-Each row represents one configured layer and provides a selector containing
-`_VIDE` plus the presets belonging to that layer's category.
+Clicking a preset continues to load it immediately, but it replaces only the
+active layer associated with that preset's category. It must not replace the
+complete composed preview. A selected `Chants` preset and a selected `Messe`
+preset can therefore remain active and visible together.
 
-The existing preset list can remain useful for searching, renaming, deleting,
-and creating presets. Clicking a preset should assign it to the layer matching
-its category instead of replacing the entire preview.
+The manager should maintain one selection per category rather than one global
+`selectedSlug`, for example:
+
+```js
+{
+  Chants: 'alleluia',
+  Messe: 'messe-du-dimanche'
+}
+```
+
+The current selected styling should remain category-aware: one preset can be
+marked selected in `Chants` while another is marked selected in `Messe`.
+Selecting `_VIDE` clears that category's layer. The existing list also remains
+the place for searching, renaming, deleting, and creating presets.
 
 Initially, a preset whose category is not configured as a layer should not be
 assignable. The manager should show a clear message rather than implicitly
@@ -204,13 +220,15 @@ Add tests for:
 2. Add layer state storage and API endpoints.
 3. Generate `overlay-preview.html` from selected layers.
 4. Add virtual `_VIDE` handling.
-5. Add the manager's layer-selection UI.
+5. Update the existing category-grouped preset selector so each category can
+   have its own selected preset.
 6. Add integration and composition tests.
 7. Update documentation and generated-file handling.
 
 ## Core Decision
 
 Categories should identify layers, but the rendered overlay should be composed
-from explicit layer state rather than directly from the preset list. This
-supports simultaneous `Messe` and `Chants` presets now while allowing more
-layers and configurable ordering later.
+from explicit per-category selection state rather than directly from a single
+global preset selection. The existing category-grouped preset selector remains
+the user-facing interaction. This supports simultaneous `Messe` and `Chants`
+presets now while allowing more layers and configurable ordering later.
