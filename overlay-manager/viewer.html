@@ -27,7 +27,8 @@
     pointer-events: none;
   }
   #overlay > [data-overlay-layer] {
-    transition: opacity 180ms ease-in-out;
+    --layer-transition-duration: 180ms;
+    transition: opacity var(--layer-transition-duration) ease-in-out;
   }
   #overlay > [data-overlay-layer].layer-hidden {
     opacity: 0;
@@ -71,7 +72,23 @@ function waitForFrame() {
 
 async function fadeOut(element) {
   element.classList.add('layer-hidden');
-  await new Promise((resolve) => setTimeout(resolve, 180));
+  await waitForTransition(element);
+}
+
+function waitForTransition(element) {
+  const duration = parseFloat(getComputedStyle(element).transitionDuration) * 1000;
+  return new Promise((resolve) => setTimeout(resolve, duration));
+}
+
+async function replaceLayer(current, next) {
+  await fadeOut(current);
+  next.classList.add('layer-hidden');
+  current.replaceWith(next);
+  await waitForFrame();
+  // Force the hidden state to be committed before removing it. Without this
+  // read, the browser can batch both style changes and skip the fade-in.
+  next.getBoundingClientRect();
+  next.classList.remove('layer-hidden');
 }
 
 async function updateLiveLayers(overlay, html) {
@@ -92,11 +109,14 @@ async function updateLiveLayers(overlay, html) {
     if (current && current.outerHTML === next.outerHTML) continue;
 
     if (current) {
-      animations.push(fadeOut(current).then(() => current.replaceWith(next)));
+      animations.push(replaceLayer(current, next));
     } else {
       next.classList.add('layer-hidden');
       overlay.appendChild(next);
-      animations.push(waitForFrame().then(() => next.classList.remove('layer-hidden')));
+      animations.push(waitForFrame().then(() => {
+        next.getBoundingClientRect();
+        next.classList.remove('layer-hidden');
+      }));
     }
   }
 
