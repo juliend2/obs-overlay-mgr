@@ -19,8 +19,7 @@ const MANAGER_PATH = path.join(APP, 'manager.html');
 const MANAGER_JS_PATH = path.join(APP, 'manager.js');
 const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
-// POST /save-preview and POST /golive write the real overlay files, so back
-// them up and restore them.
+// POST /golive writes the real live overlay file, so back it up and restore it.
 const originalPreview = fs.readFileSync(OVERLAY_PREVIEW_PATH, 'utf8');
 const liveExisted = fs.existsSync(OVERLAY_LIVE_PATH);
 const originalLive = liveExisted ? fs.readFileSync(OVERLAY_LIVE_PATH, 'utf8') : null;
@@ -225,81 +224,25 @@ describe('server integration', () => {
     });
   });
 
-  describe('POST /save-preview', () => {
-    it('rejects invalid JSON with 400', async () => {
-      const res = await fetch(`${BASE}/save-preview`, { method: 'POST', body: '{nope' });
-      assert.equal(res.status, 400);
-      assert.equal(await res.text(), 'Invalid JSON');
-    });
-
-    it('rejects a body without an html field with 400', async () => {
-      const res = await fetch(`${BASE}/save-preview`, { method: 'POST', body: '{}' });
-      assert.equal(res.status, 400);
-      assert.equal(await res.text(), 'Missing "html" field');
-    });
-
-    it('rejects a non-string html field with 400', async () => {
-      const res = await fetch(`${BASE}/save-preview`, {
-        method: 'POST',
-        body: JSON.stringify({ html: 42 }),
-      });
-      assert.equal(res.status, 400);
-      assert.equal(await res.text(), 'Missing "html" field');
-    });
-
-    it('writes valid html to disk and returns ok', async () => {
-      const html = '<h1>saved by test</h1>';
-      const res = await fetch(`${BASE}/save-preview`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html }),
-      });
-      assert.equal(res.status, 200);
-      assert.deepEqual(await res.json(), { ok: true });
-      assert.equal(fs.readFileSync(OVERLAY_PREVIEW_PATH, 'utf8'), html);
-
-      const served = await fetch(`${BASE}/overlay-preview.html`);
-      assert.equal(await served.text(), html);
-    });
-
-    it('destroys the connection for bodies over 1MB', async () => {
-      // Raw socket for determinism: the server destroys mid-upload, so no
-      // HTTP response must ever arrive.
-      const gotResponse = await new Promise((resolve, reject) => {
-        const socket = net.connect({ host: '127.0.0.1', port });
-        let responded = false;
-        const done = (fn) => {
-          clearTimeout(timer);
-          socket.destroy();
-          fn();
-        };
-        const timer = setTimeout(() => done(() => reject(new Error('timeout'))), 3000);
-        socket.on('connect', () => {
-          socket.write('POST /save-preview HTTP/1.1\r\nHost: t\r\nContent-Length: 1100000\r\n\r\n');
-          socket.write('x'.repeat(600000));
-          socket.write('x'.repeat(500000));
-        });
-        socket.on('data', () => { responded = true; });
-        socket.on('error', () => done(() => resolve(responded)));
-        socket.on('close', () => done(() => resolve(responded)));
-      });
-      assert.equal(gotResponse, false);
-    });
-  });
-
   describe('POST /golive', () => {
     it('copies the preview overlay into the live overlay and returns ok', async () => {
-      const html = '<h1>going live</h1>';
-      await fetch(`${BASE}/save-preview`, {
+      const preset = await fetch(`${BASE}/presets`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html }),
+        body: JSON.stringify({ name: 'Going live', html: '<h1>going live</h1>', category: 'Chants' }),
+      });
+      const { slug } = await preset.json();
+      await fetch(`${BASE}/layers/state`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ layers: { chants: slug } }),
       });
 
       const res = await fetch(`${BASE}/golive`, { method: 'POST' });
       assert.equal(res.status, 200);
       assert.deepEqual(await res.json(), { ok: true });
 
+      const html = '<div data-overlay-layer="chants"><h1>going live</h1></div>';
       assert.equal(fs.readFileSync(OVERLAY_LIVE_PATH, 'utf8'), html);
       const served = await fetch(`${BASE}/overlay-live.html`);
       assert.equal(await served.text(), html);
@@ -559,10 +502,10 @@ describe('server integration', () => {
     it('pushes a preview reload frame to a connected viewer on save', async () => {
       const { socket, rest } = await wsConnect(port);
       try {
-        const savePromise = fetch(`${BASE}/save-preview`, {
+        const savePromise = fetch(`${BASE}/layers/state`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ html: '<p>push test</p>' }),
+          body: JSON.stringify({ layers: {} }),
         });
         const frames = await readFrames(socket, 1, rest);
         assert.equal(frames.length, 1);
@@ -578,16 +521,16 @@ describe('server integration', () => {
       const { socket } = await wsConnect(port);
       socket.destroy();
       await delay(50); // let the server notice the close and drop the client
-      const res = await fetch(`${BASE}/save-preview`, {
+      const res = await fetch(`${BASE}/layers/state`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ html: '<p>after disconnect</p>' }),
+        body: JSON.stringify({ layers: {} }),
       });
       assert.equal(res.status, 200);
-      assert.deepEqual(await res.json(), { ok: true });
+      assert.deepEqual(await res.json(), { ok: true, state: {} });
       assert.equal(
         fs.readFileSync(OVERLAY_PREVIEW_PATH, 'utf8'),
-        '<p>after disconnect</p>'
+        ''
       );
     });
   });

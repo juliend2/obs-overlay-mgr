@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 // Zero-dependency HTTP + WebSocket server: serves the viewer and manager
 // pages, component templates and presets, and pushes a "reload" message to
-// viewers whenever the overlay on disk changes — /save-preview writes a new
-// overlay-preview.html, and /golive publishes that preview into
+// viewers whenever the layered preview on disk changes, and /golive publishes
+// that preview into
 // overlay-live.html (what viewers actually show). WebSocket is hand-rolled
 // (handshake + outgoing framing only) to avoid an npm dependency for a
 // two-message protocol.
@@ -181,25 +181,6 @@ export const server = http.createServer(async (req, res) => {
       });
     });
     return;
-  }
-  if (req.method === 'POST' && pathname === '/save-preview') {
-    return readJsonBody(req, res, (parsed) => {
-      if (typeof parsed.html !== 'string') {
-        res.writeHead(400);
-        res.end('Missing "html" field');
-        return;
-      }
-      fs.writeFile(OVERLAY_PREVIEW_PATH, parsed.html, (err) => {
-        if (err) {
-          res.writeHead(500);
-          res.end('Write failed');
-          return;
-        }
-        ws.broadcastReload(clients, 'preview');
-        res.writeHead(200, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({ ok: true }));
-      });
-    });
   }
   if (req.method === 'POST' && pathname === '/layers/state') {
     return readJsonBody(req, res, async (parsed) => {

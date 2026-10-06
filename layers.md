@@ -129,8 +129,7 @@ changing configuration.
 
 ## Server API
 
-The existing `/save-preview` endpoint can remain for compatibility, but the
-layer workflow should use dedicated state and composition logic. Possible
+The layer workflow should use dedicated state and composition logic. Possible
 endpoints:
 
 ```text

@@ -126,11 +126,6 @@ async function toggleComponentForm(component) {
     const actions = document.createElement('div');
     actions.className = 'actions';
 
-    const saveBtn = document.createElement('button');
-    saveBtn.textContent = 'Display';
-    const saveStatus = document.createElement('span');
-    saveStatus.className = 'status';
-
     const presetName = document.createElement('input');
     presetName.type = 'text';
     presetName.placeholder = 'Nom du preset';
@@ -146,20 +141,10 @@ async function toggleComponentForm(component) {
     const presetStatus = document.createElement('span');
     presetStatus.className = 'status';
 
-    actions.append(saveBtn, saveStatus, presetName, presetCategory, presetBtn, presetStatus);
+    actions.append(presetName, presetCategory, presetBtn, presetStatus);
     container.appendChild(actions);
 
     const rendered = () => renderComponent(root, collectValues(container));
-
-    saveBtn.addEventListener('click', async () => {
-      flash(saveStatus, 'Saving...');
-      try {
-        await postJson('/save-preview', { html: rendered() });
-        flash(saveStatus, 'Saved');
-      } catch {
-        flash(saveStatus, 'Error saving', false);
-      }
-    });
 
     presetBtn.addEventListener('click', async () => {
       const name = presetName.value.trim();
@@ -167,9 +152,18 @@ async function toggleComponentForm(component) {
         flash(presetStatus, 'Name required', false);
         return;
       }
+      const category = presetCategory.value.trim();
+      if (!category) {
+        flash(presetStatus, 'Category required', false);
+        return;
+      }
+      if (!configuredLayers.some((layer) => layer.category === category)) {
+        flash(presetStatus, 'Category is not a layer', false);
+        return;
+      }
       flash(presetStatus, 'Saving...');
       try {
-        await postJson('/presets', { name, html: rendered(), category: presetCategory.value.trim() });
+        await postJson('/presets', { name, html: rendered(), category });
         presetName.value = '';
         flash(presetStatus, 'Preset saved');
         await loadPresets();
@@ -528,29 +522,6 @@ function renderPresetList() {
   addEmptyPresetItems();
   host.scrollTop = scrollTop;
 }
-
-// --- html-editor / test / go live ---
-
-// async function load() {
-//   const res = await fetch('/overlay-preview.html', { cache: 'no-store' });
-//   $('html-editor').value = await res.text();
-// }
-
-// async function save() {
-//   const status = $('test-status');
-//   flash(status, 'Saving...');
-//   try {
-//     await postJson('/save-preview', { html: $('html-editor').value });
-//     flash(status, 'Saved');
-//   } catch {
-//     flash(status, 'Error saving', false);
-//   }
-// }
-
-// $('test').addEventListener('click', () => {
-//   $('html-editor').value = '<div style="background: rgba(255, 255, 255, 0.5); color: black;">test</div>';
-//   save();
-// });
 
 // --- iframes ---
 
