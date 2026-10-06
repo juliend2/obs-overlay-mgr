@@ -25,7 +25,12 @@
     width: 100%;
     height: 100%;
     pointer-events: none;
+  }
+  #overlay > [data-overlay-layer] {
     transition: opacity 180ms ease-in-out;
+  }
+  #overlay > [data-overlay-layer].layer-hidden {
+    opacity: 0;
   }
   #v {
     display: block;
@@ -53,19 +58,69 @@ const isOBS = mode === 'obs';
 // one — "obs" just hides the video (Browser Source). No mode = same as obs.
 const overlayFile = isPreview ? '/overlay-preview.html' : '/overlay-live.html';
 
+function layerElements(root) {
+  return new Map(
+    [...root.querySelectorAll(':scope > [data-overlay-layer]')]
+      .map((element) => [element.dataset.overlayLayer, element])
+  );
+}
+
+function waitForFrame() {
+  return new Promise((resolve) => requestAnimationFrame(resolve));
+}
+
+async function fadeOut(element) {
+  element.classList.add('layer-hidden');
+  await new Promise((resolve) => setTimeout(resolve, 180));
+}
+
+async function updateLiveLayers(overlay, html) {
+  const incoming = document.createElement('div');
+  incoming.innerHTML = html;
+  const currentLayers = layerElements(overlay);
+  const incomingLayers = layerElements(incoming);
+  const animations = [];
+
+  for (const [id, current] of currentLayers) {
+    if (!incomingLayers.has(id)) {
+      animations.push(fadeOut(current).then(() => current.remove()));
+    }
+  }
+
+  for (const [id, next] of incomingLayers) {
+    const current = currentLayers.get(id);
+    if (current && current.outerHTML === next.outerHTML) continue;
+
+    if (current) {
+      animations.push(fadeOut(current).then(() => current.replaceWith(next)));
+    } else {
+      next.classList.add('layer-hidden');
+      overlay.appendChild(next);
+      animations.push(waitForFrame().then(() => next.classList.remove('layer-hidden')));
+    }
+  }
+
+  await Promise.all(animations);
+}
+
 async function loadOverlay() {
   const res = await fetch(overlayFile, { cache: 'no-store' });
   const overlay = document.getElementById('overlay');
   const html = await res.text();
 
-  // Keep the viewer document mounted and crossfade only the overlay content.
-  if (isLive && overlay.innerHTML) {
-    overlay.style.opacity = '0';
-    await new Promise((resolve) => setTimeout(resolve, 180));
-  }
-  overlay.innerHTML = html;
-  if (isLive) {
-    requestAnimationFrame(() => { overlay.style.opacity = '1'; });
+  if (isLive && overlay.querySelector(':scope > [data-overlay-layer]')) {
+    await updateLiveLayers(overlay, html);
+  } else if (isLive) {
+    overlay.innerHTML = html;
+    for (const layer of overlay.querySelectorAll(':scope > [data-overlay-layer]')) {
+      layer.classList.add('layer-hidden');
+    }
+    await waitForFrame();
+    for (const layer of overlay.querySelectorAll(':scope > [data-overlay-layer]')) {
+      layer.classList.remove('layer-hidden');
+    }
+  } else {
+    overlay.innerHTML = html;
   }
 }
 
