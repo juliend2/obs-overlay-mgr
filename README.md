@@ -197,6 +197,9 @@ Boot. The pages here are consumable as OBS **Browser Sources** instead.
 
 ## TODO
 
-- [ ] faire une animation de transition quand on 'go live' avec un preset pour
+- [x] faire une animation de transition quand on 'go live' avec un preset pour
   que ce soit smooth
 - [ ] reduire le delay pour le double click a 200ms ou moins
+- [ ] p-e reduire la taille de texte des presets quand ils ont au dessus d'un
+  threshold de nombre de lignes, pour que ca rentre dans le viewport
+- [ ] ajouter un undo pour quand on Delete un preset par erreur
