@@ -160,7 +160,7 @@
 
   <div class="wrap">
     <div class="left">
-      <iframe class="overlay-frame" src="http://localhost:8081/?mode=preview" style="width: 100%"></iframe>
+      <iframe class="overlay-frame" data-mode="preview" style="width: 100%"></iframe>
       <div>
       </div>
     </div>
@@ -170,9 +170,38 @@
       </div>
     </div>
     <div class="right">
-      <iframe class="overlay-frame" src="http://localhost:8081/?mode=live" style="width: 100%"></iframe>
+      <iframe class="overlay-frame" data-mode="live" style="width: 100%"></iframe>
     </div>
   </div>
+
+<script>
+  // The overlay is composited over a WHEP feed. `?path=` picks the MediaMTX
+  // path (see testfeed/mediamtx.yml); both panes share it. It defaults to the
+  // HDMI capture card, since that is what you want behind a live overlay —
+  // use /manager?path=test to go back to the synthetic test pattern.
+  (async () => {
+    const requested = new URLSearchParams(location.search).get('path');
+    // The card is offered as H.264 (`cam`) and VP8 (`cam-vp8`). Pick by what
+    // this browser will actually offer: Firefox advertises H.264 in
+    // getCapabilities() yet omits it from the SDP, so probe a throwaway offer.
+    const path = requested || (await offersH264() ? 'cam' : 'cam-vp8');
+    for (const frame of document.querySelectorAll('iframe.overlay-frame')) {
+      frame.src = `${location.origin}/?mode=${frame.dataset.mode}&path=${encodeURIComponent(path)}`;
+    }
+  })();
+
+  async function offersH264() {
+    try {
+      const pc = new RTCPeerConnection();
+      pc.addTransceiver('video', { direction: 'recvonly' });
+      const offer = await pc.createOffer();
+      pc.close();
+      return /a=rtpmap:\d+ H264\//i.test(offer.sdp);
+    } catch {
+      return false;
+    }
+  }
+</script>
 
   <div class="wrap">
     <div class="col-third">

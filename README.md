@@ -171,6 +171,9 @@ are set up for this; see `testfeed/README.md` for the full explanation.
    (`sudo apt install v4l-utils` if missing). A stick lists a video device plus
    a metadata sibling — use the even-numbered one. If it isn't `/dev/video0`,
    edit the `-i /dev/video0` in the `cam` path of `testfeed/mediamtx.yml`.
+   **Use a USB 3.0 port.** On a USB 2.0 port (480 Mbps) the card still
+   enumerates and reports its modes, but never delivers a frame — check the
+   negotiated speed with `lsusb -t` (you want `5000M`, not `480M`).
 2. **Start the feed:** `cd testfeed && ./start.sh`
 3. **In OBS: + → Media Source**
    - uncheck **Local File**
@@ -181,6 +184,8 @@ are set up for this; see `testfeed/README.md` for the full explanation.
    Activating the source starts the encoder.
 4. **In the browser:** open `http://127.0.0.1:8000/webrtc.html?path=cam-vp8`
    (Firefox gets the VP8 copy; Chromium can also play `?path=cam` directly).
+   The `/manager` page previews the card automatically, so you can edit your
+   overlay composited over it — add `?path=test` for the synthetic pattern.
 
 Both watch at once. The encoder starts with the first `cam` viewer, so a
 Firefox page opened before OBS shows "retrying…" for a moment until it's up —

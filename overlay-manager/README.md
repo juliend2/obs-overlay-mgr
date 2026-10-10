@@ -39,8 +39,12 @@ cd overlay-manager && ./start.sh
    check **Shutdown source when not visible** *off* (so the WebSocket stays
    connected between scene switches), width/height to taste.
 
-To see a preview with the video, see: http://localhost:8081/?mode=preview
-(TODO: make it show the actual video instead of the test)
+The manager composites its preview and live panes over the HDMI capture card
+by default — path `cam` (H.264) in Chromium, `cam-vp8` in Firefox, chosen by
+probing the browser's real SDP offer. Append `?path=test` to `/manager` for the
+synthetic pattern, or `?path=<name>` for any other path in
+`testfeed/mediamtx.yml`. The card must be on a USB 3.0 port and fed a live HDMI
+signal (see the top-level README).
 
 ### Files
 
