@@ -44,34 +44,50 @@ const SNAPSHOT_PATH = process.env.SNAPSHOT_PATH
 const SNAPSHOT_SOURCE = process.env.SNAPSHOT_SOURCE || 'rtsp://127.0.0.1:8554/cam';
 const SNAPSHOT_IDLE_MS = 30_000;
 let snapshotProc = null;
+let snapshotSource = SNAPSHOT_SOURCE;
 let lastSnapshotRequest = 0;
 
 function snapshotIdle() {
   return Date.now() - lastSnapshotRequest > SNAPSHOT_IDLE_MS;
 }
 
-function ensureSnapshot() {
+function ensureSnapshot(source) {
   // SNAPSHOT_DISABLE keeps the grabber off (tests, or anyone who wants the old
   // behaviour); the /cam.jpg route still serves whatever is at SNAPSHOT_PATH.
-  if (snapshotProc || process.env.SNAPSHOT_DISABLE === '1') return;
-  snapshotProc = spawn('ffmpeg', [
+  if (process.env.SNAPSHOT_DISABLE === '1') return;
+  if (snapshotProc) {
+    // One grabber serves every pane; a viewer asking for another source (e.g.
+    // /manager?path=test) just restarts it against that path.
+    if (snapshotSource === source) return;
+    snapshotProc.kill('SIGTERM');
+    snapshotProc = null;
+  }
+  snapshotSource = source;
+  const proc = spawn('ffmpeg', [
     '-hide_banner', '-loglevel', 'error',
+    '-nostdin',
     '-rtsp_transport', 'tcp',
     '-skip_frame', 'nokey',
-    '-i', SNAPSHOT_SOURCE,
+    '-i', source,
     '-an',
     '-vf', 'scale=-2:360',
     '-r', '1', '-q:v', '5',
+    // -y: image2 asks before overwriting, and on a restart (source switch or a
+    // respawn) the previous frame is still on disk — without this it exits.
+    '-y',
     '-f', 'image2', '-update', '1',
     SNAPSHOT_PATH,
   ], { stdio: 'ignore' });
-  snapshotProc.on('error', () => { snapshotProc = null; });
-  snapshotProc.on('exit', () => {
+  snapshotProc = proc;
+  proc.on('error', () => { if (snapshotProc === proc) snapshotProc = null; });
+  proc.on('exit', () => {
+    // Ignore the exit of a process we deliberately replaced or reaped.
+    if (snapshotProc !== proc) return;
     snapshotProc = null;
     // `cam` is on-demand, so the first grab can beat the card encoder to life;
     // retry shortly, but stop once the manager has gone quiet so the capture
     // card isn't held open for nothing.
-    if (!snapshotIdle()) setTimeout(ensureSnapshot, 3000);
+    if (!snapshotIdle()) setTimeout(() => ensureSnapshot(snapshotSource), 3000);
   });
 }
 
@@ -172,9 +188,14 @@ export const server = http.createServer(async (req, res) => {
   }
   if (isRead && pathname === '/cam.jpg') {
     // Latest camera snapshot; the manager polls this instead of decoding a live
-    // video (see the snapshot notes above). 404s until the first frame lands.
+    // video (see the snapshot notes above). `?src=` picks the MediaMTX path
+    // (default `cam`); 404s until the first frame lands.
     lastSnapshotRequest = Date.now();
-    ensureSnapshot();
+    const src = url.searchParams.get('src');
+    const source = src && /^[\w-]+$/.test(src)
+      ? `rtsp://127.0.0.1:8554/${src}`
+      : SNAPSHOT_SOURCE;
+    ensureSnapshot(source);
     return web.serveFile(res, SNAPSHOT_PATH, 'image/jpeg', req.method);
   }
   if (isRead && pathname.startsWith('/components/')) {

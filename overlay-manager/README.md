@@ -39,12 +39,42 @@ cd overlay-manager && ./start.sh
    check **Shutdown source when not visible** *off* (so the WebSocket stays
    connected between scene switches), width/height to taste.
 
-The manager composites its preview and live panes over the HDMI capture card
-by default — path `cam` (H.264) in Chromium, `cam-vp8` in Firefox, chosen by
-probing the browser's real SDP offer. Append `?path=test` to `/manager` for the
-synthetic pattern, or `?path=<name>` for any other path in
-`testfeed/mediamtx.yml`. The card must be on a USB 3.0 port and fed a live HDMI
-signal (see the top-level README).
+### Camera behind the overlay
+
+The manager composites its preview and live panes over the HDMI capture card.
+By default each pane shows a **~1 fps JPEG snapshot**, not a live video. This
+box runs OBS *and* the manager browser on one shared Intel iGPU, and decoding
+live video in the browser stole enough render time to show up as OBS
+**"rendering lag"** (measured >5%). A snapshot is plenty to line overlays up and
+costs almost no GPU (~0.08 core, no video decode in the browser at all).
+
+`server.js` serves it at `GET /cam.jpg?src=<path>`, grabbed from the RTSP feed
+by a small on-demand ffmpeg that decodes **keyframes only** (`-skip_frame
+nokey`; `cam` is `-g 30`, so one frame a second). One grabber serves both panes;
+it stops ~30 s after the manager goes quiet and is killed with the server, so it
+never holds the capture card open.
+
+**To get a real live video back**, append `?stream=1`:
+
+| URL                          | What the panes show                                        |
+|------------------------------|------------------------------------------------------------|
+| `/manager`                   | snapshot of `cam` (default, cheapest)                      |
+| `/manager?path=test`         | snapshot of the synthetic test pattern                     |
+| `/manager?stream=1`          | live WebRTC video, low-res 360p (`cam-preview`, or `cam-preview-vp8` in Firefox) |
+| `/manager?stream=1&path=cam` | live WebRTC video, full 720p                               |
+| `/manager?preview=off`       | staging pane overlay-only (no camera)                      |
+
+`?path=` picks any path in `testfeed/mediamtx.yml`: with `?stream=1` it is the
+WebRTC feed, otherwise the snapshot source. The H.264/VP8 pick only matters when
+streaming (Chromium offers H.264, Firefox only VP8).
+
+Three env vars tune the grabber: `SNAPSHOT_PATH` (where the JPEG is written;
+default `$TMPDIR/obs-overlay-cam.jpg`), `SNAPSHOT_SOURCE` (default source;
+`rtsp://127.0.0.1:8554/cam`) and `SNAPSHOT_DISABLE=1` (don't grab — `/cam.jpg`
+then just serves whatever is already at `SNAPSHOT_PATH`).
+
+The card must be on a USB 3.0 port and fed a live HDMI signal (see the
+top-level README).
 
 ### Files
 

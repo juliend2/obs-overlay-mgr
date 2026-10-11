@@ -60,6 +60,8 @@ node --test overlay-manager/test/
 | `?path=h264`            | `testsrc`         | H.264 720p30 — **not playable in Firefox**, see below  |
 | `?path=cam`             | HDMI capture card | H.264 720p30 — needs a stick plugged in, see `testfeed/README.md` |
 | `?path=cam-vp8`         | HDMI capture card | VP8 720p30 — Firefox's copy of the same card feed      |
+| `?path=cam-preview`     | HDMI capture card | H.264 360p30 — /manager `?stream=1` in Chromium        |
+| `?path=cam-preview-vp8` | HDMI capture card | VP8 360p30 — /manager `?stream=1` in Firefox           |
 
 Add your own in `testfeed/mediamtx.yml`. Any ffmpeg `lavfi` source works:
 `testsrc`, `smptebars`, `mandelbrot`, `life`.
@@ -184,8 +186,11 @@ are set up for this; see `testfeed/README.md` for the full explanation.
    Activating the source starts the encoder.
 4. **In the browser:** open `http://127.0.0.1:8000/webrtc.html?path=cam-vp8`
    (Firefox gets the VP8 copy; Chromium can also play `?path=cam` directly).
-   The `/manager` page previews the card automatically, so you can edit your
-   overlay composited over it — add `?path=test` for the synthetic pattern.
+   The `/manager` page shows the card automatically — as a ~1 fps JPEG
+   snapshot, so it doesn't steal iGPU time from OBS (see "Troubleshooting
+   rendering lag") — so you can edit your overlay composited over it. Add
+   `?path=test` for the synthetic pattern, or `?stream=1` for a live video
+   instead of the snapshot.
 
 Both watch at once. The encoder starts with the first `cam` viewer, so a
 Firefox page opened before OBS shows "retrying…" for a moment until it's up —
@@ -202,8 +207,25 @@ Boot. The pages here are consumable as OBS **Browser Sources** instead.
 
 ## Troubleshooting rendering lag
 
-- essaye de disable le preview dans OBS. anyway tu l'as dans /manager
-- utilise /manager via un autre ordi dans le meme reseau, comme le macbook. sur 192.168.100.162:8081/manager .
+"Rendering lag" in OBS means the GPU render thread can't keep up. On this box
+the usual cause is that the iGPU is *shared*: OBS, Chromium (the `/manager`
+tab) and the ffmpeg encoders all run on the same Intel HD 4400. What helps, in
+order:
+
+- **Keep `/manager` on its default snapshot view.** It shows the camera as a
+  1 fps JPEG (~0.08 core, effectively no GPU) instead of a live video, because
+  decoding live video in the browser was worth >5% rendering lag on its own.
+  Only add `?stream=1` if you need motion, and prefer `?stream=1` (360p) over
+  `?stream=1&path=cam` (720p). See `overlay-manager/README.md`.
+- **Turn off OBS's own preview panes.** Studio Mode renders the scene twice
+  (preview + program) and the normal preview adds a second render on top; you
+  already have `/manager` for that. Right-click the preview → uncheck *Enable
+  Preview*; the Studio Mode button is bottom-right.
+- **Run `/manager` on another machine on the LAN** when you can — it's just a
+  web page at `http://192.168.100.162:8081/manager`, so a laptop/tablet removes
+  Chromium from this box entirely. Biggest single win.
+- The `cam-preview` / `cam-preview-vp8` transcodes only run for `?stream=1`;
+  with the default snapshot they cost nothing.
 
 ## TODO
 

@@ -186,7 +186,7 @@ const wantFeed = (isPreview || isLive) && !noFeed;
 const useWebrtc = wantFeed && params.get('stream') === '1';
 
 let snapTimer = null;
-function snapTick() { snap.src = `/cam.jpg?t=${Date.now()}`; }
+function snapTick() { snap.src = `/cam.jpg?src=${encodeURIComponent(path)}&t=${Date.now()}`; }
 function snapStart() {
   if (snapTimer) return;
   snap.style.display = 'block';
