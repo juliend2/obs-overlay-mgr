@@ -200,6 +200,10 @@ module, which on this machine means a kernel upgrade (headers for the running
 6.12.43 are no longer in the Debian archive) plus MOK enrollment for Secure
 Boot. The pages here are consumable as OBS **Browser Sources** instead.
 
+## Troubleshooting rendering lag
+
+- essaye de disable le preview dans OBS. anyway tu l'as dans /manager
+
 ## TODO
 
 - [x] faire une animation de transition quand on 'go live' avec un preset pour
