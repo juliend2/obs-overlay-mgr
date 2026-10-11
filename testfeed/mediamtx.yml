@@ -135,14 +135,15 @@ paths:
     runOnDemandRestart: true
     runOnDemandCloseAfter: 10s
 
-  # Low-res renditions of `cam` for the /manager previews. /manager runs
-  # Chromium on THIS box, the same box running OBS, and both share the one
-  # Intel iGPU — so decoding the full 720p feed in the browser steals render
-  # time from OBS (it shows up as "rendering lag"). 360p is plenty for an
-  # operator preview. Like `cam-vp8`, both derive from `cam` (single card
-  # reader) and are on-demand, so they cost nothing while /manager is closed:
-  #   cam-preview     → H.264 360p → /manager in Chromium
-  #   cam-preview-vp8 → VP8  360p  → /manager in Firefox (rejects H.264)
+  # Low-res renditions of `cam`, used only by /manager's optional LIVE mode
+  # (/manager?stream=1). The manager's default camera is a 1 fps JPEG snapshot
+  # served by server.js — that was the real fix for the "rendering lag": even
+  # 360p of live WebRTC still decoded/composited on the shared Intel iGPU and
+  # competed with OBS. Like `cam-vp8`, both derive from `cam` (single card
+  # reader) and are on-demand, so they cost nothing unless someone asks for the
+  # live feed:
+  #   cam-preview     → H.264 360p → /manager?stream=1 in Chromium
+  #   cam-preview-vp8 → VP8  360p  → /manager?stream=1 in Firefox (rejects H.264)
   # Encoded on the iGPU via VAAPI, same as `cam`.
   cam-preview:
     runOnDemand: >

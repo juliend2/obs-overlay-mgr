@@ -33,8 +33,8 @@
   #overlay > [data-overlay-layer].layer-hidden {
     opacity: 0;
   }
-  #v {
-    display: block;
+  #v, #snap {
+    display: none;
     width: 100%;
     height: 100%;
     object-fit: contain;
@@ -46,6 +46,7 @@
   <div id="container">
     <div id="overlay"></div>
     <video id="v" autoplay muted playsinline controls></video>
+    <img id="snap" alt="">
   </div>
   
 <script>
@@ -161,14 +162,16 @@ loadOverlay();
 connect();
 </script>
 
-<!-- VIDEO -->
+<!-- FEED: a ~1 fps JPEG snapshot (default) or a live WebRTC stream (?stream=1).
+     The snapshot keeps the shared iGPU free for OBS — see server.js. -->
 <script>
 
-// Path comes from ?path=... and must exist in mediamtx.yml (test, mandelbrot).
+// Path comes from ?path=... and must exist in mediamtx.yml (test, cam, ...).
 const path = params.get('path') || 'test';
 const WHEP = `http://${location.hostname}:8889/${path}/whep`;
 
 const video = document.getElementById('v');
+const snap = document.getElementById('snap');
 const status = document.getElementById('status');
 const say = (msg, cls = '') => {
   if (!status) return;
@@ -176,15 +179,33 @@ const say = (msg, cls = '') => {
   status.className = cls;
 };
 
-// Show the video only on a pane that wants a feed: the OBS browser source and
-// /manager's staging pane (nofeed) hide it and open no WHEP session.
-const wantVideo = (isPreview || isLive) && !noFeed;
-if (wantVideo) {
-  video.style.display = 'block';
-} else {
-  video.style.display = 'none';
-  video.removeAttribute('src');
-  video.load();
+// A pane shows the camera only in preview/live mode and without `nofeed=1`; the
+// OBS Browser Source loads no mode, so it stays overlay-only. The snapshot is the
+// default because it costs almost nothing; `?stream=1` opts into a WebRTC feed.
+const wantFeed = (isPreview || isLive) && !noFeed;
+const useWebrtc = wantFeed && params.get('stream') === '1';
+
+let snapTimer = null;
+function snapTick() { snap.src = `/cam.jpg?t=${Date.now()}`; }
+function snapStart() {
+  if (snapTimer) return;
+  snap.style.display = 'block';
+  snapTick();
+  snapTimer = setInterval(snapTick, 1000);
+}
+function snapStop() {
+  clearInterval(snapTimer);
+  snapTimer = null;
+  snap.removeAttribute('src');
+}
+
+if (wantFeed && !useWebrtc) {
+  snapStart();
+  // Don't keep grabbing frames for a pane nobody is looking at.
+  document.addEventListener('visibilitychange', () => {
+    if (document.hidden) snapStop();
+    else snapStart();
+  });
 }
 
 let pc, retry;
@@ -239,7 +260,8 @@ async function connectSDP() {
   }
 }
 
-if (wantVideo) {
+if (useWebrtc) {
+  video.style.display = 'block';
   connectSDP();
 }
 </script>

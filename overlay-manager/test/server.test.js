@@ -30,6 +30,7 @@ const managerHtml = fs.readFileSync(MANAGER_PATH);
 // env var is set before dynamically importing server.js in before(). Tests
 // must never write into (or sweep out) the real presets/ directory.
 const TEST_PRESETS_DIR = fs.mkdtempSync(path.join(os.tmpdir(), 'presets-test-'));
+const SNAPSHOT_FIXTURE = path.join(TEST_PRESETS_DIR, 'snapshot.jpg');
 const PRESETS_DIR = TEST_PRESETS_DIR;
 let server;
 
@@ -136,6 +137,11 @@ let BASE;
 describe('server integration', () => {
   before(async () => {
     process.env.PRESETS_DIR = TEST_PRESETS_DIR;
+    // Keep the snapshot grabber from launching ffmpeg during the run; the route
+    // still serves the file at SNAPSHOT_PATH (see the /cam.jpg test).
+    process.env.SNAPSHOT_DISABLE = '1';
+    process.env.SNAPSHOT_PATH = SNAPSHOT_FIXTURE;
+    fs.writeFileSync(SNAPSHOT_FIXTURE, Buffer.from([0xff, 0xd8, 0xff, 0xd9]));
     ({ server } = await import('../server.js'));
     port = await freePort();
     BASE = `http://127.0.0.1:${port}`;
@@ -214,6 +220,17 @@ describe('server integration', () => {
       const res = await fetch(`${BASE}/nope`);
       assert.equal(res.status, 404);
       assert.equal(await res.text(), 'Not found');
+    });
+
+    it('GET /cam.jpg serves the latest snapshot as JPEG', async () => {
+      const res = await fetch(`${BASE}/cam.jpg`);
+      assert.equal(res.status, 200);
+      assert.equal(res.headers.get('content-type'), 'image/jpeg');
+      assert.equal(res.headers.get('cache-control'), 'no-store');
+      assert.deepEqual(
+        Buffer.from(await res.arrayBuffer()),
+        fs.readFileSync(SNAPSHOT_FIXTURE)
+      );
     });
 
     it('HEAD / returns headers with an empty body', async () => {

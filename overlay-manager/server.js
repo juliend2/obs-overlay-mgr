@@ -11,6 +11,8 @@ import http from 'http';
 import fs from 'fs';
 import path from 'path';
 import crypto from 'crypto';
+import os from 'os';
+import { spawn } from 'child_process';
 import { fileURLToPath, pathToFileURL } from 'url';
 import * as ws from './websocket.js'
 import * as web from './web.js'
@@ -29,6 +31,65 @@ const LAYER_PATHS = layers.layerPaths(DIR);
 const WS_GUID = '258EAFA5-E914-47DA-95CA-C5AB0DC85B11';
 
 const clients = new Set();
+
+// --- camera snapshot for /manager -----------------------------------------
+// The manager needs to see the camera to line overlays up, but decoding a live
+// video in Chromium competes with OBS for this box's single Intel iGPU and
+// showed up as OBS "rendering lag" (measured >5%). So the manager shows a ~1 fps
+// JPEG instead, grabbed from the `cam` RTSP feed by a small on-demand ffmpeg.
+// `-skip_frame nokey` decodes I-frames only and `cam` encodes with -g 30, so
+// this decodes one frame a second — a few percent of one core and no GPU work.
+const SNAPSHOT_PATH = process.env.SNAPSHOT_PATH
+  || path.join(os.tmpdir(), 'obs-overlay-cam.jpg');
+const SNAPSHOT_SOURCE = process.env.SNAPSHOT_SOURCE || 'rtsp://127.0.0.1:8554/cam';
+const SNAPSHOT_IDLE_MS = 30_000;
+let snapshotProc = null;
+let lastSnapshotRequest = 0;
+
+function snapshotIdle() {
+  return Date.now() - lastSnapshotRequest > SNAPSHOT_IDLE_MS;
+}
+
+function ensureSnapshot() {
+  // SNAPSHOT_DISABLE keeps the grabber off (tests, or anyone who wants the old
+  // behaviour); the /cam.jpg route still serves whatever is at SNAPSHOT_PATH.
+  if (snapshotProc || process.env.SNAPSHOT_DISABLE === '1') return;
+  snapshotProc = spawn('ffmpeg', [
+    '-hide_banner', '-loglevel', 'error',
+    '-rtsp_transport', 'tcp',
+    '-skip_frame', 'nokey',
+    '-i', SNAPSHOT_SOURCE,
+    '-an',
+    '-vf', 'scale=-2:360',
+    '-r', '1', '-q:v', '5',
+    '-f', 'image2', '-update', '1',
+    SNAPSHOT_PATH,
+  ], { stdio: 'ignore' });
+  snapshotProc.on('error', () => { snapshotProc = null; });
+  snapshotProc.on('exit', () => {
+    snapshotProc = null;
+    // `cam` is on-demand, so the first grab can beat the card encoder to life;
+    // retry shortly, but stop once the manager has gone quiet so the capture
+    // card isn't held open for nothing.
+    if (!snapshotIdle()) setTimeout(ensureSnapshot, 3000);
+  });
+}
+
+// Reap the snapshot ffmpeg once the manager stops asking for frames. unref()
+// so this timer never keeps the process (or the test runner) alive on its own.
+setInterval(() => {
+  if (snapshotProc && snapshotIdle()) snapshotProc.kill('SIGTERM');
+}, 10_000).unref();
+
+// Don't leave the grabber running (and holding the capture card) after the
+// manager server goes away.
+function stopSnapshot() {
+  if (snapshotProc) snapshotProc.kill('SIGTERM');
+  snapshotProc = null;
+}
+process.on('exit', stopSnapshot);
+process.on('SIGINT', () => { stopSnapshot(); process.exit(0); });
+process.on('SIGTERM', () => { stopSnapshot(); process.exit(0); });
 
 async function configuredLayers() {
   return layers.loadLayers(LAYER_PATHS.config);
@@ -108,6 +169,13 @@ export const server = http.createServer(async (req, res) => {
   }
   if (isRead && pathname === '/manager.js') {
     return web.serveFile(res, path.join(DIR, 'manager.js'), 'text/javascript', req.method);
+  }
+  if (isRead && pathname === '/cam.jpg') {
+    // Latest camera snapshot; the manager polls this instead of decoding a live
+    // video (see the snapshot notes above). 404s until the first frame lands.
+    lastSnapshotRequest = Date.now();
+    ensureSnapshot();
+    return web.serveFile(res, SNAPSHOT_PATH, 'image/jpeg', req.method);
   }
   if (isRead && pathname.startsWith('/components/')) {
     // Serve component templates, but only from inside components/ — resolve

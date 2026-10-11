@@ -175,27 +175,27 @@
   </div>
 
 <script>
-  // The overlay is composited over a WHEP feed. `?path=` picks the MediaMTX
-  // path (see testfeed/mediamtx.yml); both panes share it. It defaults to the
-  // HDMI capture card, since that is what you want behind a live overlay —
-  // use /manager?path=test to go back to the synthetic test pattern.
+  // The camera behind the overlay. By default both panes show a ~1 fps JPEG
+  // snapshot: this box runs OBS and Chromium on one Intel iGPU, and a live
+  // WebRTC decode in the browser stole enough render time to show up as OBS
+  // "rendering lag" (>5%). A snapshot is plenty to line overlays up and costs
+  // almost no GPU. Options:
+  //   /manager?stream=1     live WebRTC feed (low-res `cam-preview` / -vp8)
+  //   /manager?path=cam     with ?stream=1, force full 720p; ?path=test = pattern
+  //   /manager?preview=off  keep the staging pane overlay-only (one less grab)
   (async () => {
-    const requested = new URLSearchParams(location.search).get('path');
-    // Previews pull the low-res `cam-preview` renditions, not the full 720p
-    // `cam`: this Chromium runs on the same box as OBS and they share the one
-    // Intel iGPU, so decoding 720p here shows up as rendering lag in OBS.
-    // Offered as H.264 (`cam-preview`) and VP8 (`cam-preview-vp8`) — pick by
-    // what this browser will actually offer: Firefox advertises H.264 in
-    // getCapabilities() yet omits it from the SDP, so probe a throwaway offer.
-    // /manager?path=cam still forces the full-resolution feed.
-    const path = requested || (await offersH264() ? 'cam-preview' : 'cam-preview-vp8');
-    // By default BOTH panes show the camera (at the low preview resolution).
-    // Optional: /manager?preview=off makes the staging pane overlay-only, which
-    // drops a second decoder — useful if you only watch the live pane.
-    const noPreviewVideo = new URLSearchParams(location.search).get('preview') === 'off';
+    const requested = new URLSearchParams(location.search);
+    const stream = requested.get('stream') === '1';
+    // Offer H.264 (`cam-preview`) or fall back to VP8 (`cam-preview-vp8`):
+    // Firefox advertises H.264 in getCapabilities() yet omits it from the SDP,
+    // so probe a throwaway offer. Only worth probing when actually streaming.
+    const path = requested.get('path')
+      || (stream && (await offersH264()) ? 'cam-preview' : 'cam-preview-vp8');
+    const noPreviewFeed = requested.get('preview') === 'off';
     for (const frame of document.querySelectorAll('iframe.overlay-frame')) {
-      const nofeed = noPreviewVideo && frame.dataset.mode === 'preview' ? '&nofeed=1' : '';
-      frame.src = `${location.origin}/?mode=${frame.dataset.mode}&path=${encodeURIComponent(path)}${nofeed}`;
+      const nofeed = noPreviewFeed && frame.dataset.mode === 'preview' ? '&nofeed=1' : '';
+      const live = stream ? '&stream=1' : '';
+      frame.src = `${location.origin}/?mode=${frame.dataset.mode}&path=${encodeURIComponent(path)}${live}${nofeed}`;
     }
   })();
 
