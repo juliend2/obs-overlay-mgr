@@ -203,6 +203,7 @@ Boot. The pages here are consumable as OBS **Browser Sources** instead.
 ## Troubleshooting rendering lag
 
 - essaye de disable le preview dans OBS. anyway tu l'as dans /manager
+- utilise /manager via un autre ordi dans le meme reseau, comme le macbook. sur 192.168.100.162:8081/manager .
 
 ## TODO
 
