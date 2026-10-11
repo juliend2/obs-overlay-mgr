@@ -84,35 +84,52 @@ paths:
   # /dev/v4l/by-id/usb-Elgato_Cam_Link_4K_*-video-index0). It must be on a
   # USB 3.0 port: on USB 2.0 (480 Mbps) it still enumerates but never delivers
   # frames. The card exposes the HDMI input's native resolution rather than a
-  # menu of sizes, so capture as-is and scale both copies to 720p. One ffmpeg =
-  # the card's single allowed reader; it publishes two paths at once so OBS and
-  # the browser can watch simultaneously:
+  # menu of sizes, so capture as-is and scale to 720p. Only `cam` reads the
+  # card; `cam-vp8` is derived from it (see below), so OBS and the browser can
+  # watch simultaneously:
   #   cam     → H.264 720p   → OBS Media Source (decodes H.264 natively)
-  #   cam-vp8 → VP8  720p    → webrtc.html in Firefox (rejects H.264, see above)
+  #   cam-vp8 → VP8  720p    → webrtc.html / /manager in Firefox (rejects H.264)
   # The manager page previews the card by default (path `cam` in Chromium,
   # `cam-vp8` in Firefox); /manager?path=test restores the synthetic pattern.
   # OBS: Input rtsp://127.0.0.1:8554/cam, Network Buffering 0, rtsp_transport=tcp.
   # Browser: http://127.0.0.1:8000/webrtc.html?path=cam-vp8
   # No `-re` here: a capture device paces itself, unlike the lavfi test sources.
-  # runOnDemand hangs off `cam`, so the feed starts when OBS activates its
-  # source (or a Chromium viewer requests ?path=cam); a Firefox viewer on
-  # cam-vp8 just retries until the encoder is up.
-  # -rtsp_transport tcp on both outputs: ffmpeg's RTSP muxer defaults to UDP,
-  # which drops packets on loopback under this dual-encode load (→ "RTP packets
+  # -rtsp_transport tcp on the output: ffmpeg's RTSP muxer defaults to UDP,
+  # which drops packets on loopback under this encode load (→ "RTP packets
   # lost" + "invalid FU-A packet" errors in mediamtx).
+  # Only one process may read the card, so OBS must take the feed as a Media
+  # Source above — NOT as a Video Capture Device (V4L2) source, which holds
+  # /dev/video0 exclusively and makes this on-demand encoder fail with
+  # "Device or resource busy" (leaving /manager with no video).
+  # Encoding runs on the Intel iGPU via VAAPI (Haswell HD 4400, i965 driver)
+  # instead of the CPU: this box is a 2-core i3 and OBS's own encoder needs the
+  # CPU while streaming. Measured ~0.19 core saved vs libx264 ultrafast 720p30.
+  # iHD_drv_video.so init fails harmlessly; ffmpeg falls back to i965.
+  # To revert to software, swap the -vaapi_device / -vf / -c:v lines for:
+  #   -vf scale=-2:720 -c:v libx264 -preset ultrafast -tune zerolatency
+  #   -profile:v baseline -pix_fmt yuv420p -g 30
   cam:
     runOnDemand: >
       ffmpeg -hide_banner -loglevel error
+      -vaapi_device /dev/dri/renderD128
       -f v4l2 -framerate 30 -i /dev/video0
-      -filter_complex "[0:v]scale=-2:720,split=2[cam][vp8]"
-      -map "[cam]" -c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline
-      -pix_fmt yuv420p -g 30
+      -vf scale=-2:720,format=nv12,hwupload
+      -c:v h264_vaapi -profile:v constrained_baseline -coder cavlc
+      -rc_mode CQP -qp 22 -bf 0 -g 30
       -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:8554/cam
-      -map "[vp8]" -c:v libvpx -deadline realtime -cpu-used 16 -threads 2 -b:v 2M -g 30
-      -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:8554/cam-vp8
     runOnDemandRestart: true
     runOnDemandCloseAfter: 10s
 
-  # sink for the VP8 half of `cam` — no runOnDemand (that would spawn a second
-  # ffmpeg fighting for the card); it just receives cam's second output.
+  # VP8 copy of `cam`, produced on demand for Firefox's WebRTC player (it
+  # rejects H.264, see above). This does NOT read the card — it transcodes from
+  # `cam`, and connecting to `cam` starts cam's encoder through ITS runOnDemand.
+  # So a Firefox viewer that asks for cam-vp8 alone (e.g. /manager with no OBS
+  # running) still brings up the whole chain, with a single card reader.
   cam-vp8:
+    runOnDemand: >
+      ffmpeg -hide_banner -loglevel error
+      -rtsp_transport tcp -i rtsp://127.0.0.1:8554/cam
+      -c:v libvpx -deadline realtime -cpu-used 16 -threads 2 -b:v 2M -g 30
+      -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:8554/cam-vp8
+    runOnDemandRestart: true
+    runOnDemandCloseAfter: 10s
