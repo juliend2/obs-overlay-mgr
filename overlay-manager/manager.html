@@ -182,18 +182,16 @@
   // almost no GPU. Options:
   //   /manager                      snapshot of `cam` (default)
   //   /manager?path=test            snapshot of the synthetic test pattern
-  //   /manager?stream=1             live WebRTC video (low-res `cam-preview`/`-vp8`)
+  //   /manager?stream=1             live WebRTC video (low-res `cam-preview`)
   //   /manager?stream=1&path=cam    live WebRTC at full 720p
   //   /manager?preview=off          keep the staging pane overlay-only
-  (async () => {
+  (() => {
     const requested = new URLSearchParams(location.search);
     const stream = requested.get('stream') === '1';
-    // With a live feed, offer H.264 (`cam-preview`) or fall back to VP8
-    // (`cam-preview-vp8`): Firefox advertises H.264 in getCapabilities() yet
-    // omits it from the SDP, so probe a throwaway offer. The snapshot default
-    // reads the source path directly (`cam`), so no probe is needed there.
-    let path = requested.get('path');
-    if (!path) path = stream ? (await offersH264() ? 'cam-preview' : 'cam-preview-vp8') : 'cam';
+    // Chromium-only: it plays H.264 over WebRTC, so the live feed is just the
+    // low-res `cam-preview`. The snapshot default reads the source path
+    // directly (`cam`).
+    const path = requested.get('path') || (stream ? 'cam-preview' : 'cam');
     const noPreviewFeed = requested.get('preview') === 'off';
     for (const frame of document.querySelectorAll('iframe.overlay-frame')) {
       const nofeed = noPreviewFeed && frame.dataset.mode === 'preview' ? '&nofeed=1' : '';
@@ -201,18 +199,6 @@
       frame.src = `${location.origin}/?mode=${frame.dataset.mode}&path=${encodeURIComponent(path)}${live}${nofeed}`;
     }
   })();
-
-  async function offersH264() {
-    try {
-      const pc = new RTCPeerConnection();
-      pc.addTransceiver('video', { direction: 'recvonly' });
-      const offer = await pc.createOffer();
-      pc.close();
-      return /a=rtpmap:\d+ H264\//i.test(offer.sdp);
-    } catch {
-      return false;
-    }
-  }
 </script>
 
   <div class="wrap">

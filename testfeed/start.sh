@@ -15,9 +15,9 @@ php -S 127.0.0.1:8000 -t . >/dev/null 2>&1 & pids+=($!)
 
 cat <<MSG
 
-  webrtc  http://127.0.0.1:8000/webrtc.html                  vp8 854x480@25
-          http://127.0.0.1:8000/webrtc.html?path=smooth      vp8 640x360@30
-          http://127.0.0.1:8000/webrtc.html?path=mandelbrot  vp8 854x480@25
+  webrtc  http://127.0.0.1:8000/webrtc.html                  h264 854x480@25
+          http://127.0.0.1:8000/webrtc.html?path=smooth      h264 640x360@30
+          http://127.0.0.1:8000/webrtc.html?path=mandelbrot  h264 854x480@25
   canvas  http://127.0.0.1:8000/
   mjpeg   http://127.0.0.1:8000/mjpeg.html           (needs ./feed.sh separately)
 

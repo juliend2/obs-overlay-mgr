@@ -40,8 +40,7 @@ async function connectSDP() {
   if (pc) { pc.close(); pc = null; }
 
   pc = new RTCPeerConnection();
-  // Video only — the test paths publish no audio track. Note that Firefox
-  // offers just VP8/VP9 here, so mediamtx must publish VP8 (see mediamtx.yml).
+  // Video only — the paths publish no audio track.
   pc.addTransceiver('video', { direction: 'recvonly' });
   pc.ontrack = e => { video.srcObject = e.streams[0]; };
 

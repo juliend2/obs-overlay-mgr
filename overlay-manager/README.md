@@ -60,13 +60,13 @@ never holds the capture card open.
 |------------------------------|------------------------------------------------------------|
 | `/manager`                   | snapshot of `cam` (default, cheapest)                      |
 | `/manager?path=test`         | snapshot of the synthetic test pattern                     |
-| `/manager?stream=1`          | live WebRTC video, low-res 360p (`cam-preview`, or `cam-preview-vp8` in Firefox) |
+| `/manager?stream=1`          | live WebRTC video, low-res 360p (`cam-preview`)            |
 | `/manager?stream=1&path=cam` | live WebRTC video, full 720p                               |
 | `/manager?preview=off`       | staging pane overlay-only (no camera)                      |
 
 `?path=` picks any path in `testfeed/mediamtx.yml`: with `?stream=1` it is the
-WebRTC feed, otherwise the snapshot source. The H.264/VP8 pick only matters when
-streaming (Chromium offers H.264, Firefox only VP8).
+WebRTC feed, otherwise the snapshot source. We assume Chromium, which plays
+H.264 over WebRTC (see "Codec" in the top-level README).
 
 Three env vars tune the grabber: `SNAPSHOT_PATH` (where the JPEG is written;
 default `$TMPDIR/obs-overlay-cam.jpg`), `SNAPSHOT_SOURCE` (default source;

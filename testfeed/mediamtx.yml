@@ -29,18 +29,16 @@ webrtcAddress: :8889
 webrtcLocalUDPAddress: :8189
 
 paths:
-  # Codec choice is forced by the browser: Firefox offers only VP8/VP9 in its
-  # WebRTC SDP (verified: no H.264 payload type in the offer, even with the
-  # OpenH264 2.6.0 GMP installed). So VP8 at 854x480@25 by default — software
-  # VP8 encoding is the costliest step here and it scales steeply with
-  # resolution, so this is a conservative default. Raise it if yours keeps up.
-  # runOnDemand means ffmpeg only runs while a viewer is connected.
+  # Synthetic test sources, all H.264: Chromium (the only browser we target)
+  # plays H.264 over WebRTC, and it is far cheaper to encode than VP8 at the
+  # same size. runOnDemand means ffmpeg only runs while a viewer is connected.
 
   test:
     runOnDemand: >
       ffmpeg -hide_banner -loglevel error
       -re -f lavfi -i testsrc=size=854x480:rate=25
-      -c:v libvpx -deadline realtime -cpu-used 16 -threads 2 -b:v 1M -g 25
+      -c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline
+      -pix_fmt yuv420p -b:v 1M -g 25
       -f rtsp rtsp://127.0.0.1:8554/$MTX_PATH
     runOnDemandRestart: true
     runOnDemandCloseAfter: 10s
@@ -50,7 +48,8 @@ paths:
     runOnDemand: >
       ffmpeg -hide_banner -loglevel error
       -re -f lavfi -i testsrc=size=640x360:rate=30
-      -c:v libvpx -deadline realtime -cpu-used 16 -threads 2 -b:v 800k -g 30
+      -c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline
+      -pix_fmt yuv420p -b:v 800k -g 30
       -f rtsp rtsp://127.0.0.1:8554/$MTX_PATH
     runOnDemandRestart: true
     runOnDemandCloseAfter: 10s
@@ -59,15 +58,15 @@ paths:
     runOnDemand: >
       ffmpeg -hide_banner -loglevel error
       -re -f lavfi -i mandelbrot=size=854x480:rate=25
-      -c:v libvpx -deadline realtime -cpu-used 16 -threads 2 -b:v 1M -g 25
+      -c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline
+      -pix_fmt yuv420p -b:v 1M -g 25
       -f rtsp rtsp://127.0.0.1:8554/$MTX_PATH
     runOnDemandRestart: true
     runOnDemandCloseAfter: 10s
 
-  # H.264 720p. Firefox will reject this over WebRTC, but it is the path to use
-  # for OBS's Media Source (which is ffmpeg-based and decodes H.264 natively),
-  # and it plays in Chromium. Cheaper to encode than VP8 at the same size.
-  # In OBS, Network Buffering must be 0 MB or the source renders black.
+  # H.264 720p synthetic pattern, mainly as an OBS Media Source test input
+  # (OBS is ffmpeg-based and decodes H.264 natively). In OBS, Network Buffering
+  # must be 0 MB or the source renders black.
   h264:
     runOnDemand: >
       ffmpeg -hide_banner -loglevel error
@@ -85,15 +84,14 @@ paths:
   # USB 3.0 port: on USB 2.0 (480 Mbps) it still enumerates but never delivers
   # frames. The card exposes the HDMI input's native resolution rather than a
   # menu of sizes, so capture as-is and scale to 720p. Only `cam` reads the
-  # card; `cam-vp8` is derived from it (see below), so OBS and the browser can
-  # watch simultaneously:
-  #   cam     → H.264 720p   → OBS Media Source (decodes H.264 natively)
-  #   cam-vp8 → VP8  720p    → webrtc.html / /manager in Firefox (rejects H.264)
-  # The manager page previews the low-res `cam-preview` / `cam-preview-vp8`
-  # renditions by default (see below); /manager?path=cam forces the full 720p
-  # feed and /manager?path=test restores the synthetic pattern.
+  # card; every other rendition is derived from it (see below), so OBS and the
+  # browser can watch simultaneously:
+  #   cam → H.264 720p → OBS Media Source (decodes H.264 natively) + browser
+  # The manager page previews the low-res `cam-preview` rendition when asked
+  # for live video (see below); /manager?path=cam forces the full 720p feed and
+  # /manager?path=test restores the synthetic pattern.
   # OBS: Input rtsp://127.0.0.1:8554/cam, Network Buffering 0, rtsp_transport=tcp.
-  # Browser: http://127.0.0.1:8000/webrtc.html?path=cam-vp8
+  # Browser: http://127.0.0.1:8000/webrtc.html?path=cam
   # No `-re` here: a capture device paces itself, unlike the lavfi test sources.
   # -rtsp_transport tcp on the output: ffmpeg's RTSP muxer defaults to UDP,
   # which drops packets on loopback under this encode load (→ "RTP packets
@@ -121,29 +119,13 @@ paths:
     runOnDemandRestart: true
     runOnDemandCloseAfter: 10s
 
-  # VP8 copy of `cam`, produced on demand for Firefox's WebRTC player (it
-  # rejects H.264, see above). This does NOT read the card — it transcodes from
-  # `cam`, and connecting to `cam` starts cam's encoder through ITS runOnDemand.
-  # So a Firefox viewer that asks for cam-vp8 alone (e.g. /manager with no OBS
-  # running) still brings up the whole chain, with a single card reader.
-  cam-vp8:
-    runOnDemand: >
-      ffmpeg -hide_banner -loglevel error
-      -rtsp_transport tcp -i rtsp://127.0.0.1:8554/cam
-      -c:v libvpx -deadline realtime -cpu-used 16 -threads 2 -b:v 2M -g 30
-      -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:8554/cam-vp8
-    runOnDemandRestart: true
-    runOnDemandCloseAfter: 10s
-
-  # Low-res renditions of `cam`, used only by /manager's optional LIVE mode
+  # Low-res rendition of `cam`, used only by /manager's optional LIVE mode
   # (/manager?stream=1). The manager's default camera is a 1 fps JPEG snapshot
   # served by server.js — that was the real fix for the "rendering lag": even
   # 360p of live WebRTC still decoded/composited on the shared Intel iGPU and
-  # competed with OBS. Like `cam-vp8`, both derive from `cam` (single card
-  # reader) and are on-demand, so they cost nothing unless someone asks for the
-  # live feed:
-  #   cam-preview     → H.264 360p → /manager?stream=1 in Chromium
-  #   cam-preview-vp8 → VP8  360p  → /manager?stream=1 in Firefox (rejects H.264)
+  # competed with OBS. Like `cam`, it derives from the card (single reader) and
+  # is on-demand, so it costs nothing unless someone asks for the live feed:
+  #   cam-preview → H.264 360p → /manager?stream=1
   # Encoded on the iGPU via VAAPI, same as `cam`.
   cam-preview:
     runOnDemand: >
@@ -157,13 +139,3 @@ paths:
     runOnDemandRestart: true
     runOnDemandCloseAfter: 10s
 
-  # VP8 copy of `cam-preview` for Firefox. Decodes the 360p H.264 rather than
-  # the 720p `cam`, so the whole chain stays cheap.
-  cam-preview-vp8:
-    runOnDemand: >
-      ffmpeg -hide_banner -loglevel error
-      -rtsp_transport tcp -i rtsp://127.0.0.1:8554/cam-preview
-      -c:v libvpx -deadline realtime -cpu-used 16 -threads 2 -b:v 700k -g 30
-      -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:8554/cam-preview-vp8
-    runOnDemandRestart: true
-    runOnDemandCloseAfter: 10s

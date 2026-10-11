@@ -50,19 +50,13 @@ HDMI card (/dev/video0) → ffmpeg → MediaMTX ─→ OBS Media Source (RTSP)
                                             └→ webrtc.html (WHEP)
 ```
 
-### Why two copies? (the codec bit)
+### One codec, one copy
 
-A "codec" is just a compression format for video. The two consumers speak
-different dialects:
-
-- OBS natively understands **H.264** (the standard, cheap-to-produce format)
-- Firefox's WebRTC player (`/webrtc.html`) refuses H.264 and only accepts
-  **VP8** — see "Codec constraints" in the top-level README
-
-So the ffmpeg command produces *two* compressed copies of the same incoming
-pictures — one H.264 (path `cam`), one VP8 (path `cam-vp8`) — and each consumer
-picks its dialect. (If you only ever open the page in Chromium, you can skip
-the VP8 copy.)
+A "codec" is just a compression format for video. Both consumers here speak the
+same one: **H.264**, which Chromium plays over WebRTC (`/webrtc.html`) and OBS
+decodes natively over RTSP (Media Source). So a single `ffmpeg` process reads
+the card and publishes **one** H.264 stream (path `cam`); everyone tunes into
+that. (We assume Chromium — see "Codec" in the top-level README.)
 
 ### How to use it
 
@@ -74,7 +68,7 @@ the VP8 copy.)
    - Input: `rtsp://127.0.0.1:8554/cam`
    - Network Buffering: `0` MB (required, see top-level README)
    - FFmpeg options: `rtsp_transport=tcp`
-4. Browser: open `http://127.0.0.1:8000/webrtc.html?path=cam-vp8`
+4. Browser: open `http://127.0.0.1:8000/webrtc.html?path=cam`
 
 ### "But is it running all the time?"
 
@@ -84,6 +78,6 @@ viewer leaves. Idle cost is near zero — which also means the card is free for
 other apps when nobody's watching.
 
 One quirk to expect: the feed starts when OBS activates its source (the
-`runOnDemand` hook hangs off the `cam` path). If you open the Firefox page
+`runOnDemand` hook hangs off the `cam` path). If you open the browser page
 *first*, you'll see "retrying…" for a moment until the converter is up — the
 player already handles that automatically.

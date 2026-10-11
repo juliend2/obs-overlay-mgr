@@ -54,14 +54,12 @@ node --test overlay-manager/test/
 
 | Path                    | Source            | Format                                                 |
 |-------------------------|-------------------|--------------------------------------------------------|
-| `?path=test` (default)  | `testsrc`         | VP8 854x480@25                                         |
-| `?path=smooth`          | `testsrc`         | VP8 640x360@30                                         |
-| `?path=mandelbrot`      | `mandelbrot`      | VP8 854x480@25                                         |
-| `?path=h264`            | `testsrc`         | H.264 720p30 — **not playable in Firefox**, see below  |
+| `?path=test` (default)  | `testsrc`         | H.264 854x480@25                                       |
+| `?path=smooth`          | `testsrc`         | H.264 640x360@30                                       |
+| `?path=mandelbrot`      | `mandelbrot`      | H.264 854x480@25                                       |
+| `?path=h264`            | `testsrc`         | H.264 1280x720@30                                      |
 | `?path=cam`             | HDMI capture card | H.264 720p30 — needs a stick plugged in, see `testfeed/README.md` |
-| `?path=cam-vp8`         | HDMI capture card | VP8 720p30 — Firefox's copy of the same card feed      |
-| `?path=cam-preview`     | HDMI capture card | H.264 360p30 — /manager `?stream=1` in Chromium        |
-| `?path=cam-preview-vp8` | HDMI capture card | VP8 360p30 — /manager `?stream=1` in Firefox           |
+| `?path=cam-preview`     | HDMI capture card | H.264 360p30 — /manager `?stream=1`                    |
 
 Add your own in `testfeed/mediamtx.yml`. Any ffmpeg `lavfi` source works:
 `testsrc`, `smptebars`, `mandelbrot`, `life`.
@@ -76,32 +74,14 @@ Add your own in `testfeed/mediamtx.yml`. Any ffmpeg `lavfi` source works:
 | 8189/udp  | WebRTC ICE                        |
 | 8090/tcp  | MJPEG, only while `feed.sh` runs  |
 
-## Codec constraints
+## Codec
 
-The VP8 / 854x480 defaults are not arbitrary — they're forced by what the
-browser will accept.
-
-**Firefox will not accept H.264 over WebRTC here.** Its SDP offer contains no
-H.264 payload type at all, only VP8/VP9/rtx/ulpfec/red. This holds even though
-the OpenH264 2.6.0 GMP is installed and registered — `getCapabilities()`
-advertises `H264 42e01f`, but it never reaches the offer. Publishing H.264 gets
-you `closed: codecs not supported by client` from MediaMTX and a `400` in the
-browser.
-
-**Software VP8 encoding is the expensive half.** `libvpx` in realtime mode is
-the most costly step in this pipeline, and it scales steeply with resolution, so
-854x480@25 is a deliberately conservative default rather than a measured ceiling.
-If your machine keeps up, raise the resolution in `testfeed/mediamtx.yml`; if it
-drops frames, use `?path=smooth`. H.264 is substantially cheaper to encode than
-VP8 at the same resolution — but it's the codec the browser refuses.
-
-Two ways out, if 854x480 isn't enough:
-
-- **Install Chromium.** It accepts H.264, so `?path=h264` gives you 720p30 at a
-  fraction of the encoding cost. Note that OBS doesn't need this — see below.
-- **Switch to HLS.** Firefox decodes H.264 fine in `<video>`/MSE — that path
-  uses system decoders, not the OpenH264 GMP — so 720p becomes cheap. Costs
-  ~2-6s latency instead of sub-second.
+Everything is **H.264**, and we assume **Chromium** as the browser. Chromium
+plays H.264 over WebRTC (`/webrtc.html`, and `/manager?stream=1`), and OBS's
+Media Source decodes it natively over RTSP. H.264 is also much cheaper to encode
+than VP8 at the same resolution, which matters on a 2-core box — so there is a
+single copy of each feed, with no VP8 fallback. (Firefox will not accept H.264
+over WebRTC, which is why the fallback used to exist; it is no longer a target.)
 
 ## Notes
 
@@ -130,8 +110,7 @@ flatpak install flathub com.obsproject.Studio
 ```
 
 **Media Source over RTSP** is the way in. OBS's Media Source is ffmpeg-based and
-decodes H.264 natively, so the Firefox codec limitation above does not apply —
-use the full-resolution `h264` path, not the downscaled VP8 ones.
+decodes H.264 natively — use the `h264` test path (or the `cam` card feed).
 
 1. **+ → Media Source → Create new**
 2. Uncheck **Local File**
@@ -166,8 +145,8 @@ A USB HDMI stick (game console, camera, or another laptop going in) shows up as
 a device file — `/dev/video0` — that continuously produces pictures. Only one
 program can read it at a time, so nothing reads it directly: one ffmpeg reads
 the card and publishes to MediaMTX, which fans the feed out to OBS and the
-browser simultaneously. The `cam` / `cam-vp8` paths in `testfeed/mediamtx.yml`
-are set up for this; see `testfeed/README.md` for the full explanation.
+browser simultaneously. The `cam` path in `testfeed/mediamtx.yml` is set up for
+this; see `testfeed/README.md` for the full explanation.
 
 1. **Identify the device** (one-time): run `v4l2-ctl --list-devices`
    (`sudo apt install v4l-utils` if missing). A stick lists a video device plus
@@ -184,8 +163,7 @@ are set up for this; see `testfeed/README.md` for the full explanation.
    - **FFmpeg Options:** `rtsp_transport=tcp`
 
    Activating the source starts the encoder.
-4. **In the browser:** open `http://127.0.0.1:8000/webrtc.html?path=cam-vp8`
-   (Firefox gets the VP8 copy; Chromium can also play `?path=cam` directly).
+4. **In the browser:** open `http://127.0.0.1:8000/webrtc.html?path=cam`.
    The `/manager` page shows the card automatically — as a ~1 fps JPEG
    snapshot, so it doesn't steal iGPU time from OBS (see "Troubleshooting
    rendering lag") — so you can edit your overlay composited over it. Add
@@ -193,7 +171,7 @@ are set up for this; see `testfeed/README.md` for the full explanation.
    instead of the snapshot.
 
 Both watch at once. The encoder starts with the first `cam` viewer, so a
-Firefox page opened before OBS shows "retrying…" for a moment until it's up —
+browser page opened before OBS shows "retrying…" for a moment until it's up —
 the player retries automatically. When nobody is watching, ffmpeg stops and
 the card is free for other apps.
 
@@ -224,8 +202,8 @@ order:
 - **Run `/manager` on another machine on the LAN** when you can — it's just a
   web page at `http://192.168.100.162:8081/manager`, so a laptop/tablet removes
   Chromium from this box entirely. Biggest single win.
-- The `cam-preview` / `cam-preview-vp8` transcodes only run for `?stream=1`;
-  with the default snapshot they cost nothing.
+- The `cam-preview` transcode only runs for `?stream=1`; with the default
+  snapshot it costs nothing.
 
 ## TODO
 
