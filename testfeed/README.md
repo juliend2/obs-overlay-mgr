@@ -60,8 +60,10 @@ that. (We assume Chromium — see "Codec" in the top-level README.)
 
 ### How to use it
 
-1. Plug in the stick, note the device name (`/dev/video0` by default — adjust
-   `testfeed/mediamtx.yml` if yours differs).
+1. Plug in the stick. The `cam` path reads it via the stable by-id alias
+   (`/dev/v4l/by-id/usb-Elgato_Cam_Link_4K_*-video-index0`), so plug order and
+   port don't matter — adjust `testfeed/mediamtx.yml` if you swap to a
+   different card (`ls /dev/v4l/by-id/`).
 2. Start the feed as usual: `cd testfeed && ./start.sh`
 3. OBS: add **+ → Media Source**
    - uncheck "Local file"

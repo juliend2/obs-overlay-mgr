@@ -150,11 +150,13 @@ this; see `testfeed/README.md` for the full explanation.
 
 1. **Identify the device** (one-time): run `v4l2-ctl --list-devices`
    (`sudo apt install v4l-utils` if missing). A stick lists a video device plus
-   a metadata sibling — use the even-numbered one. If it isn't `/dev/video0`,
-   edit the `-i /dev/video0` in the `cam` path of `testfeed/mediamtx.yml`.
-   **Use a USB 3.0 port.** On a USB 2.0 port (480 Mbps) the card still
-   enumerates and reports its modes, but never delivers a frame — check the
-   negotiated speed with `lsusb -t` (you want `5000M`, not `480M`).
+   a metadata sibling. The `cam` path reads the stable by-id alias
+   (`/dev/v4l/by-id/usb-Elgato_Cam_Link_4K_*-video-index0`) rather than
+   `/dev/video0`, so plug order and port don't matter — re-point it there
+   (`ls /dev/v4l/by-id/`) if you swap to a different card. **Use a USB 3.0
+   port.** On a USB 2.0 port (480 Mbps) the card still enumerates and reports
+   its modes, but never delivers a frame — check the negotiated speed with
+   `lsusb -t` (you want `5000M`, not `480M`).
 2. **Start the feed:** `cd testfeed && ./start.sh`
 3. **In OBS: + → Media Source**
    - uncheck **Local File**

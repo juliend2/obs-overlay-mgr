@@ -77,10 +77,12 @@ paths:
     runOnDemandRestart: true
     runOnDemandCloseAfter: 10s
 
-  # HDMI capture card (a UVC stick plugged into the machine shows up as a
-  # /dev/videoN; check with `v4l2-ctl --list-devices`, use the even-numbered
-  # device — the Elgato Cam Link 4K here is /dev/video0, or the stable alias
-  # /dev/v4l/by-id/usb-Elgato_Cam_Link_4K_*-video-index0). It must be on a
+  # HDMI capture card (a UVC stick plugged into the machine shows up as one or
+  # more /dev/videoN nodes; check with `v4l2-ctl --list-devices`). We read it
+  # through the stable by-id alias for this box's Elgato Cam Link 4K (index0 =
+  # video, index1 = its metadata sibling) instead of /dev/video0, so it can't be
+  # confused by plug order or a second camera. A different card unit has a
+  # different serial — re-check with `ls /dev/v4l/by-id/`. It must be on a
   # USB 3.0 port: on USB 2.0 (480 Mbps) it still enumerates but never delivers
   # frames. The card exposes the HDMI input's native resolution rather than a
   # menu of sizes, so capture as-is and scale to 720p. Only `cam` reads the
@@ -111,7 +113,7 @@ paths:
     runOnDemand: >
       ffmpeg -hide_banner -loglevel error
       -vaapi_device /dev/dri/renderD128
-      -f v4l2 -framerate 30 -i /dev/video0
+      -f v4l2 -framerate 30 -i /dev/v4l/by-id/usb-Elgato_Cam_Link_4K_A29YB32725DITN-video-index0
       -vf scale=-2:720,format=nv12,hwupload
       -c:v h264_vaapi -profile:v constrained_baseline -coder cavlc
       -rc_mode CQP -qp 22 -bf 0 -g 30
