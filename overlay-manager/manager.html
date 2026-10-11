@@ -181,12 +181,21 @@
   // use /manager?path=test to go back to the synthetic test pattern.
   (async () => {
     const requested = new URLSearchParams(location.search).get('path');
-    // The card is offered as H.264 (`cam`) and VP8 (`cam-vp8`). Pick by what
-    // this browser will actually offer: Firefox advertises H.264 in
+    // Previews pull the low-res `cam-preview` renditions, not the full 720p
+    // `cam`: this Chromium runs on the same box as OBS and they share the one
+    // Intel iGPU, so decoding 720p here shows up as rendering lag in OBS.
+    // Offered as H.264 (`cam-preview`) and VP8 (`cam-preview-vp8`) — pick by
+    // what this browser will actually offer: Firefox advertises H.264 in
     // getCapabilities() yet omits it from the SDP, so probe a throwaway offer.
-    const path = requested || (await offersH264() ? 'cam' : 'cam-vp8');
+    // /manager?path=cam still forces the full-resolution feed.
+    const path = requested || (await offersH264() ? 'cam-preview' : 'cam-preview-vp8');
+    // By default BOTH panes show the camera (at the low preview resolution).
+    // Optional: /manager?preview=off makes the staging pane overlay-only, which
+    // drops a second decoder — useful if you only watch the live pane.
+    const noPreviewVideo = new URLSearchParams(location.search).get('preview') === 'off';
     for (const frame of document.querySelectorAll('iframe.overlay-frame')) {
-      frame.src = `${location.origin}/?mode=${frame.dataset.mode}&path=${encodeURIComponent(path)}`;
+      const nofeed = noPreviewVideo && frame.dataset.mode === 'preview' ? '&nofeed=1' : '';
+      frame.src = `${location.origin}/?mode=${frame.dataset.mode}&path=${encodeURIComponent(path)}${nofeed}`;
     }
   })();
 

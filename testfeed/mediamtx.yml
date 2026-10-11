@@ -89,8 +89,9 @@ paths:
   # watch simultaneously:
   #   cam     → H.264 720p   → OBS Media Source (decodes H.264 natively)
   #   cam-vp8 → VP8  720p    → webrtc.html / /manager in Firefox (rejects H.264)
-  # The manager page previews the card by default (path `cam` in Chromium,
-  # `cam-vp8` in Firefox); /manager?path=test restores the synthetic pattern.
+  # The manager page previews the low-res `cam-preview` / `cam-preview-vp8`
+  # renditions by default (see below); /manager?path=cam forces the full 720p
+  # feed and /manager?path=test restores the synthetic pattern.
   # OBS: Input rtsp://127.0.0.1:8554/cam, Network Buffering 0, rtsp_transport=tcp.
   # Browser: http://127.0.0.1:8000/webrtc.html?path=cam-vp8
   # No `-re` here: a capture device paces itself, unlike the lavfi test sources.
@@ -131,5 +132,37 @@ paths:
       -rtsp_transport tcp -i rtsp://127.0.0.1:8554/cam
       -c:v libvpx -deadline realtime -cpu-used 16 -threads 2 -b:v 2M -g 30
       -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:8554/cam-vp8
+    runOnDemandRestart: true
+    runOnDemandCloseAfter: 10s
+
+  # Low-res renditions of `cam` for the /manager previews. /manager runs
+  # Chromium on THIS box, the same box running OBS, and both share the one
+  # Intel iGPU — so decoding the full 720p feed in the browser steals render
+  # time from OBS (it shows up as "rendering lag"). 360p is plenty for an
+  # operator preview. Like `cam-vp8`, both derive from `cam` (single card
+  # reader) and are on-demand, so they cost nothing while /manager is closed:
+  #   cam-preview     → H.264 360p → /manager in Chromium
+  #   cam-preview-vp8 → VP8  360p  → /manager in Firefox (rejects H.264)
+  # Encoded on the iGPU via VAAPI, same as `cam`.
+  cam-preview:
+    runOnDemand: >
+      ffmpeg -hide_banner -loglevel error
+      -rtsp_transport tcp -i rtsp://127.0.0.1:8554/cam
+      -vaapi_device /dev/dri/renderD128
+      -vf scale=-2:360,format=nv12,hwupload
+      -c:v h264_vaapi -profile:v constrained_baseline -coder cavlc
+      -rc_mode CQP -qp 24 -bf 0 -g 30
+      -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:8554/cam-preview
+    runOnDemandRestart: true
+    runOnDemandCloseAfter: 10s
+
+  # VP8 copy of `cam-preview` for Firefox. Decodes the 360p H.264 rather than
+  # the 720p `cam`, so the whole chain stays cheap.
+  cam-preview-vp8:
+    runOnDemand: >
+      ffmpeg -hide_banner -loglevel error
+      -rtsp_transport tcp -i rtsp://127.0.0.1:8554/cam-preview
+      -c:v libvpx -deadline realtime -cpu-used 16 -threads 2 -b:v 700k -g 30
+      -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:8554/cam-preview-vp8
     runOnDemandRestart: true
     runOnDemandCloseAfter: 10s

@@ -54,6 +54,9 @@ const mode = params.get('mode');
 const isPreview = mode === 'preview';
 const isLive = mode === 'live';
 const isOBS = mode === 'obs';
+// `nofeed=1` hides the video on a preview/live pane. /manager sets it on its
+// staging pane so only one WebRTC session (one decode) is ever held at a time.
+const noFeed = params.get('nofeed') === '1';
 
 // "preview" shows the staging overlay; "live" and "obs" both show the live
 // one — "obs" just hides the video (Browser Source). No mode = same as obs.
@@ -173,9 +176,12 @@ const say = (msg, cls = '') => {
   status.className = cls;
 };
 
-if (isPreview || isLive) {
+// Show the video only on a pane that wants a feed: the OBS browser source and
+// /manager's staging pane (nofeed) hide it and open no WHEP session.
+const wantVideo = (isPreview || isLive) && !noFeed;
+if (wantVideo) {
   video.style.display = 'block';
-} else { // OBS
+} else {
   video.style.display = 'none';
   video.removeAttribute('src');
   video.load();
@@ -233,7 +239,7 @@ async function connectSDP() {
   }
 }
 
-if (isPreview || isLive) {
+if (wantVideo) {
   connectSDP();
 }
 </script>
