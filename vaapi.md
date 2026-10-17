@@ -36,6 +36,11 @@ Hardware accelerated", and how to actually fix it.
 
 ## Verifying on the affected machine
 
+`testfeed/camconfig.js` automatically performs this probe when `vainfo` is
+installed. If `vainfo` is missing, it fails gracefully and generates a
+software-encoding configuration; the commands below remain useful for
+diagnosing a machine where VAAPI probing fails.
+
 Run these **on the i3 laptop itself** (not on a dev machine — the fix is
 specific to that GPU):
 

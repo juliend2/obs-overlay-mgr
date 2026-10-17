@@ -148,6 +148,13 @@ the card and publishes to MediaMTX, which fans the feed out to OBS and the
 browser simultaneously. The `cam` path in `testfeed/mediamtx.yml` is set up for
 this; see `testfeed/README.md` for the full explanation.
 
+For the quick path, run `make camconfig`. It detects the Elgato Cam Link,
+checks the USB link speed, probes VAAPI when `vainfo` is available, and updates
+only the generated camera section of `testfeed/mediamtx.yml`. If `vainfo` is
+missing or no usable GPU encoder is found, it generates a software encoding
+configuration instead. It does not restart MediaMTX; restart `testfeed/start.sh`
+after reviewing the generated config.
+
 1. **Identify the device** (one-time): run `v4l2-ctl --list-devices`
    (`sudo apt install v4l-utils` if missing). A stick lists a video device plus
    a metadata sibling. The `cam` path reads the stable by-id alias

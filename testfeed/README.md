@@ -60,6 +60,16 @@ that. (We assume Chromium — see "Codec" in the top-level README.)
 
 ### How to use it
 
+For the quick path, run `make camconfig` from the repository root. It detects
+the Elgato Cam Link, warns about a USB 2.0 connection, probes VAAPI when
+`vainfo` is available, and updates the `cam` paths automatically. If `vainfo`
+is not installed or no usable VAAPI encoder is found, it generates a software
+`libx264` configuration instead. Restart MediaMTX with `./start.sh` after
+reviewing the file. The command leaves the config unchanged when no Cam Link
+is plugged in.
+
+For the manual setup:
+
 1. Plug in the stick. The `cam` path reads it via the stable by-id alias
    (`/dev/v4l/by-id/usb-Elgato_Cam_Link_4K_*-video-index0`), so plug order and
    port don't matter — adjust `testfeed/mediamtx.yml` if you swap to a

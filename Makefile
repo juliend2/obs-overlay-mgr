@@ -1,5 +1,8 @@
 test:
-	node --test overlay-manager/test/*.test.js
+	node --test overlay-manager/test/*.test.js testfeed/test/*.test.js
+
+camconfig:
+	node testfeed/camconfig.js
 
 feed:
 	cd testfeed && ./start.sh
