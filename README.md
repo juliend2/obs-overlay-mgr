@@ -50,19 +50,46 @@ curl -sSL https://github.com/bluenviron/mediamtx/releases/download/v1.20.1/media
 node --test overlay-manager/test/
 ```
 
-### Paths
-
-| Path                    | Source            | Format                                                 |
-|-------------------------|-------------------|--------------------------------------------------------|
-| `?path=test` (default)  | `testsrc`         | H.264 854x480@25                                       |
-| `?path=smooth`          | `testsrc`         | H.264 640x360@30                                       |
-| `?path=mandelbrot`      | `mandelbrot`      | H.264 854x480@25                                       |
-| `?path=h264`            | `testsrc`         | H.264 1280x720@30                                      |
-| `?path=cam`             | HDMI capture card | H.264 720p30 — needs a stick plugged in, see `testfeed/README.md` |
-| `?path=cam-preview`     | HDMI capture card | H.264 360p30 — /manager `?stream=1`                    |
-
 Add your own in `testfeed/mediamtx.yml`. Any ffmpeg `lavfi` source works:
 `testsrc`, `smptebars`, `mandelbrot`, `life`.
+
+## `/manager` Query Parameters
+
+The manager page accepts these query-string options. Parameters can be
+combined unless noted otherwise.
+
+| URL or parameter | Effect | Default / notes |
+|------------------|--------|----------------|
+| `/manager` | Opens the manager with the camera panes shown as JPEG snapshots | Snapshot mode using the `cam` MediaMTX path |
+| `/manager?path=test` | Selects the synthetic `test` MediaMTX path | Snapshot of `testsrc`, H.264 854x480@25 |
+| `/manager?path=smooth` | Selects the synthetic `smooth` MediaMTX path | Snapshot of `testsrc`, H.264 640x360@30 |
+| `/manager?path=mandelbrot` | Selects the synthetic `mandelbrot` MediaMTX path | Snapshot of the Mandelbrot source, H.264 854x480@25 |
+| `/manager?path=h264` | Selects the synthetic `h264` MediaMTX path | Snapshot of `testsrc`, H.264 1280x720@30 |
+| `/manager?path=cam` | Selects the full-resolution HDMI capture path | Snapshot by default; H.264 720p30 when live |
+| `/manager?path=cam-preview` | Selects the low-resolution HDMI capture path | Snapshot by default; H.264 360p30 when live |
+| `/manager?stream=1` | Replaces the JPEG snapshots with live WebRTC video | Uses `cam-preview` for the live panes |
+| `/manager?stream=1&path=cam` | Shows live full-resolution camera video | Uses the `cam` path at 720p |
+| `/manager?stream=1&path=test` | Shows live synthetic test video | Uses the selected MediaMTX path over WebRTC |
+| `/manager?preview=off` | Hides the camera behind the staging overlay pane | The staging pane shows overlay content only |
+| `/manager?path=test&preview=off` | Combines a selected snapshot source with the staging camera disabled | `stream=1` may also be added for live mode |
+
+The `path` value selects a path configured in `testfeed/mediamtx.yml`. It can
+refer to any valid MediaMTX path name, including paths added by you. Without
+`stream=1`, the path is used as the source for the low-cost JPEG snapshot. With
+`stream=1`, it is played as live WebRTC video. The manager targets Chromium;
+H.264 WebRTC playback is not expected to work in Firefox.
+
+The snapshot endpoint also accepts its own source parameter:
+
+| URL | Effect |
+|-----|--------|
+| `/cam.jpg` | Serves the latest snapshot from the configured default source |
+| `/cam.jpg?src=cam` | Captures the `cam` MediaMTX path |
+| `/cam.jpg?src=test` | Captures the `test` MediaMTX path |
+| `/cam.jpg?src=<path>` | Captures any path name containing only letters, numbers, `_`, or `-` |
+
+Invalid `src` values fall back to the configured `SNAPSHOT_SOURCE`. The
+snapshot grabber stops after roughly 30 seconds without requests.
 
 ### Ports
 
@@ -77,7 +104,7 @@ Add your own in `testfeed/mediamtx.yml`. Any ffmpeg `lavfi` source works:
 ## Codec
 
 Everything is **H.264**, and we assume **Chromium** as the browser. Chromium
-plays H.264 over WebRTC (`/webrtc.html`, and `/manager?stream=1`), and OBS's
+plays H.264 over WebRTC (`/webrtc.html` and the manager's `stream=1` mode), and OBS's
 Media Source decodes it natively over RTSP. H.264 is also much cheaper to encode
 than VP8 at the same resolution, which matters on a 2-core box — so there is a
 single copy of each feed, with no VP8 fallback. (Firefox will not accept H.264
@@ -134,7 +161,8 @@ the overlay markup itself rather than just a moving backdrop.
 The test feed's encoder and OBS's own output encoder compete for the same
 machine, so background load matters more than it looks: x264 throughput on the
 720p path varies by more than 2x purely with what else is running. If OBS drops
-frames, use `?path=smooth` (640x360) or free up capacity first.
+frames, use the `smooth` path from the `/manager` query-parameter table above
+(640x360) or free up capacity first.
 
 Note that a black source in OBS is almost never a performance problem — check
 **Network Buffering** first, per the steps above.
@@ -172,12 +200,12 @@ after reviewing the generated config.
    - **FFmpeg Options:** `rtsp_transport=tcp`
 
    Activating the source starts the encoder.
-4. **In the browser:** open `http://127.0.0.1:8000/webrtc.html?path=cam`.
-   The `/manager` page shows the card automatically — as a ~1 fps JPEG
-   snapshot, so it doesn't steal iGPU time from OBS (see "Troubleshooting
-   rendering lag") — so you can edit your overlay composited over it. Add
-   `?path=test` for the synthetic pattern, or `?stream=1` for a live video
-   instead of the snapshot.
+4. **In the browser:** open `http://127.0.0.1:8000/webrtc.html` and select a
+   MediaMTX path with its `path` query parameter as documented by that player.
+    The `/manager` page shows the card automatically as a ~1 fps JPEG snapshot,
+    so it doesn't steal iGPU time from OBS (see "Troubleshooting rendering
+    lag"). See `/manager Query Parameters` above for alternate paths and live
+    video mode.
 
 Both watch at once. The encoder starts with the first `cam` viewer, so a
 browser page opened before OBS shows "retrying…" for a moment until it's up —
@@ -202,8 +230,8 @@ order:
 - **Keep `/manager` on its default snapshot view.** It shows the camera as a
   1 fps JPEG (~0.08 core, effectively no GPU) instead of a live video, because
   decoding live video in the browser was worth >5% rendering lag on its own.
-  Only add `?stream=1` if you need motion, and prefer `?stream=1` (360p) over
-  `?stream=1&path=cam` (720p). See `overlay-manager/README.md`.
+  Only enable the manager's live `stream=1` mode if you need motion; prefer its
+  default low-resolution live path over `stream=1&path=cam` (720p).
 - **Turn off OBS's own preview panes.** Studio Mode renders the scene twice
   (preview + program) and the normal preview adds a second render on top; you
   already have `/manager` for that. Right-click the preview → uncheck *Enable
@@ -211,7 +239,7 @@ order:
 - **Run `/manager` on another machine on the LAN** when you can — it's just a
   web page at `http://192.168.100.162:8081/manager`, so a laptop/tablet removes
   Chromium from this box entirely. Biggest single win.
-- The `cam-preview` transcode only runs for `?stream=1`; with the default
+- The `cam-preview` transcode only runs for the manager's live `stream=1` mode; with the default
   snapshot it costs nothing.
 
 ## TODO
