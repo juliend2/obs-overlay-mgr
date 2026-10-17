@@ -78,12 +78,27 @@ export async function probeVaapi(renderNodes, runVainfo) {
 
 export function buildCamBlock({ devicePath, vaapi }) {
   const prefix = vaapi?.driverOverride ? `env LIBVA_DRIVER_NAME=${vaapi.driverOverride} ` : '';
-  const camEncoder = vaapi
-    ? `${prefix}-vaapi_device ${vaapi.device}\n       -f v4l2 -framerate 30 -i ${devicePath}\n       -vf scale=-2:720,format=nv12,hwupload\n       -c:v h264_vaapi -profile:v constrained_baseline -coder cavlc\n       -rc_mode CQP -qp 22 -bf 0 -g 30`
-    : `-f v4l2 -framerate 30 -i ${devicePath}\n       -vf scale=-2:720\n       -c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline\n       -pix_fmt yuv420p -g 30`;
-  const previewEncoder = vaapi
-    ? `${prefix}-vaapi_device ${vaapi.device}\n       -vf scale=-2:360,format=nv12,hwupload\n       -c:v h264_vaapi -profile:v constrained_baseline -coder cavlc\n       -rc_mode CQP -qp 24 -bf 0 -g 30`
-    : `-vf scale=-2:360\n       -c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline\n       -pix_fmt yuv420p -g 30`;
+  let camEncoder;
+  let previewEncoder;
+  if (vaapi) {
+    camEncoder = `${prefix}-vaapi_device ${vaapi.device}` +
+      `\n      -f v4l2 -framerate 30 -i ${devicePath}` +
+      '\n      -vf scale=-2:720,format=nv12,hwupload' +
+      '\n      -c:v h264_vaapi -profile:v constrained_baseline -coder cavlc' +
+      '\n      -rc_mode CQP -qp 22 -bf 0 -g 30';
+    previewEncoder = `${prefix}-vaapi_device ${vaapi.device}` +
+      '\n      -vf scale=-2:360,format=nv12,hwupload' +
+      '\n      -c:v h264_vaapi -profile:v constrained_baseline -coder cavlc' +
+      '\n      -rc_mode CQP -qp 24 -bf 0 -g 30';
+  } else {
+    camEncoder = `-f v4l2 -framerate 30 -i ${devicePath}` +
+      '\n      -vf scale=-2:720' +
+      '\n      -c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline' +
+      '\n      -pix_fmt yuv420p -g 30';
+    previewEncoder = '-vf scale=-2:360' +
+      '\n      -c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline' +
+      '\n      -pix_fmt yuv420p -g 30';
+  }
 
   return `  cam:
     runOnDemand: >

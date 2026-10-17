@@ -114,9 +114,9 @@ paths:
     runOnDemand: >
       ffmpeg -hide_banner -loglevel error
       -f v4l2 -framerate 30 -i /dev/v4l/by-id/usb-Elgato_Cam_Link_4K_0004FC2E0A000-video-index0
-       -vf scale=-2:720
-       -c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline
-       -pix_fmt yuv420p -g 30
+      -vf scale=-2:720
+      -c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline
+      -pix_fmt yuv420p -g 30
       -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:8554/cam
     runOnDemandRestart: true
     runOnDemandCloseAfter: 10s
@@ -126,8 +126,8 @@ paths:
       ffmpeg -hide_banner -loglevel error
       -rtsp_transport tcp -i rtsp://127.0.0.1:8554/cam
       -vf scale=-2:360
-       -c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline
-       -pix_fmt yuv420p -g 30
+      -c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline
+      -pix_fmt yuv420p -g 30
       -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:8554/cam-preview
     runOnDemandRestart: true
     runOnDemandCloseAfter: 10s
