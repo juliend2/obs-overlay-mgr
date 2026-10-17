@@ -113,32 +113,22 @@ paths:
   cam:
     runOnDemand: >
       ffmpeg -hide_banner -loglevel error
-      -vaapi_device /dev/dri/renderD128
-      -f v4l2 -framerate 30 -i /dev/v4l/by-id/usb-Elgato_Cam_Link_4K_A29YB32725DITN-video-index0
-      -vf scale=-2:720,format=nv12,hwupload
-      -c:v h264_vaapi -profile:v constrained_baseline -coder cavlc
-      -rc_mode CQP -qp 22 -bf 0 -g 30
+      -f v4l2 -framerate 30 -i /dev/v4l/by-id/usb-Elgato_Cam_Link_4K_0004FC2E0A000-video-index0
+       -vf scale=-2:720
+       -c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline
+       -pix_fmt yuv420p -g 30
       -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:8554/cam
     runOnDemandRestart: true
     runOnDemandCloseAfter: 10s
 
-  # Low-res rendition of `cam`, used only by /manager's optional LIVE mode
-  # (/manager?stream=1). The manager's default camera is a 1 fps JPEG snapshot
-  # served by server.js — that was the real fix for the "rendering lag": even
-  # 360p of live WebRTC still decoded/composited on the shared Intel iGPU and
-  # competed with OBS. Like `cam`, it derives from the card (single reader) and
-  # is on-demand, so it costs nothing unless someone asks for the live feed:
-  #   cam-preview → H.264 360p → /manager?stream=1
-  # Encoded on the iGPU via VAAPI, same as `cam`.
   cam-preview:
     runOnDemand: >
       ffmpeg -hide_banner -loglevel error
       -rtsp_transport tcp -i rtsp://127.0.0.1:8554/cam
-      -vaapi_device /dev/dri/renderD128
-      -vf scale=-2:360,format=nv12,hwupload
-      -c:v h264_vaapi -profile:v constrained_baseline -coder cavlc
-      -rc_mode CQP -qp 24 -bf 0 -g 30
+      -vf scale=-2:360
+       -c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline
+       -pix_fmt yuv420p -g 30
       -f rtsp -rtsp_transport tcp rtsp://127.0.0.1:8554/cam-preview
     runOnDemandRestart: true
     runOnDemandCloseAfter: 10s
-  # --- camconfig:end ---
+# --- camconfig:end ---
