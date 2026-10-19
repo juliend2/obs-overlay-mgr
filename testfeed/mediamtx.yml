@@ -113,7 +113,7 @@ paths:
   cam:
     runOnDemand: >
       ffmpeg -hide_banner -loglevel error
-      -f v4l2 -framerate 30 -i /dev/v4l/by-id/usb-Elgato_Cam_Link_4K_0004FC2E0A000-video-index0
+      -f v4l2 -framerate 30 -i /dev/v4l/by-id/usb-Elgato_Cam_Link_4K_A29YB32725DITN-video-index0
       -vf scale=-2:720
       -c:v libx264 -preset ultrafast -tune zerolatency -profile:v baseline
       -pix_fmt yuv420p -g 30

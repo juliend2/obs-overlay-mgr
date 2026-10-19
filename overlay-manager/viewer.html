@@ -62,6 +62,9 @@ const noFeed = params.get('nofeed') === '1';
 // "preview" shows the staging overlay; "live" and "obs" both show the live
 // one — "obs" just hides the video (Browser Source). No mode = same as obs.
 const overlayFile = isPreview ? '/overlay-preview.html' : '/overlay-live.html';
+// Everything that shows the live file answers reload:live — the OBS Browser
+// Source loads / with no mode param, and `reload:${null}` would never match.
+const reloadTarget = isPreview ? 'preview' : 'live';
 
 function layerElements(root) {
   return new Map(
@@ -152,7 +155,7 @@ function connect() {
   const proto = location.protocol === 'https:' ? 'wss://' : 'ws://';
   const ws = new WebSocket(proto + location.host + '/ws');
   ws.onmessage = (ev) => {
-    if (ev.data === 'reload:all' || ev.data === `reload:${mode}`) loadOverlay();
+    if (ev.data === 'reload:all' || ev.data === `reload:${reloadTarget}`) loadOverlay();
   };
   ws.onclose = () => setTimeout(connect, 2000);
   ws.onerror = () => ws.close();
