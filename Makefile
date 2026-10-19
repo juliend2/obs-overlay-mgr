@@ -12,3 +12,6 @@ manager:
 
 lyrics:
 	cd wirecast_songs && node ./generate-song-presets.js
+
+backup:
+	cp ~/.var/app/com.obsproject.Studio/config/obs-studio/basic/scenes/Untitled.json OBS.json
