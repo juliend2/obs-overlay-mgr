@@ -4,3 +4,4 @@
 /testfeed/mediamtx
 *.swp
 overlay.html
+__pycache__
