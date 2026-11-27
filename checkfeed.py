@@ -33,7 +33,7 @@ EXPECTED_CAM_RES = (1280, 720)
 EXPECTED_TEST_RES = (854, 480)
 REFRESH_SECONDS = 5
 
-# ─── Probes ─────────────────────────────────────────────────────────────────
+# ─── Check dataclass ────────────────────────────────────────────────────────
 @dataclass
 class Check:
     name: str
@@ -41,6 +41,7 @@ class Check:
     probe: Callable[[], Tuple[bool, str]]
     ok: bool = False
     detail: str = ""
+    advice: str = ""
 
 def _pgrep(pattern: str, flag: str = "-x") -> str:
     r = subprocess.run(["pgrep", flag, pattern], capture_output=True, text=True)
@@ -117,13 +118,14 @@ def probe_log():
             continue
         issues = []
         if "Device or resource busy" in content: issues.append("Device busy")
-        if "Input/output error" in content:       issues.append("I/O error")
-        if "RTP packets are too big" in content:  issues.append("RTP oversize")
+        if "Input/output error" in content: issues.append("I/O error")
+        if "RTP packets are too big" in content: issues.append("RTP oversize")
         if "invalid FU-A" in content or "RTP packets lost" in content:
             issues.append("RTP corrupt")
         return (False, ", ".join(issues)) if issues else (True, "clean")
     return False, "no log found"
 
+# ─── Checks ─────────────────────────────────────────────────────────────────
 CHECKS = [
     Check("MediaMTX", "server process", probe_mediamtx),
     Check("RTSP :8554", "RTSP listener", lambda: probe_port(8554)),
@@ -136,6 +138,20 @@ CHECKS = [
     Check("Cam encoder", "ffmpeg publishing /cam", probe_encoder),
     Check("MediaMTX log", "no recent errors", probe_log),
 ]
+
+# ─── Short Advice for Failing Checks ───────────────────────────────────────
+CHECK_ADVICE = {
+    "MediaMTX": "Restart mediamtx: kill -9 $(pgrep mediamtx) then ./start.sh",
+    "RTSP :8554": "Check if another process is using port 8554 with 'lsof -i :8554'",
+    "WebRTC :8889": "Ensure no other app is using port 8889",
+    "Cam stream": "Check if ffmpeg is running with 'pgrep -af ffmpeg'",
+    "Test stream": "Verify test source is running with './start.sh'",
+    "V4L2 device": "Unplug and replug the Cam Link USB device",
+    "USB device": "Check USB connection or try a different USB port",
+    "OBS": "Restart OBS Studio",
+    "Cam encoder": "Check if ffmpeg is running with 'pgrep -af ffmpeg'",
+    "MediaMTX log": "Check /tmp/mediamtx.log for recent errors",
+}
 
 # ─── Log tailer ─────────────────────────────────────────────────────────────
 class LogTailer:
@@ -206,8 +222,11 @@ class FeedTUI:
         for c in CHECKS:
             try:
                 c.ok, c.detail = c.probe()
+                c.advice = CHECK_ADVICE.get(c.name, "")
             except Exception as e:
-                c.ok, c.detail = False, f"probe error: {e}"
+                c.ok = False
+                c.detail = f"probe error: {e}"
+                c.advice = CHECK_ADVICE.get(c.name, "")
         self.last_refresh = time.time()
 
     def render_title(self) -> Panel:
@@ -224,6 +243,8 @@ class FeedTUI:
             name = Text(c.name, style="" if c.ok else "red")
             detail = Text(c.detail, style="" if c.ok else "red")
             table.add_row(dot, name, detail)
+            if not c.ok and c.advice:
+                table.add_row(Text("  " + c.advice, style="dim"), colspan=3)
         age = time.time() - self.last_refresh if self.last_refresh else 0
         return Panel(table, title=f"[bold]Checklist[/]  [dim](refreshed {age:.0f}s ago, every {REFRESH_SECONDS}s)[/]",
                      border_style="blue")
@@ -239,7 +260,7 @@ class FeedTUI:
         return Panel(body, title="[bold]MediaMTX Log[/] [dim](scrolling)[/]", border_style="green")
 
     def render_footer(self) -> Panel:
-        return Panel(Align.center(Text("q / ESC: quit    r: refresh now", style="dim")),
+        return Panel(Align.center(Text("q / ESC: quit  |  r: refresh now", style="dim")),
                      border_style="dim")
 
     def render(self):
